@@ -1,0 +1,298 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /eaglee
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  application:
+    name: eaglee-monitoring-system
+  
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:eaglee_db}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=${DB_SSL:false}&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:eaglee}
+    password: ${DB_PASSWORD:eaglee123}
+    hikari:
+      # 连接池基本配置
+      minimum-idle: ${DB_POOL_MIN_IDLE:10}
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:50}
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT:600000}
+      max-lifetime: ${DB_POOL_MAX_LIFETIME:1800000}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT:30000}
+      validation-timeout: ${DB_POOL_VALIDATION_TIMEOUT:5000}
+      # 连接池高级配置
+      pool-name: EagleeHikariCP
+      auto-commit: true
+      connection-test-query: SELECT 1
+      connection-init-sql: SET NAMES utf8mb4
+      # 泄漏检测
+      leak-detection-threshold: ${DB_POOL_LEAK_DETECTION:60000}
+      # 连接属性
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: NON_NULL
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+  # Flyway数据库版本管理配置
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
+    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:true}
+    baseline-version: ${FLYWAY_BASELINE_VERSION:0}
+    baseline-description: ${FLYWAY_BASELINE_DESCRIPTION:Initial baseline}
+    validate-on-migrate: ${FLYWAY_VALIDATE_ON_MIGRATE:true}
+    clean-on-validation-error: ${FLYWAY_CLEAN_ON_VALIDATION_ERROR:false}
+    encoding: ${FLYWAY_ENCODING:UTF-8}
+    table: ${FLYWAY_TABLE:flyway_schema_history}
+    sql-migration-prefix: ${FLYWAY_SQL_MIGRATION_PREFIX:V}
+    sql-migration-separator: ${FLYWAY_SQL_MIGRATION_SEPARATOR:__}
+    sql-migration-suffixes: ${FLYWAY_SQL_MIGRATION_SUFFIXES:.sql}
+    placeholder-replacement: ${FLYWAY_PLACEHOLDER_REPLACEMENT:true}
+    placeholders:
+      app_name: ${spring.application.name}
+      app_version: ${eaglee.app.version:1.0.0}
+
+  # 线程池配置
+  task:
+    execution:
+      pool:
+        core-size: ${THREAD_POOL_CORE_SIZE:16}
+        max-size: ${THREAD_POOL_MAX_SIZE:32}
+        queue-capacity: ${THREAD_POOL_QUEUE_CAPACITY:200}
+        keep-alive: ${THREAD_POOL_KEEP_ALIVE:60s}
+        allow-core-thread-timeout: true
+        wait-for-tasks-to-complete-on-shutdown: true
+        await-termination-seconds: 60
+      thread-name-prefix: eaglee-async-
+      shutdown:
+        await-termination: true
+        await-termination-period: 60s
+    scheduling:
+      pool:
+        size: ${SCHEDULING_POOL_SIZE:8}
+        thread-name-prefix: eaglee-scheduled-
+      shutdown:
+        await-termination: true
+        await-termination-period: 30s
+
+# MyBatis-Flex配置
+mybatis-flex:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.hina.eaglee.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    lazy-loading-enabled: true
+    multiple-result-sets-enabled: true
+    use-column-label: true
+    use-generated-keys: true
+    auto-mapping-behavior: partial
+    auto-mapping-unknown-column-behavior: warning
+    default-executor-type: reuse
+    default-statement-timeout: 25000
+    default-fetch-size: 100
+    safe-row-bounds-enabled: false
+    local-cache-scope: session
+    jdbc-type-for-null: other
+    lazy-load-trigger-methods: equals,clone,hashCode,toString
+    default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler
+  global-config:
+    print-banner: true
+    logic-delete-column: deleted
+    logic-delete-value: 1
+    logic-un-delete-value: 0
+    version-column: version
+
+# 日志配置
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.hina.cloud.eaglee: ${LOG_LEVEL_EAGLEE:DEBUG}
+    com.mybatisflex: ${LOG_LEVEL_MYBATIS:INFO}
+    org.springframework.web: ${LOG_LEVEL_WEB:INFO}
+    org.springframework.security: ${LOG_LEVEL_SECURITY:INFO}
+    org.springframework.transaction: ${LOG_LEVEL_TRANSACTION:INFO}
+    org.springframework.scheduling: ${LOG_LEVEL_SCHEDULING:INFO}
+    com.zaxxer.hikari: ${LOG_LEVEL_HIKARI:INFO}
+    org.apache.ibatis: ${LOG_LEVEL_IBATIS:INFO}
+  pattern:
+    console: "${LOG_PATTERN_CONSOLE:%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}}"
+    file: "${LOG_PATTERN_FILE:%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}}"
+  file:
+    name: ${LOG_FILE_PATH:logs}/eaglee-${spring.profiles.active:default}.log
+    max-size: ${LOG_FILE_MAX_SIZE:100MB}
+    max-history: ${LOG_FILE_MAX_HISTORY:30}
+    total-size-cap: ${LOG_FILE_TOTAL_SIZE:1GB}
+  logback:
+    rollingpolicy:
+      file-name-pattern: ${LOG_FILE_PATH:logs}/eaglee-${spring.profiles.active:default}-%d{yyyy-MM-dd}-%i.log.gz
+      clean-history-on-start: true
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS:health,info,metrics,prometheus,env,configprops,beans,mappings}
+      base-path: ${MANAGEMENT_BASE_PATH:/actuator}
+      cors:
+        allowed-origins: ${MANAGEMENT_CORS_ORIGINS:*}
+        allowed-methods: GET,POST
+  endpoint:
+    health:
+      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS:when-authorized}
+      show-components: always
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: ${MANAGEMENT_PROMETHEUS_ENABLED:true}
+  metrics:
+    export:
+      prometheus:
+        enabled: ${PROMETHEUS_ENABLED:true}
+        step: ${PROMETHEUS_STEP:1m}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.9,0.95,0.99
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active:default}
+  info:
+    build:
+      enabled: true
+    env:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+
+# Swagger文档配置
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:true}
+    path: ${SWAGGER_API_DOCS_PATH:/v3/api-docs}
+  swagger-ui:
+    enabled: ${SWAGGER_UI_ENABLED:true}
+    path: ${SWAGGER_UI_PATH:/swagger-ui.html}
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+    display-operation-id: true
+    default-models-expand-depth: 1
+    default-model-expand-depth: 1
+    doc-expansion: none
+    filter: true
+    show-extensions: true
+    show-common-extensions: true
+  show-actuator: ${SWAGGER_SHOW_ACTUATOR:false}
+  group-configs:
+    - group: 'eaglee-api'
+      display-name: '鹰眼监控系统API'
+      paths-to-match: '/api/**'
+      packages-to-scan: 'com.hina.cloud.eaglee.rest'
+
+# 自定义配置
+eaglee:
+  # 应用信息
+  app:
+    name: ${spring.application.name}
+    version: ${APP_VERSION:1.0.0}
+    description: 鹰眼监控系统 - 企业级任务监控和性能分析平台
+    author: Dows Team
+    contact:
+      name: ${APP_CONTACT_NAME:Dows Support}
+      email: ${APP_CONTACT_EMAIL:support@dows.com}
+      url: ${APP_CONTACT_URL:https://www.dows.com}
+  
+  # 数据采集配置
+  collection:
+    # 默认采集间隔（秒）
+    default-interval: ${COLLECTION_DEFAULT_INTERVAL:30}
+    # 最大采集间隔（秒）
+    max-interval: ${COLLECTION_MAX_INTERVAL:60}
+    # 采集失败重试次数
+    retry-times: ${COLLECTION_RETRY_TIMES:3}
+    # 重试间隔（毫秒）
+    retry-interval: ${COLLECTION_RETRY_INTERVAL:1000}
+    # 批量保存大小
+    batch-size: ${COLLECTION_BATCH_SIZE:100}
+    # 采集线程池大小
+    thread-pool-size: ${COLLECTION_THREAD_POOL_SIZE:10}
+    # 采集超时时间（秒）
+    timeout: ${COLLECTION_TIMEOUT:30}
+  
+  # 度量计算配置
+  metric:
+    # 度量计算间隔（分钟）
+    calculation-interval: ${METRIC_CALCULATION_INTERVAL:5}
+    # 数据保留天数
+    retention-days: ${METRIC_RETENTION_DAYS:30}
+    # 聚合计算线程池大小
+    aggregation-thread-pool-size: ${METRIC_AGGREGATION_THREAD_POOL_SIZE:5}
+    # 清理过期数据的间隔（小时）
+    cleanup-interval: ${METRIC_CLEANUP_INTERVAL:24}
+  
+  # 任务配置
+  task:
+    # 任务超时时间（分钟）
+    timeout: ${TASK_TIMEOUT:30}
+    # 清理已完成任务的间隔（小时）
+    cleanup-interval: ${TASK_CLEANUP_INTERVAL:24}
+    # 任务状态检查间隔（分钟）
+    status-check-interval: ${TASK_STATUS_CHECK_INTERVAL:5}
+    # 最大重试次数
+    max-retry-times: ${TASK_MAX_RETRY_TIMES:3}
+  
+  # 缓存配置
+  cache:
+    # 缓存类型：redis, caffeine, none
+    type: ${CACHE_TYPE:caffeine}
+    # 默认过期时间（分钟）
+    default-ttl: ${CACHE_DEFAULT_TTL:30}
+    # 最大缓存条目数
+    max-size: ${CACHE_MAX_SIZE:10000}
+  
+  # 安全配置
+  security:
+    # 是否启用安全认证
+    enabled: ${SECURITY_ENABLED:false}
+    # JWT密钥
+    jwt-secret: ${JWT_SECRET:eaglee-monitoring-system-jwt-secret-key}
+    # JWT过期时间（小时）
+    jwt-expiration: ${JWT_EXPIRATION:24}
+  
+  # 性能配置
+  performance:
+    # 是否启用性能监控
+    monitoring-enabled: ${PERFORMANCE_MONITORING_ENABLED:true}
+    # 慢查询阈值（毫秒）
+    slow-query-threshold: ${PERFORMANCE_SLOW_QUERY_THRESHOLD:1000}
+    # 是否启用SQL日志
+    sql-logging-enabled: ${PERFORMANCE_SQL_LOGGING_ENABLED:false}

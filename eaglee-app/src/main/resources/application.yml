@@ -1,0 +1,61 @@
+spring:
+  profiles:
+    include: ai,cache,datasource,langchain,oss,mybatis
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: eaglee-application
+  web:
+    resources:
+      static-locations: classpath:/META-INF/resources/,classpath:/static/,classpath:META-INF/resources/webjars
+
+  jmx:
+    enabled: false
+
+  # session 配置
+  session:
+    store-type: redis
+    # session 30 天过期
+    timeout: 2592000
+
+  devtools:
+    restart:
+      enabled: false
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 2592000
+
+
+# springdoc-openapi项目配置
+springdoc:
+  api-docs:
+    enabled: true
+#    path: /api-docs
+  swagger-ui:
+    #自定义swagger前端请求路径，输入http：127.0.0.1:8080/doc会自动重定向到swagger-ui.html页面
+    path: /doc
+  group-configs:
+    - group: '系统配置'
+      paths-to-match: '/**'
+      packages-to-scan: com.hina.eaglee.config
+    - group: '数据采集'
+      paths-to-match: '/**'
+      packages-to-scan: com.hina.eaglee.collect
+    - group: '数据生成'
+      paths-to-match: '/**'
+      packages-to-scan: com.hina.eaglee.generate
+    - group: '数据度量'
+      paths-to-match: '/**'
+      packages-to-scan: com.hina.eaglee.metric
+
+
+logging:
+  level:
+    root: info

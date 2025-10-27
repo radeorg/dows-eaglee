@@ -1,0 +1,14 @@
+# Grafana 仪表板配置
+
+apiVersion: 1
+
+providers:
+  - name: 'eaglee-dashboards'
+    orgId: 1
+    folder: 'Eaglee Monitoring'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json

@@ -1,0 +1,66 @@
+# 生产环境配置
+spring:
+  profiles:
+    active: prod
+  
+  # 生产环境数据源配置
+  datasource:
+    url: jdbc:mysql://${DB_HOST:mysql-server}:${DB_PORT:3306}/${DB_NAME:eaglee_prod}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=false
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      minimum-idle: 20
+      maximum-pool-size: 100
+      leak-detection-threshold: 60000
+
+# 生产环境日志配置
+logging:
+  level:
+    root: WARN
+    com.hina.cloud.eaglee: INFO
+    com.mybatisflex: WARN
+    org.springframework.web: WARN
+  file:
+    name: /var/log/eaglee/eaglee-prod.log
+    max-size: 500MB
+    max-history: 60
+    total-size-cap: 10GB
+
+# 生产环境管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  server:
+    port: 9090
+
+# 生产环境Swagger配置
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+# 生产环境自定义配置
+eaglee:
+  collection:
+    default-interval: 30
+    retry-times: 3
+    batch-size: 500
+    thread-pool-size: 20
+  metric:
+    calculation-interval: 5
+    retention-days: 90
+    aggregation-thread-pool-size: 10
+  performance:
+    monitoring-enabled: true
+    sql-logging-enabled: false
+  security:
+    enabled: true
+  cache:
+    type: redis
+    default-ttl: 60

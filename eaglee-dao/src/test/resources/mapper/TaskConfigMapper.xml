@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hina.eaglee.mapper.TaskConfigMapper">
+
+    <!-- 根据配置键查询任务配置 -->
+    <select id="selectByConfigKey" resultType="com.hina.eaglee.entity.TaskConfigEntity">
+        SELECT * FROM task_config 
+        WHERE config_key = #{configKey} 
+        AND deleted = false
+        LIMIT 1
+    </select>
+
+    <!-- 根据配置类型查询任务配置列表 -->
+    <select id="selectByConfigType" resultType="com.hina.eaglee.entity.TaskConfigEntity">
+        SELECT * FROM task_config 
+        WHERE config_type = #{configType} 
+        AND deleted = false
+        ORDER BY ct DESC
+    </select>
+
+    <!-- 查询启用的任务配置列表 -->
+    <select id="selectEnabledConfigs" resultType="com.hina.eaglee.entity.TaskConfigEntity">
+        SELECT * FROM task_config 
+        WHERE enabled = true 
+        AND deleted = false
+        ORDER BY ct DESC
+    </select>
+
+    <!-- 根据配置键更新配置值 -->
+    <update id="updateConfigValueByKey">
+        UPDATE task_config 
+        SET config_value = #{configValue}, ut = NOW()
+        WHERE config_key = #{configKey} 
+        AND deleted = false
+    </update>
+
+    <!-- 批量更新配置启用状态 -->
+    <update id="updateEnabledStatusByIds">
+        UPDATE task_config 
+        SET enabled = #{enabled}, ut = NOW()
+        WHERE task_config_id IN
+        <foreach collection="configIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND deleted = false
+    </update>
+
+    <!-- 批量插入任务配置 -->
+    <insert id="insertBatch">
+        INSERT INTO task_config (
+            config_name, config_key, config_value, config_type, 
+            config_description, enabled, ct, ut, cid, deleted
+        ) VALUES
+        <foreach collection="taskConfigs" item="config" separator=",">
+            (
+                #{config.configName}, #{config.configKey}, #{config.configValue}, 
+                #{config.configType}, #{config.configDescription}, #{config.enabled}, 
+                #{config.ct}, #{config.ut}, #{config.cid}, #{config.deleted}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 根据配置键列表查询任务配置 -->
+    <select id="selectByConfigKeys" resultType="com.hina.eaglee.entity.TaskConfigEntity">
+        SELECT * FROM task_config 
+        WHERE config_key IN
+        <foreach collection="configKeys" item="key" open="(" separator="," close=")">
+            #{key}
+        </foreach>
+        AND deleted = false
+        ORDER BY ct DESC
+    </select>
+
+    <!-- 逻辑删除任务配置 -->
+    <update id="logicalDeleteByIds">
+        UPDATE task_config 
+        SET deleted = true, ut = NOW()
+        WHERE task_config_id IN
+        <foreach collection="configIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 物理删除任务配置 -->
+    <delete id="physicalDeleteByIds">
+        DELETE FROM task_config 
+        WHERE task_config_id IN
+        <foreach collection="configIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

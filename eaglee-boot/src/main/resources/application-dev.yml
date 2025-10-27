@@ -1,0 +1,55 @@
+# 开发环境配置
+spring:
+  profiles:
+    active: dev
+  
+  # 开发环境数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/eaglee_dev?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:eaglee_dev}
+    password: ${DB_PASSWORD:eaglee_dev}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      leak-detection-threshold: 0
+
+# 开发环境日志配置
+logging:
+  level:
+    root: INFO
+    com.hina.cloud.eaglee: DEBUG
+    com.mybatisflex: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.transaction: DEBUG
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5level) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n"
+
+# 开发环境管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# 开发环境Swagger配置
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+# 开发环境自定义配置
+eaglee:
+  collection:
+    default-interval: 10
+    retry-times: 1
+  metric:
+    calculation-interval: 1
+  performance:
+    monitoring-enabled: true
+    sql-logging-enabled: true
+  security:
+    enabled: false

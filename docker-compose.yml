@@ -1,0 +1,300 @@
+# 鹰眼监控系统 Docker Compose 配置文件
+# 包含应用服务、MySQL数据库、Redis缓存等组件
+
+version: '3.8'
+
+services:
+  # 鹰眼监控系统主应用
+  eaglee-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dows/eaglee-monitoring:1.0.0
+    container_name: eaglee-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:8080"
+      - "${MANAGEMENT_PORT:-9090}:9090"
+    environment:
+      # Spring Boot 配置
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      
+      # 数据库配置
+      DB_HOST: eaglee-mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-eaglee_prod}
+      DB_USERNAME: ${DB_USERNAME:-eaglee_prod}
+      DB_PASSWORD: ${DB_PASSWORD:-eaglee_prod_secure_password}
+      DB_SSL: false
+      
+      # 数据库连接池配置
+      DB_POOL_MIN_IDLE: ${DB_POOL_MIN_IDLE:-10}
+      DB_POOL_MAX_SIZE: ${DB_POOL_MAX_SIZE:-50}
+      DB_POOL_CONNECTION_TIMEOUT: ${DB_POOL_CONNECTION_TIMEOUT:-30000}
+      DB_POOL_IDLE_TIMEOUT: ${DB_POOL_IDLE_TIMEOUT:-600000}
+      DB_POOL_MAX_LIFETIME: ${DB_POOL_MAX_LIFETIME:-1800000}
+      
+      # Redis配置
+      CACHE_TYPE: ${CACHE_TYPE:-redis}
+      REDIS_HOST: eaglee-redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_DATABASE: ${REDIS_DATABASE:-0}
+      
+      # JVM配置
+      HEAP_SIZE: ${HEAP_SIZE:-1024m}
+      METASPACE_SIZE: ${METASPACE_SIZE:-256m}
+      JAVA_OPTS: ${JAVA_OPTS:--XX:+UseG1GC -XX:+UseContainerSupport}
+      
+      # 应用配置
+      LOG_LEVEL_ROOT: ${LOG_LEVEL_ROOT:-WARN}
+      LOG_LEVEL_EAGLEE: ${LOG_LEVEL_EAGLEE:-INFO}
+      LOG_FILE_PATH: /app/logs
+      
+      # 监控配置
+      MANAGEMENT_ENDPOINTS: ${MANAGEMENT_ENDPOINTS:-health,info,metrics,prometheus}
+      PROMETHEUS_ENABLED: ${PROMETHEUS_ENABLED:-true}
+      
+      # 业务配置
+      COLLECTION_DEFAULT_INTERVAL: ${COLLECTION_DEFAULT_INTERVAL:-30}
+      COLLECTION_RETRY_TIMES: ${COLLECTION_RETRY_TIMES:-3}
+      METRIC_CALCULATION_INTERVAL: ${METRIC_CALCULATION_INTERVAL:-5}
+      METRIC_RETENTION_DAYS: ${METRIC_RETENTION_DAYS:-90}
+      
+      # 容器配置
+      TZ: ${TZ:-Asia/Shanghai}
+      WAIT_FOR_DB: true
+      WAIT_FOR_REDIS: true
+      DB_WAIT_TIMEOUT: 60
+      REDIS_WAIT_TIMEOUT: 30
+      
+      # 调试配置
+      DEBUG: ${DEBUG:-false}
+      ENABLE_JMX: ${ENABLE_JMX:-false}
+      JMX_PORT: ${JMX_PORT:-9999}
+    volumes:
+      - eaglee-logs:/app/logs
+      - eaglee-data:/app/data
+      - ./docker/config:/app/config:ro
+    networks:
+      - eaglee-network
+    depends_on:
+      eaglee-mysql:
+        condition: service_healthy
+      eaglee-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/eaglee/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: ${MEMORY_LIMIT:-2G}
+          cpus: ${CPU_LIMIT:-2.0}
+        reservations:
+          memory: ${MEMORY_RESERVATION:-1G}
+          cpus: ${CPU_RESERVATION:-1.0}
+
+  # MySQL 数据库
+  eaglee-mysql:
+    image: mysql:8.0
+    container_name: eaglee-mysql
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${DB_NAME:-eaglee_prod}
+      MYSQL_USER: ${DB_USERNAME:-eaglee_prod}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-eaglee_prod_secure_password}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - eaglee-mysql-data:/var/lib/mysql
+      - eaglee-mysql-logs:/var/log/mysql
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d:ro
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - eaglee-network
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-time-zone='+08:00'
+      --innodb-buffer-pool-size=512M
+      --innodb-log-file-size=256M
+      --innodb-flush-log-at-trx-commit=2
+      --innodb-flush-method=O_DIRECT
+      --max-connections=1000
+      --max-allowed-packet=64M
+      --slow-query-log=1
+      --slow-query-log-file=/var/log/mysql/slow.log
+      --long-query-time=2
+      --log-error=/var/log/mysql/error.log
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: ${MYSQL_MEMORY_LIMIT:-1G}
+          cpus: ${MYSQL_CPU_LIMIT:-1.0}
+        reservations:
+          memory: ${MYSQL_MEMORY_RESERVATION:-512M}
+          cpus: ${MYSQL_CPU_RESERVATION:-0.5}
+
+  # Redis 缓存
+  eaglee-redis:
+    image: redis:7-alpine
+    container_name: eaglee-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - eaglee-redis-data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - eaglee-network
+    command: >
+      redis-server /usr/local/etc/redis/redis.conf
+      --requirepass ${REDIS_PASSWORD:-}
+      --maxmemory ${REDIS_MAX_MEMORY:-256mb}
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --appendonly yes
+      --appendfsync everysec
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: ${REDIS_MEMORY_LIMIT:-512M}
+          cpus: ${REDIS_CPU_LIMIT:-0.5}
+        reservations:
+          memory: ${REDIS_MEMORY_RESERVATION:-256M}
+          cpus: ${REDIS_CPU_RESERVATION:-0.25}
+
+  # Prometheus 监控（可选）
+  eaglee-prometheus:
+    image: prom/prometheus:latest
+    container_name: eaglee-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9091}:9090"
+    volumes:
+      - eaglee-prometheus-data:/prometheus
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - eaglee-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    profiles:
+      - monitoring
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: 0.5
+
+  # Grafana 可视化（可选）
+  eaglee-grafana:
+    image: grafana/grafana:latest
+    container_name: eaglee-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - eaglee-grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - eaglee-network
+    profiles:
+      - monitoring
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: 0.25
+
+# 网络配置
+networks:
+  eaglee-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# 数据卷配置
+volumes:
+  # 应用数据卷
+  eaglee-logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_LOGS_PATH:-./data/logs}
+  
+  eaglee-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_DATA_PATH:-./data/app}
+  
+  # MySQL数据卷
+  eaglee-mysql-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_MYSQL_DATA_PATH:-./data/mysql}
+  
+  eaglee-mysql-logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_MYSQL_LOGS_PATH:-./data/mysql-logs}
+  
+  # Redis数据卷
+  eaglee-redis-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_REDIS_DATA_PATH:-./data/redis}
+  
+  # 监控数据卷
+  eaglee-prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_PROMETHEUS_DATA_PATH:-./data/prometheus}
+  
+  eaglee-grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_GRAFANA_DATA_PATH:-./data/grafana}

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hina.eaglee.mapper.TaskCounterMapper">
+
+    <!-- 根据任务标识查询任务计数器 -->
+    <select id="selectByTaskIdentifier" resultType="com.hina.eaglee.entity.TaskCounterEntity">
+        SELECT * FROM task_counter 
+        WHERE task_identifier = #{taskIdentifier}
+          AND deleted = 0
+        LIMIT 1
+    </select>
+
+    <!-- 增量更新任务计数器统计数据 -->
+    <update id="incrementCounter">
+        INSERT INTO task_counter (
+            task_identifier, total_count, success_count, failure_count, 
+            total_time, avg_time, min_time, max_time, ct, ut, deleted
+        ) VALUES (
+            #{taskIdentifier}, 1, 
+            <if test="isSuccess != null and isSuccess">1</if><if test="isSuccess == null or !isSuccess">0</if>,
+            <if test="isSuccess != null and !isSuccess">1</if><if test="isSuccess == null or isSuccess">0</if>,
+            <if test="duration != null">#{duration}</if><if test="duration == null">0</if>,
+            <if test="duration != null">#{duration}</if><if test="duration == null">0</if>,
+            <if test="duration != null">#{duration}</if><if test="duration == null">0</if>,
+            <if test="duration != null">#{duration}</if><if test="duration == null">0</if>,
+            NOW(), NOW(), 0
+        ) ON DUPLICATE KEY UPDATE
+            total_count = total_count + 1,
+            success_count = success_count + <if test="isSuccess != null and isSuccess">1</if><if test="isSuccess == null or !isSuccess">0</if>,
+            failure_count = failure_count + <if test="isSuccess != null and !isSuccess">1</if><if test="isSuccess == null or isSuccess">0</if>,
+            total_time = total_time + <if test="duration != null">#{duration}</if><if test="duration == null">0</if>,
+            ut = NOW()
+    </update>
+
+    <!-- 重新计算平均耗时 -->
+    <update id="recalculateAvgTime">
+        UPDATE task_counter 
+        SET avg_time = CASE 
+                         WHEN total_count > 0 THEN total_time / total_count 
+                         ELSE 0 
+                       END,
+            ut = NOW()
+        WHERE task_identifier = #{taskIdentifier}
+          AND deleted = 0
+    </update>
+
+    <!-- 更新最小和最大耗时 -->
+    <update id="updateMinMaxTime">
+        UPDATE task_counter 
+        SET min_time = CASE 
+                         WHEN min_time IS NULL OR min_time > #{duration} THEN #{duration}
+                         ELSE min_time 
+                       END,
+            max_time = CASE 
+                         WHEN max_time IS NULL OR max_time &lt; #{duration} THEN #{duration}
+                         ELSE max_time 
+                       END,
+            ut = NOW()
+        WHERE task_identifier = #{taskIdentifier}
+          AND deleted = 0
+          AND #{duration} IS NOT NULL
+    </update>
+
+    <!-- 批量更新任务计数器 -->
+    <update id="updateBatch">
+        <foreach collection="taskCounters" item="item" separator=";">
+            UPDATE task_counter 
+            SET total_count = #{item.totalCount},
+                success_count = #{item.successCount},
+                failure_count = #{item.failureCount},
+                total_time = #{item.totalTime},
+                avg_time = #{item.avgTime},
+                min_time = #{item.minTime},
+                max_time = #{item.maxTime},
+                ut = NOW()
+            WHERE task_counter_id = #{item.taskCounterId}
+              AND deleted = 0
+        </foreach>
+    </update>
+
+    <!-- 根据任务标识列表查询任务计数器 -->
+    <select id="selectByTaskIdentifiers" resultType="com.hina.eaglee.entity.TaskCounterEntity">
+        SELECT * FROM task_counter 
+        WHERE task_identifier IN
+        <foreach collection="taskIdentifiers" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND deleted = 0
+        ORDER BY ct DESC
+    </select>
+
+    <!-- 重置任务计数器统计数据 -->
+    <update id="resetCounter">
+        UPDATE task_counter 
+        SET total_count = 0,
+            success_count = 0,
+            failure_count = 0,
+            total_time = 0,
+            avg_time = 0,
+            min_time = NULL,
+            max_time = NULL,
+            ut = NOW()
+        WHERE task_identifier = #{taskIdentifier}
+          AND deleted = 0
+    </update>
+
+    <!-- 查询所有活跃的任务计数器 -->
+    <select id="selectActiveCounters" resultType="com.hina.eaglee.entity.TaskCounterEntity">
+        SELECT * FROM task_counter 
+        WHERE deleted = 0
+          AND total_count > 0
+        ORDER BY ut DESC
+    </select>
+
+</mapper>

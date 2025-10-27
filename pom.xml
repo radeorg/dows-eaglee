@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hina.cloud</groupId>
+    <artifactId>hina-eaglee</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>hina-eaglee</name>
+    <description>鹰眼监控系统</description>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot.version>3.5.4</spring-boot.version>
+        <mybatis-flex.version>1.11.3</mybatis-flex.version>
+        <springdoc.version>2.8.13</springdoc.version>
+        <flyway.version>11.15.0</flyway.version>
+    </properties>
+
+    <modules>
+        <module>eaglee-api</module>
+        <module>eaglee-rpc</module>
+        <module>eaglee-app</module>
+        <module>eaglee-boot</module>
+        <module>eaglee-core</module>
+        <module>eaglee-rest</module>
+        <module>eaglee-biz</module>
+        <module>eaglee-handler</module>
+        <module>eaglee-dao</module>
+    </modules>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+
+
+            <dependency>
+                <groupId>com.hina.cloud</groupId>
+                <artifactId>eaglee-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hina.cloud</groupId>
+                <artifactId>eaglee-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hina.cloud</groupId>
+                <artifactId>eaglee-biz</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hina.cloud</groupId>
+                <artifactId>eaglee-boot</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hina.cloud</groupId>
+                <artifactId>eaglee-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hina.cloud</groupId>
+                <artifactId>eaglee-dao</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hina.cloud</groupId>
+                <artifactId>eaglee-handler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hina.cloud</groupId>
+                <artifactId>eaglee-rest</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hina.cloud</groupId>
+                <artifactId>eaglee-rpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>io.github.cdimascio</groupId>
+                <artifactId>dotenv-java</artifactId>
+                <version>3.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.mybatis-flex</groupId>
+                <artifactId>mybatis-flex-dependencies</artifactId>
+                <version>${mybatis-flex.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.flywaydb</groupId>
+                    <artifactId>flyway-maven-plugin</artifactId>
+                    <version>${flyway.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

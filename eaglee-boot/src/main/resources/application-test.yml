@@ -1,0 +1,62 @@
+# 测试环境配置
+spring:
+  profiles:
+    active: test
+  
+  # 测试环境数据源配置
+  datasource:
+    url: jdbc:h2:mem:eaglee_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 5
+
+  # H2控制台配置
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# 测试环境日志配置
+logging:
+  level:
+    root: WARN
+    com.hina.cloud.eaglee: DEBUG
+    org.springframework.test: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# 测试环境管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# 测试环境Swagger配置
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+# 测试环境自定义配置
+eaglee:
+  collection:
+    default-interval: 5
+    retry-times: 1
+  metric:
+    calculation-interval: 1
+    retention-days: 1
+  performance:
+    monitoring-enabled: false
+    sql-logging-enabled: true
+  security:
+    enabled: false
+  cache:
+    type: none

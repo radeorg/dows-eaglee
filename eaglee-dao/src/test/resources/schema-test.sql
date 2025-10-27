@@ -1,0 +1,114 @@
+-- 创建测试数据库表结构
+
+-- 任务项目表
+CREATE TABLE IF NOT EXISTS task_project (
+    task_project_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_name VARCHAR(255) NOT NULL,
+    process_code VARCHAR(100) NOT NULL,
+    project_identifier VARCHAR(100) NOT NULL UNIQUE,
+    task_count INT DEFAULT 0,
+    state INT DEFAULT 0,
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    ct TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ut TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    cid BIGINT,
+    deleted BOOLEAN DEFAULT FALSE
+);
+
+-- 任务实例表
+CREATE TABLE IF NOT EXISTS task_instance (
+    task_instance_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    task_project_id BIGINT NOT NULL,
+    task_name VARCHAR(255) NOT NULL,
+    task_identifier VARCHAR(100) NOT NULL,
+    application_id VARCHAR(100),
+    process_name VARCHAR(255),
+    reason VARCHAR(500),
+    avg_time BIGINT DEFAULT 0,
+    elapsed_time BIGINT DEFAULT 0,
+    duration BIGINT DEFAULT 0,
+    retried INT DEFAULT 0,
+    state INT DEFAULT 0,
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    ct TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ut TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    cid BIGINT,
+    deleted BOOLEAN DEFAULT FALSE
+);
+
+-- 任务计数器表
+CREATE TABLE IF NOT EXISTS task_counter (
+    task_counter_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    task_identifier VARCHAR(100) NOT NULL UNIQUE,
+    total_count INT DEFAULT 0,
+    success_count INT DEFAULT 0,
+    failure_count INT DEFAULT 0,
+    total_time BIGINT DEFAULT 0,
+    avg_time BIGINT DEFAULT 0,
+    min_time BIGINT DEFAULT 0,
+    max_time BIGINT DEFAULT 0,
+    ct TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ut TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted BOOLEAN DEFAULT FALSE
+);
+
+-- 任务运行时表
+CREATE TABLE IF NOT EXISTS task_runtime (
+    task_runtime_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    ip VARCHAR(50) NOT NULL,
+    cpu_usage INT DEFAULT 0,
+    mem_usage INT DEFAULT 0,
+    disk_usage INT DEFAULT 0,
+    net_usage INT DEFAULT 0,
+    ct TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted BOOLEAN DEFAULT FALSE
+);
+
+-- 任务度量表
+CREATE TABLE IF NOT EXISTS task_metric (
+    task_metric_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    ip VARCHAR(50) NOT NULL,
+    time_unit VARCHAR(20) NOT NULL,
+    time_value TIMESTAMP NOT NULL,
+    cpu_total BIGINT DEFAULT 0,
+    mem_total BIGINT DEFAULT 0,
+    disk_total BIGINT DEFAULT 0,
+    net_total BIGINT DEFAULT 0,
+    data_points INT DEFAULT 0,
+    ct TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ut TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted BOOLEAN DEFAULT FALSE
+);
+
+-- 任务配置表
+CREATE TABLE IF NOT EXISTS task_config (
+    task_config_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    config_name VARCHAR(255) NOT NULL,
+    config_key VARCHAR(100) NOT NULL UNIQUE,
+    config_value TEXT,
+    config_desc VARCHAR(500),
+    config_type VARCHAR(50),
+    enabled BOOLEAN DEFAULT TRUE,
+    ct TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ut TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    cid BIGINT,
+    deleted BOOLEAN DEFAULT FALSE
+);
+
+-- 任务规则表
+CREATE TABLE IF NOT EXISTS task_rule (
+    task_rule_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    rule_name VARCHAR(255) NOT NULL,
+    rule_type VARCHAR(50) NOT NULL,
+    application_type VARCHAR(20) NOT NULL,
+    rule_condition TEXT,
+    rule_action TEXT,
+    priority INT DEFAULT 0,
+    enabled BOOLEAN DEFAULT TRUE,
+    ct TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ut TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    cid BIGINT,
+    deleted BOOLEAN DEFAULT FALSE
+);
