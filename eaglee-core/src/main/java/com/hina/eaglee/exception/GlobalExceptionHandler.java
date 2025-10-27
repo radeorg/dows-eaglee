@@ -1,7 +1,11 @@
 package com.hina.eaglee.exception;
 
 import com.hina.eaglee.response.ErrorResponse;
-import com.hina.eaglee.response.ResponseResult;
+import com.hina.eaglee.response.RestResponse;
+import com.hina.eaglee.util.TraceIdUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +17,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
+import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -32,11 +34,11 @@ public class GlobalExceptionHandler {
      * 处理业务异常
      */
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ResponseResult<Void>> handleBusinessException(BusinessException e) {
-        String traceId = generateTraceId();
+    public ResponseEntity<RestResponse<Void>> handleBusinessException(BusinessException e) {
+        String traceId = TraceIdUtil.generateTraceId();
         log.warn("业务异常 [{}]: {}", traceId, e.getMessage());
-        
-        ResponseResult<Void> result = ResponseResult.<Void>businessError(e.getMessage())
+
+        RestResponse<Void> result = RestResponse.<Void>businessError(e.getMessage())
                 .withTraceId(traceId);
         
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result);
@@ -47,7 +49,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
-        String traceId = generateTraceId();
+        String traceId = TraceIdUtil.generateTraceId();
         log.warn("参数验证异常 [{}]: {}", traceId, e.getMessage());
         
         List<ErrorResponse.ErrorDetail> details = e.getBindingResult()
@@ -72,7 +74,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ErrorResponse> handleBindException(BindException e) {
-        String traceId = generateTraceId();
+        String traceId = TraceIdUtil.generateTraceId();
         log.warn("参数绑定异常 [{}]: {}", traceId, e.getMessage());
         
         List<ErrorResponse.ErrorDetail> details = e.getBindingResult()
@@ -97,7 +99,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
-        String traceId = generateTraceId();
+        String traceId = TraceIdUtil.generateTraceId();
         log.warn("约束违反异常 [{}]: {}", traceId, e.getMessage());
         
         List<ErrorResponse.ErrorDetail> details = e.getConstraintViolations()
@@ -121,7 +123,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
-        String traceId = generateTraceId();
+        String traceId = TraceIdUtil.generateTraceId();
         log.warn("参数类型不匹配异常 [{}]: {}", traceId, e.getMessage());
         
         String message = String.format("参数 '%s' 的值 '%s' 无法转换为 %s 类型", 
@@ -133,30 +135,43 @@ public class GlobalExceptionHandler {
         
         return ResponseEntity.badRequest().body(errorResponse);
     }
-    
+
+    @ExceptionHandler(value = {SQLException.class, SQLSyntaxErrorException.class})
+    public ResponseEntity<ErrorResponse> handleSqlException(SQLException e) {
+        String traceId = TraceIdUtil.generateTraceId();
+        log.error("SQL异常 [{}]: ", traceId, e);
+        String message = String.format("SQL: '%s' ，请检查SQL语句", e.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.of("SQL_ERROR", message)
+                .withPath(getCurrentRequestPath())
+                .withTraceId(traceId);
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
     /**
      * 处理非法参数异常
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ResponseResult<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
-        String traceId = generateTraceId();
+    public ResponseEntity<RestResponse<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
+        String traceId = TraceIdUtil.generateTraceId();
         log.warn("非法参数异常 [{}]: {}", traceId, e.getMessage());
-        
-        ResponseResult<Void> result = ResponseResult.<Void>validationError(e.getMessage())
+
+        RestResponse<Void> result = RestResponse.<Void>validationError(e.getMessage())
                 .withTraceId(traceId);
         
         return ResponseEntity.badRequest().body(result);
     }
-    
+
+
     /**
      * 处理运行时异常
      */
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ResponseResult<Void>> handleRuntimeException(RuntimeException e) {
-        String traceId = generateTraceId();
+    public ResponseEntity<RestResponse<Void>> handleRuntimeException(RuntimeException e) {
+        String traceId = TraceIdUtil.generateTraceId();
         log.error("运行时异常 [{}]: ", traceId, e);
-        
-        ResponseResult<Void> result = ResponseResult.<Void>error("系统运行异常，请稍后重试")
+
+        String message = e.getCause().getMessage();
+        RestResponse<Void> result = RestResponse.<Void>error(String.format("系统运行异常: %s", message))
                 .withTraceId(traceId);
         
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
@@ -166,23 +181,17 @@ public class GlobalExceptionHandler {
      * 处理通用异常
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseResult<Void>> handleGeneralException(Exception e) {
-        String traceId = generateTraceId();
+    public ResponseEntity<RestResponse<Void>> handleGeneralException(Exception e) {
+        String traceId = TraceIdUtil.generateTraceId();
         log.error("系统异常 [{}]: ", traceId, e);
-        
-        ResponseResult<Void> result = ResponseResult.<Void>error("系统内部错误，请联系管理员")
+
+        RestResponse<Void> result = RestResponse.<Void>error("系统内部错误，请联系管理员")
                 .withTraceId(traceId);
         
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
     }
-    
-    /**
-     * 生成追踪ID
-     */
-    private String generateTraceId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-    }
-    
+
+
     /**
      * 获取当前请求路径
      */

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Schema(description = "统一响应结果")
-public class ResponseResult<T> {
+public class RestResponse<T> implements Response {
     
     /**
      * 响应状态码
@@ -46,14 +46,14 @@ public class ResponseResult<T> {
     /**
      * 私有构造函数
      */
-    private ResponseResult() {
+    private RestResponse() {
         this.timestamp = LocalDateTime.now();
     }
     
     /**
      * 私有构造函数
      */
-    private ResponseResult(Integer code, String message, T data) {
+    private RestResponse(Integer code, String message, T data) {
         this();
         this.code = code;
         this.message = message;
@@ -63,84 +63,84 @@ public class ResponseResult<T> {
     /**
      * 成功响应
      */
-    public static <T> ResponseResult<T> success() {
-        return new ResponseResult<>(200, "操作成功", null);
+    public static <T> RestResponse<T> success() {
+        return new RestResponse<>(200, "操作成功", null);
     }
     
     /**
      * 成功响应带数据
      */
-    public static <T> ResponseResult<T> success(T data) {
-        return new ResponseResult<>(200, "操作成功", data);
+    public static <T> RestResponse<T> success(T data) {
+        return new RestResponse<>(200, "操作成功", data);
     }
     
     /**
      * 成功响应带消息和数据
      */
-    public static <T> ResponseResult<T> success(String message, T data) {
-        return new ResponseResult<>(200, message, data);
+    public static <T> RestResponse<T> success(String message, T data) {
+        return new RestResponse<>(200, message, data);
     }
     
     /**
      * 失败响应
      */
-    public static <T> ResponseResult<T> error(String message) {
-        return new ResponseResult<>(500, message, null);
+    public static <T> RestResponse<T> error(String message) {
+        return new RestResponse<>(500, message, null);
     }
     
     /**
      * 失败响应带状态码
      */
-    public static <T> ResponseResult<T> error(Integer code, String message) {
-        return new ResponseResult<>(code, message, null);
+    public static <T> RestResponse<T> error(Integer code, String message) {
+        return new RestResponse<>(code, message, null);
     }
     
     /**
      * 失败响应带状态码和数据
      */
-    public static <T> ResponseResult<T> error(Integer code, String message, T data) {
-        return new ResponseResult<>(code, message, data);
+    public static <T> RestResponse<T> error(Integer code, String message, T data) {
+        return new RestResponse<>(code, message, data);
     }
     
     /**
      * 参数验证失败响应
      */
-    public static <T> ResponseResult<T> validationError(String message) {
-        return new ResponseResult<>(400, message, null);
+    public static <T> RestResponse<T> validationError(String message) {
+        return new RestResponse<>(400, message, null);
     }
     
     /**
      * 业务异常响应
      */
-    public static <T> ResponseResult<T> businessError(String message) {
-        return new ResponseResult<>(422, message, null);
+    public static <T> RestResponse<T> businessError(String message) {
+        return new RestResponse<>(422, message, null);
     }
     
     /**
      * 未找到资源响应
      */
-    public static <T> ResponseResult<T> notFound(String message) {
-        return new ResponseResult<>(404, message, null);
+    public static <T> RestResponse<T> notFound(String message) {
+        return new RestResponse<>(404, message, null);
     }
     
     /**
      * 未授权响应
      */
-    public static <T> ResponseResult<T> unauthorized(String message) {
-        return new ResponseResult<>(401, message, null);
+    public static <T> RestResponse<T> unauthorized(String message) {
+        return new RestResponse<>(401, message, null);
     }
     
     /**
      * 禁止访问响应
      */
-    public static <T> ResponseResult<T> forbidden(String message) {
-        return new ResponseResult<>(403, message, null);
+    public static <T> RestResponse<T> forbidden(String message) {
+        return new RestResponse<>(403, message, null);
     }
     
     /**
      * 设置追踪ID
      */
-    public ResponseResult<T> withTraceId(String traceId) {
+    public RestResponse<T> withTraceId(String traceId) {
         this.traceId = traceId;
         return this;
     }

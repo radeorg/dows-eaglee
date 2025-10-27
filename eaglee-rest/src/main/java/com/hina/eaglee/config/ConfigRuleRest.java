@@ -1,5 +1,6 @@
 package com.hina.eaglee.config;
 
+import com.hina.eaglee.sql.TaskRuleHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ConfigRuleRest {
 
+    private final TaskRuleHandler taskRuleHandler;
     @Operation(summary = "保存规则")
     @PostMapping("config/rule/save")
     public void save(){

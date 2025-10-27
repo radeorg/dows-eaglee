@@ -12,7 +12,7 @@ class ResponseResultTest {
     @Test
     void shouldCreateSuccessResponse() {
         // When
-        ResponseResult<Void> response = ResponseResult.success();
+        RestResponse<Void> response = RestResponse.success();
         
         // Then
         assertThat(response.getCode()).isEqualTo(200);
@@ -28,7 +28,7 @@ class ResponseResultTest {
         String data = "测试数据";
         
         // When
-        ResponseResult<String> response = ResponseResult.success(data);
+        RestResponse<String> response = RestResponse.success(data);
         
         // Then
         assertThat(response.getCode()).isEqualTo(200);
@@ -44,7 +44,7 @@ class ResponseResultTest {
         String data = "测试数据";
         
         // When
-        ResponseResult<String> response = ResponseResult.success(message, data);
+        RestResponse<String> response = RestResponse.success(message, data);
         
         // Then
         assertThat(response.getCode()).isEqualTo(200);
@@ -59,7 +59,7 @@ class ResponseResultTest {
         String message = "错误消息";
         
         // When
-        ResponseResult<Void> response = ResponseResult.error(message);
+        RestResponse<Void> response = RestResponse.error(message);
         
         // Then
         assertThat(response.getCode()).isEqualTo(500);
@@ -75,7 +75,7 @@ class ResponseResultTest {
         String message = "错误消息";
         
         // When
-        ResponseResult<Void> response = ResponseResult.error(code, message);
+        RestResponse<Void> response = RestResponse.error(code, message);
         
         // Then
         assertThat(response.getCode()).isEqualTo(code);
@@ -89,7 +89,7 @@ class ResponseResultTest {
         String message = "参数验证失败";
         
         // When
-        ResponseResult<Void> response = ResponseResult.validationError(message);
+        RestResponse<Void> response = RestResponse.validationError(message);
         
         // Then
         assertThat(response.getCode()).isEqualTo(400);
@@ -103,7 +103,7 @@ class ResponseResultTest {
         String message = "业务异常";
         
         // When
-        ResponseResult<Void> response = ResponseResult.businessError(message);
+        RestResponse<Void> response = RestResponse.businessError(message);
         
         // Then
         assertThat(response.getCode()).isEqualTo(422);
@@ -117,7 +117,7 @@ class ResponseResultTest {
         String message = "资源未找到";
         
         // When
-        ResponseResult<Void> response = ResponseResult.notFound(message);
+        RestResponse<Void> response = RestResponse.notFound(message);
         
         // Then
         assertThat(response.getCode()).isEqualTo(404);
@@ -131,7 +131,7 @@ class ResponseResultTest {
         String traceId = "test-trace-id";
         
         // When
-        ResponseResult<Void> response = ResponseResult.<Void>success().withTraceId(traceId);
+        RestResponse<Void> response = RestResponse.<Void>success().withTraceId(traceId);
         
         // Then
         assertThat(response.getTraceId()).isEqualTo(traceId);

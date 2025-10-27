@@ -2,12 +2,13 @@ package com.hina.eaglee.sql;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.dows.eaglee.api.dto.request.TaskConfigPageRequest;
-import com.dows.eaglee.api.dto.request.TaskConfigSaveRequest;
-import com.dows.eaglee.api.dto.response.TaskConfigResponse;
+import cn.hutool.json.JSONUtil;
 import com.hina.eaglee.dao.TaskConfigDao;
 import com.hina.eaglee.entity.TaskConfigEntity;
 import com.hina.eaglee.exception.BusinessException;
+import com.hina.eaglee.request.TaskConfigPageRequest;
+import com.hina.eaglee.request.TaskConfigSaveRequest;
+import com.hina.eaglee.response.TaskConfigResponse;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
@@ -30,20 +31,18 @@ public class TaskConfigHandler {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public Long createConfigKey(TaskConfigSaveRequest request) {
-        log.info("创建任务配置，请求参数: {}", request);
+    public Long createConfigKey(TaskConfigSaveRequest taskConfigSaveRequest) {
+        log.info("保存配置键名：{}", JSONUtil.toJsonStr(taskConfigSaveRequest));
         // 构建实体对象
         TaskConfigEntity taskConfig = new TaskConfigEntity();
-        BeanUtils.copyProperties(request, taskConfig);
+        BeanUtils.copyProperties(taskConfigSaveRequest, taskConfig);
         // 设置默认值
         LocalDateTime now = LocalDateTime.now();
         taskConfig.setCt(now);
         taskConfig.setUt(now);
         taskConfig.setDeleted(false);
 
-        if (taskConfig.getEnabled() == null) {
-            taskConfig.setEnabled(true);
-        }
+
         // 保存到数据库
         boolean save = taskConfigDao.save(taskConfig);
         if (!save) {
@@ -55,9 +54,14 @@ public class TaskConfigHandler {
     }
 
     public Page<TaskConfigResponse> pageQuery(TaskConfigPageRequest request) {
-        QueryWrapper queryWrapper = QueryWrapper.create(TaskConfigEntity.class).where(BeanUtil.beanToMap(request));
+        QueryWrapper queryWrapper = QueryWrapper.create().from(TaskConfigEntity.class);
+        //queryWrapper.where(BeanUtil.beanToMap(request));
+        // 只添加有效的过滤条件，不包括分页参数
+        if (StrUtil.isNotBlank(request.getKey())) {
+            queryWrapper.and(TaskConfigEntity::getKey).like(request.getKey());
+        }
         return taskConfigDao
-                .pageAs(Page.of(request.getCurrent(), request.getSize()), queryWrapper, TaskConfigResponse.class);
+                .pageAs(Page.of(request.getPageNo(), request.getPageSize()), queryWrapper, TaskConfigResponse.class);
     }
 
 
@@ -78,4 +82,14 @@ public class TaskConfigHandler {
         return taskConfigDao.removeByIds(ids);
     }
 
+    public boolean updateConfigKey(TaskConfigSaveRequest taskConfigSaveRequest) {
+        log.info("更新任务配置，请求参数: {}", taskConfigSaveRequest);
+        TaskConfigEntity taskConfig = taskConfigDao.getById(taskConfigSaveRequest.getTaskConfigId());
+        if (taskConfig == null) {
+            throw new BusinessException(BusinessException.INVALID_PARAMETER, "任务配置不存在");
+        }
+        BeanUtils.copyProperties(taskConfigSaveRequest, taskConfig);
+        taskConfig.setUt(LocalDateTime.now());
+        return taskConfigDao.updateById(taskConfig);
+    }
 }

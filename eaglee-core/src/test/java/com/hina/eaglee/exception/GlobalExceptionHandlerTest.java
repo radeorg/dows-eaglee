@@ -1,7 +1,7 @@
 package com.hina.eaglee.exception;
 
 import com.hina.eaglee.response.ErrorResponse;
-import com.hina.eaglee.response.ResponseResult;
+import com.hina.eaglee.response.RestResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,7 +33,7 @@ class GlobalExceptionHandlerTest {
         BusinessException exception = new BusinessException("TEST_ERROR", "测试业务异常");
 
         // When
-        ResponseEntity<ResponseResult<Void>> response = globalExceptionHandler.handleBusinessException(exception);
+        ResponseEntity<RestResponse<Void>> response = globalExceptionHandler.handleBusinessException(exception);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -72,7 +72,7 @@ class GlobalExceptionHandlerTest {
         IllegalArgumentException exception = new IllegalArgumentException("非法参数");
 
         // When
-        ResponseEntity<ResponseResult<Void>> response = globalExceptionHandler.handleIllegalArgumentException(exception);
+        ResponseEntity<RestResponse<Void>> response = globalExceptionHandler.handleIllegalArgumentException(exception);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -87,7 +87,7 @@ class GlobalExceptionHandlerTest {
         RuntimeException exception = new RuntimeException("运行时异常");
 
         // When
-        ResponseEntity<ResponseResult<Void>> response = globalExceptionHandler.handleRuntimeException(exception);
+        ResponseEntity<RestResponse<Void>> response = globalExceptionHandler.handleRuntimeException(exception);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -102,7 +102,7 @@ class GlobalExceptionHandlerTest {
         Exception exception = new Exception("系统异常");
 
         // When
-        ResponseEntity<ResponseResult<Void>> response = globalExceptionHandler.handleGeneralException(exception);
+        ResponseEntity<RestResponse<Void>> response = globalExceptionHandler.handleGeneralException(exception);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);

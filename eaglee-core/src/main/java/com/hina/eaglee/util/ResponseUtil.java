@@ -1,6 +1,6 @@
 package com.hina.eaglee.util;
 
-import com.hina.eaglee.response.ResponseResult;
+import com.hina.eaglee.response.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -13,99 +13,99 @@ public class ResponseUtil {
     /**
      * 成功响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> success() {
-        return ResponseEntity.ok(ResponseResult.success());
+    public static <T> ResponseEntity<RestResponse<T>> success() {
+        return ResponseEntity.ok(RestResponse.success());
     }
 
     /**
      * 成功响应带数据
      */
-    public static <T> ResponseEntity<ResponseResult<T>> success(T data) {
-        return ResponseEntity.ok(ResponseResult.success(data));
+    public static <T> ResponseEntity<RestResponse<T>> success(T data) {
+        return ResponseEntity.ok(RestResponse.success(data));
     }
 
     /**
      * 成功响应带消息和数据
      */
-    public static <T> ResponseEntity<ResponseResult<T>> success(String message, T data) {
-        return ResponseEntity.ok(ResponseResult.success(message, data));
+    public static <T> ResponseEntity<RestResponse<T>> success(String message, T data) {
+        return ResponseEntity.ok(RestResponse.success(message, data));
     }
 
     /**
      * 创建成功响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> created(T data) {
+    public static <T> ResponseEntity<RestResponse<T>> created(T data) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ResponseResult.success("创建成功", data));
+                .body(RestResponse.success("创建成功", data));
     }
 
     /**
      * 更新成功响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> updated(T data) {
-        return ResponseEntity.ok(ResponseResult.success("更新成功", data));
+    public static <T> ResponseEntity<RestResponse<T>> updated(T data) {
+        return ResponseEntity.ok(RestResponse.success("更新成功", data));
     }
 
     /**
      * 删除成功响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> deleted() {
-        return ResponseEntity.ok(ResponseResult.success("删除成功", null));
+    public static <T> ResponseEntity<RestResponse<T>> deleted() {
+        return ResponseEntity.ok(RestResponse.success("删除成功", null));
     }
 
     /**
      * 错误响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> error(String message) {
+    public static <T> ResponseEntity<RestResponse<T>> error(String message) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseResult.error(message));
+                .body(RestResponse.error(message));
     }
 
     /**
      * 错误响应带状态码
      */
-    public static <T> ResponseEntity<ResponseResult<T>> error(HttpStatus status, String message) {
+    public static <T> ResponseEntity<RestResponse<T>> error(HttpStatus status, String message) {
         return ResponseEntity.status(status)
-                .body(ResponseResult.error(status.value(), message));
+                .body(RestResponse.error(status.value(), message));
     }
 
     /**
      * 参数验证失败响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> badRequest(String message) {
+    public static <T> ResponseEntity<RestResponse<T>> badRequest(String message) {
         return ResponseEntity.badRequest()
-                .body(ResponseResult.validationError(message));
+                .body(RestResponse.validationError(message));
     }
 
     /**
      * 未找到资源响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> notFound(String message) {
+    public static <T> ResponseEntity<RestResponse<T>> notFound(String message) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ResponseResult.notFound(message));
+                .body(RestResponse.notFound(message));
     }
 
     /**
      * 业务异常响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> businessError(String message) {
+    public static <T> ResponseEntity<RestResponse<T>> businessError(String message) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(ResponseResult.businessError(message));
+                .body(RestResponse.businessError(message));
     }
 
     /**
      * 未授权响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> unauthorized(String message) {
+    public static <T> ResponseEntity<RestResponse<T>> unauthorized(String message) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ResponseResult.unauthorized(message));
+                .body(RestResponse.unauthorized(message));
     }
 
     /**
      * 禁止访问响应
      */
-    public static <T> ResponseEntity<ResponseResult<T>> forbidden(String message) {
+    public static <T> ResponseEntity<RestResponse<T>> forbidden(String message) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ResponseResult.forbidden(message));
+                .body(RestResponse.forbidden(message));
     }
 }

@@ -1,7 +1,11 @@
 package com.hina.eaglee.config;
 
 import cn.hutool.json.JSONUtil;
+import com.hina.eaglee.request.TaskConfigPageRequest;
 import com.hina.eaglee.request.TaskConfigSaveRequest;
+import com.hina.eaglee.response.TaskConfigResponse;
+import com.hina.eaglee.sql.TaskConfigHandler;
+import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,33 +19,30 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ConfigKeyRest {
 
+    private final TaskConfigHandler taskConfigHandler;
 
     @Operation(summary = "保存配置键名")
-    @PostMapping("/config/key/save")
-    public void save(@RequestBody TaskConfigSaveRequest taskConfigSaveRequest) {
-        log.info("保存配置键名：{}", JSONUtil.toJsonStr(taskConfigSaveRequest));
-
-
+    @PostMapping("/config/key/instance")
+    public Long save(@RequestBody TaskConfigSaveRequest taskConfigSaveRequest) {
+        return taskConfigHandler.createConfigKey(taskConfigSaveRequest);
     }
 
     @Operation(summary = "更新配置键名")
-    @PutMapping("/config/key/update")
-    public void update() {
-
-
+    @PutMapping("/config/key/instance")
+    public Boolean update(@RequestBody TaskConfigSaveRequest taskConfigSaveRequest) {
+        log.info("更新配置键名：{}", JSONUtil.toJsonStr(taskConfigSaveRequest));
+        return taskConfigHandler.updateConfigKey(taskConfigSaveRequest);
     }
 
     @Operation(summary = "分页查询配置键名")
-    @PostMapping("/config/key/page")
-    public void page() {
-
-
+    @GetMapping("/config/key/page")
+    public Page<TaskConfigResponse> page(TaskConfigPageRequest taskConfigPageRequest) {
+        return taskConfigHandler.pageQuery(taskConfigPageRequest);
     }
 
-    @Operation(summary = "删除配置键名")
-    @DeleteMapping("/config/key/delete")
-    public void delete() {
-
-
+    @Operation(summary = "删除配置键名()")
+    @DeleteMapping("/config/key/ids")
+    public boolean delete(@RequestParam("taskConfigIds") String taskConfigIds) {
+        return taskConfigHandler.deleteByIds(taskConfigIds);
     }
 }

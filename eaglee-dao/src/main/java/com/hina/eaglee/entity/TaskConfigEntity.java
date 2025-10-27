@@ -21,24 +21,22 @@ public class TaskConfigEntity {
     @Id(keyType = KeyType.Auto)
     @Schema(description = "任务配置ID")
     private Long taskConfigId;
-    
-    @Schema(description = "配置名称")
-    private String configName;
-    
+
     @Schema(description = "配置键")
-    private String configKey;
-    
-    @Schema(description = "配置值")
-    private String configValue;
-    
+    private String key;
+
     @Schema(description = "配置描述")
-    private String configDesc;
-    
-    @Schema(description = "配置类型")
-    private String configType;
-    
-    @Schema(description = "是否启用")
-    private Boolean enabled;
+    private String description;
+
+    @Schema(description = "数据类型")
+    private String dataType;
+
+    @Schema(description = "页面标签[input,select,checkbox......]")
+    private String tag;
+
+    @Schema(description = "选项值")
+    private String options;
+
     
     @Schema(description = "创建时间")
     private LocalDateTime ct;
@@ -51,4 +49,7 @@ public class TaskConfigEntity {
     
     @Schema(description = "是否删除")
     private Boolean deleted;
+
+    @Schema(description = "乐观锁版本号")
+    private Integer version;
 }
