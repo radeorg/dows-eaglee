@@ -42,7 +42,7 @@ public class ConfigKeyRest {
 
     @Operation(summary = "删除配置键名()")
     @DeleteMapping("/config/key/ids")
-    public boolean delete(@RequestParam("taskConfigIds") String taskConfigIds) {
+    public Boolean delete(@RequestParam("taskConfigIds") String taskConfigIds) {
         return taskConfigHandler.deleteByIds(taskConfigIds);
     }
 }

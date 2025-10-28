@@ -54,4 +54,7 @@ public class TaskProjectEntity {
     
     @Schema(description = "是否删除")
     private Boolean deleted;
+
+    @Schema(description = "乐观锁版本")
+    private Integer version;
 }

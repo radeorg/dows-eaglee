@@ -17,41 +17,37 @@ import java.time.LocalDateTime;
 @Table("task_rule")
 @Schema(description = "任务规则")
 public class TaskRuleEntity {
-    
-    @Id(keyType = KeyType.Auto)
+
     @Schema(description = "任务规则ID")
-    private Long taskRuleId;
-    
-    @Schema(description = "规则名称")
-    private String ruleName;
-    
-    @Schema(description = "规则类型")
-    private String ruleType;
-    
-    @Schema(description = "应用类型：project-项目级，task-任务级")
-    private String applicationType;
-    
-    @Schema(description = "规则条件")
-    private String ruleCondition;
-    
-    @Schema(description = "规则动作")
-    private String ruleAction;
-    
-    @Schema(description = "优先级")
-    private Integer priority;
-    
-    @Schema(description = "是否启用")
-    private Boolean enabled;
-    
+    public Long taskRuleId;
+
+    @Schema(description = "规则名")
+    public String ruleName;
+
+    @Schema(description = "json配置")
+    public String configJson;
+
+    @Schema(description = "应用类型（0:项目, 1:任务）")
+    public Integer referenceType;
+
+    @Schema(description = "引用ID（项目或任务）")
+    public Long referenceId;
+
     @Schema(description = "创建时间")
-    private LocalDateTime ct;
-    
+    public LocalDateTime ct;
+
     @Schema(description = "更新时间")
-    private LocalDateTime ut;
-    
+    public LocalDateTime ut;
+
     @Schema(description = "创建者ID")
-    private Long cid;
-    
-    @Schema(description = "是否删除")
-    private Boolean deleted;
+    public Long cid;
+
+    @Schema(description = "更新者ID")
+    public Long uid;
+
+    @Schema(description = "删除标记")
+    public Boolean deleted;
+
+    @Schema(description = "乐观锁版本")
+    public Integer version;
 }

@@ -27,7 +27,11 @@ public class TaskInstanceSaveRequest {
     @NotBlank(message = "任务名称不能为空")
     @Schema(description = "任务名称", required = true, example = "用户数据处理")
     private String taskName;
-    
+
+    @NotBlank(message = "项目标识不能为空")
+    @Schema(description = "项目标识", required = true, example = "user-data-process")
+    private String projectIdentifier;
+
     @NotBlank(message = "任务标识不能为空")
     @Schema(description = "任务标识", required = true, example = "user-data-process")
     private String taskIdentifier;
