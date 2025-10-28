@@ -32,25 +32,29 @@ public class TaskRuntimeSaveRequest {
     @Min(value = 0, message = "CPU使用量不能小于0")
     @Max(value = 100, message = "CPU使用量不能大于100")
     @Schema(description = "CPU使用量（百分比）", required = true, example = "75")
-    private Integer cpuUsage;
+    private Long cpuUsage;
     
     @NotNull(message = "内存使用量不能为空")
     @Min(value = 0, message = "内存使用量不能小于0")
     @Max(value = 100, message = "内存使用量不能大于100")
     @Schema(description = "内存使用量（百分比）", required = true, example = "60")
-    private Integer memUsage;
+    private Long memUsage;
     
     @NotNull(message = "磁盘使用量不能为空")
     @Min(value = 0, message = "磁盘使用量不能小于0")
     @Max(value = 100, message = "磁盘使用量不能大于100")
     @Schema(description = "磁盘使用量（百分比）", required = true, example = "45")
-    private Integer diskUsage;
+    private Long diskUsage;
     
     @NotNull(message = "网络使用量不能为空")
     @Min(value = 0, message = "网络使用量不能小于0")
     @Max(value = 100, message = "网络使用量不能大于100")
     @Schema(description = "网络使用量（百分比）", required = true, example = "30")
-    private Integer netUsage;
+    private Long netUsage;
+
+
+    @Schema(description = "主机时间(主机上报时间)")
+    private LocalDateTime hostTime;
     
     @Schema(description = "采集时间（不传则使用当前时间）")
     private LocalDateTime ct;

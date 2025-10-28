@@ -28,42 +28,22 @@ public class TaskRuntimePageRequest {
     @Schema(description = "节点IP地址", example = "192.168.1.100")
     private String ip;
     
-    @Schema(description = "最小CPU使用量", example = "50")
-    private Integer minCpuUsage;
+    @Schema(description = "CPU使用量", example = "50")
+    private Integer cpuUsage;
     
-    @Schema(description = "最大CPU使用量", example = "90")
-    private Integer maxCpuUsage;
-    
-    @Schema(description = "最小内存使用量", example = "40")
-    private Integer minMemUsage;
-    
-    @Schema(description = "最大内存使用量", example = "80")
-    private Integer maxMemUsage;
-    
-    @Schema(description = "最小磁盘使用量", example = "20")
-    private Integer minDiskUsage;
-    
-    @Schema(description = "最大磁盘使用量", example = "70")
-    private Integer maxDiskUsage;
-    
-    @Schema(description = "最小网络使用量", example = "10")
-    private Integer minNetUsage;
-    
-    @Schema(description = "最大网络使用量", example = "60")
-    private Integer maxNetUsage;
+    @Schema(description = "内存使用量", example = "40")
+    private Integer memUsage;
+
+    @Schema(description = "磁盘使用量", example = "20")
+    private Integer diskUsage;
+
+    @Schema(description = "网络使用量", example = "10")
+    private Integer netUsage;
     
     @Schema(description = "采集时间范围-开始")
-    private LocalDateTime ctBegin;
+    private LocalDateTime beginTime;
     
     @Schema(description = "采集时间范围-结束")
-    private LocalDateTime ctEnd;
-    
-    @Schema(description = "是否包含已删除数据", example = "false")
-    private Boolean includeDeleted = false;
-    
-    @Schema(description = "排序字段", example = "ct")
-    private String orderBy = "ct";
-    
-    @Schema(description = "排序方向：asc-升序，desc-降序", example = "desc")
-    private String orderDirection = "desc";
+    private LocalDateTime endTime;
+
 }

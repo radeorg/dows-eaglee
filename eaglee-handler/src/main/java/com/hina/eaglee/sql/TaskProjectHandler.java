@@ -72,7 +72,22 @@ public class TaskProjectHandler {
         QueryWrapper queryWrapper = QueryWrapper.create().from(TaskProjectEntity.class);
         // 只添加有效的过滤条件，不包括分页参数
         if (StrUtil.isNotBlank(request.getProjectName())) {
-            queryWrapper.and(TaskConfigEntity::getKey).like(request.getProjectName());
+            queryWrapper.and(TaskProjectEntity::getProjectName).like(request.getProjectName());
+        }
+        if (StrUtil.isNotBlank(request.getProcessCode())) {
+            queryWrapper.and(TaskProjectEntity::getProcessCode).like(request.getProcessCode());
+        }
+        if (StrUtil.isNotBlank(request.getProjectIdentifier())) {
+            queryWrapper.and(TaskProjectEntity::getProjectIdentifier).like(request.getProjectIdentifier());
+        }
+        if (request.getState() != null) {
+            queryWrapper.and(TaskProjectEntity::getState).eq(request.getState());
+        }
+        if (request.getStartTime() != null) {
+            queryWrapper.and(TaskProjectEntity::getStartTime).ge(request.getStartTime());
+        }
+        if (request.getEndTime() != null) {
+            queryWrapper.and(TaskProjectEntity::getEndTime).le(request.getEndTime());
         }
         Page<TaskProjectResponse> page = taskProjectDao
                 .pageAs(Page.of(request.getCurrent(), request.getSize()), queryWrapper, TaskProjectResponse.class);

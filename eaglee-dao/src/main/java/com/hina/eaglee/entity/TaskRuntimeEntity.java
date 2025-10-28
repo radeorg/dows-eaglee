@@ -26,16 +26,19 @@ public class TaskRuntimeEntity {
     private String ip;
     
     @Schema(description = "CPU使用量")
-    private Integer cpuUsage;
+    private Long cpuUsage;
     
     @Schema(description = "内存使用量")
-    private Integer memUsage;
+    private Long memUsage;
     
     @Schema(description = "磁盘使用量")
-    private Integer diskUsage;
+    private Long diskUsage;
     
     @Schema(description = "网络使用量")
-    private Integer netUsage;
+    private Long netUsage;
+
+    @Schema(description = "主机时间(主机上报时间)")
+    private LocalDateTime hostTime;
     
     @Schema(description = "创建时间")
     private LocalDateTime ct;

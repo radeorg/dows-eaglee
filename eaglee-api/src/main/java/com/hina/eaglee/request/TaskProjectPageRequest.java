@@ -38,17 +38,9 @@ public class TaskProjectPageRequest {
     private Integer state;
     
     @Schema(description = "开始时间范围-开始")
-    private LocalDateTime startTimeBegin;
-    
-    @Schema(description = "开始时间范围-结束")
-    private LocalDateTime startTimeEnd;
-    
-    @Schema(description = "结束时间范围-开始")
-    private LocalDateTime endTimeBegin;
-    
+    private LocalDateTime startTime;
+
     @Schema(description = "结束时间范围-结束")
-    private LocalDateTime endTimeEnd;
+    private LocalDateTime endTime;
     
-    @Schema(description = "是否包含已删除数据", example = "false")
-    private Boolean includeDeleted = false;
 }

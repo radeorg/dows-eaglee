@@ -25,8 +25,8 @@ public class TaskMetricEntity {
     @Schema(description = "节点IP地址")
     private String ip;
     
-    @Schema(description = "时间单位：minute-分钟，hour-小时，day-天")
-    private String timeUnit;
+    @Schema(description = "时间单位：1:minute-分钟，2:hour-小时，3:day-天")
+    private Integer timeUnit;
     
     @Schema(description = "时间值")
     private LocalDateTime timeValue;
@@ -42,16 +42,15 @@ public class TaskMetricEntity {
     
     @Schema(description = "网络使用总量")
     private Long netTotal;
-    
-    @Schema(description = "数据点数量")
-    private Integer dataPoints;
+
     
     @Schema(description = "创建时间")
     private LocalDateTime ct;
     
-    @Schema(description = "更新时间")
-    private LocalDateTime ut;
-    
     @Schema(description = "是否删除")
     private Boolean deleted;
+
+    @Schema(description = "乐观锁版本")
+    private Integer version;
+
 }

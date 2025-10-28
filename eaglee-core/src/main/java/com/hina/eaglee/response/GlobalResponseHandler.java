@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 // 指定扫描包
-@ControllerAdvice(basePackages = {"com.hina.eaglee.config", "com.hina.eaglee.collect", "com.hina.eaglee.generate", "com.hina.eaglee.metric"})
+@ControllerAdvice(basePackages = {"com.hina.eaglee.config", "com.hina.eaglee.collect", "com.hina.eaglee.manage", "com.hina.eaglee.metric"})
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 
     // 判断是否需要处理该返回值

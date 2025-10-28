@@ -82,8 +82,8 @@ public class TaskInstanceResponse {
             case 0 -> "待执行";
             case 1 -> "运行中";
             case 2 -> "已完成";
-            case 3 -> "失败";
-            case 4 -> "已取消";
+//            case 3 -> "失败";
+//            case 4 -> "已取消";
             default -> "未知";
         };
     }
@@ -101,7 +101,7 @@ public class TaskInstanceResponse {
     /**
      * 计算当前耗时（如果任务正在运行）
      */
-    public Long getCurrentElapsedTime() {
+    public Long getElapsedTime() {
         if (startTime != null && endTime == null) {
             return java.time.Duration.between(startTime, LocalDateTime.now()).toMillis();
         }

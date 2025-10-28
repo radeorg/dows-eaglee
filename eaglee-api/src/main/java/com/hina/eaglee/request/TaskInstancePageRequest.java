@@ -25,9 +25,7 @@ public class TaskInstancePageRequest {
     @Schema(description = "每页大小", example = "10")
     private Long size = 10L;
     
-    @Schema(description = "任务项目ID", example = "1")
-    private Long taskProjectId;
-    
+
     @Schema(description = "任务名称（模糊查询）", example = "用户数据")
     private String taskName;
     
@@ -44,23 +42,12 @@ public class TaskInstancePageRequest {
     private Integer state;
     
     @Schema(description = "开始时间范围-开始")
-    private LocalDateTime startTimeBegin;
-    
-    @Schema(description = "开始时间范围-结束")
-    private LocalDateTime startTimeEnd;
-    
-    @Schema(description = "结束时间范围-开始")
-    private LocalDateTime endTimeBegin;
-    
+    private LocalDateTime startTime;
+
     @Schema(description = "结束时间范围-结束")
-    private LocalDateTime endTimeEnd;
+    private LocalDateTime endTime;
     
-    @Schema(description = "最小耗时（毫秒）", example = "1000")
-    private Long minDuration;
+    @Schema(description = "耗时（毫秒）", example = "1000")
+    private Long duration;
     
-    @Schema(description = "最大耗时（毫秒）", example = "10000")
-    private Long maxDuration;
-    
-    @Schema(description = "是否包含已删除数据", example = "false")
-    private Boolean includeDeleted = false;
 }

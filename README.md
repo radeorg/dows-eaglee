@@ -1,92 +1,95 @@
-# hina-eaglee
+# 海纳嗨数 业务模块
+# swagger地址
+http://serverIp:port/swagger-ui.html
+
+# 项目打包
+mvn clean package -Dmaven.test.skip=true -Ptest
+
+# 测试环境
+nacos地址 http://10.0.19.5:8848/nacos
+sentinel控台 http://10.0.19.5:8000/
+
+# 项目介绍
+## 文件结构
+com.hina.cloud.service为项目的根文件目录
+
+根文件目录下有springboot启动类，springboot默认扫描启动类所在文件目录及子文件目录
+
+原则上根文件目录下分为五个一级文件夹,分别为endpoint、common、config、application、domain,代表整个项目结构的五大模块
+
+* **endpoint**
+
+    暴露的服务端点 微服务请求入口 来自不同客户端的服务接口应该区分开来，放在不同的子文件夹目录下，如：[web]、[h5]、[inner]。
+    [web]、[h5]、[inner]下放:
+                           【model】.[req] .[resp]接口请求响应对象包，XxxxReq,XxxxResp
+                           提供外部服务的接口，XxxxEndpoint
+    【aop】：日志切面
+
+其中web代表给web前端使用的接口，h5代表给移动端使用的接口，inner代表给内部其它微服务调用的接口。
+
+    之所以这样区分，是因为不同客户端请求对安全性的考虑不一样.
+    inner接口都是内部微服务之间调用,一般不考虑鉴权等问题.
+    对于web、h5端的请求都是来自网关转发, 而且都属于C端的请求, C端需要有用户注册、用户登陆态维护以及鉴权, 这些功能都被业务系统所前置.
+    所以一般后端服务不能暴露在公网上, 但是后端的服务又往往需要区分请求是来自哪个用户.
+    现在的通用做法是gateway或者auth系统通过token和用户id之间的转换放在http报文头中供后端业务系统使用, 这个特征在以H5为主要形态的移动端更为突出. 
+    http报文头往往还要承载更多属性和功能,基本需要Filter模块单独来处理, 比如说app的黑名单过滤、权限等功能, web端特别是管理系统就相对简单多.
+    所以把服务于不同客户端的请求接口分类开来, 方便开发.
+
+* **application**
+
+    业务模块，endpoint是服务入口，application是业务得实现，跟业务相关的都放在这里面。其中manager文件夹用于放对事务封装的代码、负责业务逻辑的代码；
+    
+
+    子文件夹：
+        【model】：业务模块实体类：XxxxBO
+        【convert】：包装类,转换工具层   XxxxConvert
+        【service】：组装指令层，子包，impl接口实现
+        【task】：异步任务层
+        【manager】：核心业务逻辑聚合层，子包，impl接口实现
+    
+* **common**
+ 
+    公共模块，其它模块都能使用到的公共代码放在这里面，比如：枚举、异常、http 报文头的处理、filter、工具类等
+     
+* **config**
+ 
+    三方组件使用、配置模块，微服务更加推荐组件的启用、配置使用注解的方式引入，而不是传统的通过加载配置文件，因为前者更加高效。
+    
+* **domain**       
+
+    领域模块，可以把这个模块理解为外交部，这里面是跟外部系统交互比较复杂，考虑的点比较多的代码，比如feign调用，数据库的多数据源配置使用，邮件调用等。
+    
+业务模型的中间类、外部接口模型、数据模型等等，把他们放在一个模块里，便于统一维护管理。
+
+facade是调用外部服务的封装，业务代码直接使用这个封装的api，屏蔽对事务以及外部服务调用所涉及的异常、熔断、请求参数模型、结果处理等相关的细节处理，这样
+
+使得业务代码逻辑更清晰，有利于代码的分层、重用和维护。   
+【model】:数据库实体类：XxxxDO
+【mapper】：db操作层
+【facade】:外部接口层
+【feign】: 调用外部服务（注册中心模式、直连模式）
+    【定义接口】外部服务接口
+    【hystrix】外部服务接口熔断类
+    【dto】外部接口请求参数、返回参数实体类
+    
 
 
 
-## Getting started
+# 关于TenantResourceEndPoint业务说明
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+  这是提供给内部系统使用的接口，功能是数仓商户资源相关操作，不提供给网关调用；接口主要封装了doris DDL、DML操作。
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+  一共有6个api：商户入驻、新建项目初始化项目资源、重置项目表资源信息、新增列、删除列、清理用户所有资源
 
-## Add your files
+  1、商户入驻：功能是为商户新建一个空的数据库。
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+  2、新建项目初始化项目资源：功能是为已经完成入驻的商户的新建项目时，为其分配表资源，一个项目两张表，分别为dwd_event_$projectCode、 
+  dwd_users_$projectCode，表结构初始字段默认就生成，其它因为不同项目字段不同，需要传入。
 
-```
-cd existing_repo
-git remote add origin http://git.hinadt.com/middle-software/hina-eaglee.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](http://git.hinadt.com/middle-software/hina-eaglee/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+  3、新增列：功能是为租户指定项目的表新增字段，支持批量新增。
+  
+  4、删除列：功能是为租户指定的项目表删除字段，不支持批量，如果有大量列字段需要删除，涉及的表结构变动已经很大了，建议使用重置项目表资源信息
+  
+  5、重置项目表资源信息：功能是当表结构变动很大时，可以使用该接口，注意: **这个接口会删除旧表重新新建表, 数据会丢失，已经投产的项目慎用**
+  
+  6、清理用户所有资源：功能是方便开发、测试清除垃圾数据，注意：**高风险，生产禁止使用**
