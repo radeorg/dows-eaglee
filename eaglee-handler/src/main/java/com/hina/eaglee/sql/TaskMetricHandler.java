@@ -9,7 +9,6 @@ import com.hina.eaglee.entity.TaskMetricEntity;
 import com.hina.eaglee.entity.TaskRuntimeEntity;
 import com.hina.eaglee.exception.BusinessException;
 import com.hina.eaglee.pojo.MetricSetting;
-import com.hina.eaglee.pojo.MetricUnit;
 import com.hina.eaglee.pojo.TaskSetting;
 import com.hina.eaglee.request.TaskMetricAnalyseRequest;
 import com.hina.eaglee.request.TaskMetricQueryRequest;
@@ -23,11 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
@@ -53,12 +48,37 @@ public class TaskMetricHandler {
      */
     public Long save(TaskRuntimeSaveRequest request) {
         log.info("保存运行时节点指标：{}", JSONUtil.toJsonStr(request));
+
+        // 针对节点统计指标数据
+        TaskRuntimeEntity taskRuntimeEntity = new TaskRuntimeEntity();
+        //BeanUtils.copyProperties(request, taskRuntimeEntity);
+        taskRuntimeEntity.setIp(request.getIp());
+        taskRuntimeEntity.setCpuUsage(request.getCpuUsage());
+        taskRuntimeEntity.setMemUsage(request.getMemUsage());
+        taskRuntimeEntity.setDiskUsage(request.getDiskUsage());
+        taskRuntimeEntity.setNetUsage(request.getNetUsage());
+        taskRuntimeEntity.setHostTime(request.getHostTime());
+        if (taskRuntimeDao.save(taskRuntimeEntity)) {
+            log.info("运行时节点指标保存成功，ID: {}", taskRuntimeEntity.getTaskRuntimeId());
+            check(request);
+            return taskRuntimeEntity.getTaskRuntimeId();
+        }
+        throw new BusinessException(BusinessException.OPERATION_FAILED, "保存运行时节点指标失败");
+    }
+
+
+    /**
+     * 运行时节点指标数据检查
+     *
+     * @param request
+     */
+    public void check(TaskRuntimeSaveRequest request) {
+
         MetricSetting metricSetting = taskCacheHandler.getMetricSetting(request.getIp());
         String applicationId = request.getApplicationId();
         String processInstanceId = request.getProcessInstanceId();
         String taskInstanceId = request.getTaskInstanceId();
         String codeIdentifier = request.getCodeIdentifier();
-
         /**
          * todo 1.根据流程实例ID, 查询TaskProject表，找到项目标识
          *      - 根据项目标识, 查询项目配置表，找到项目配置TaskSetting表，找到这类任务的运行时指标统计规则
@@ -69,14 +89,17 @@ public class TaskMetricHandler {
             // todo 根据任务配置的触发告警规则，判断是否触发告警，此处通过下线程池提交异步处理
             threadPoolExecutor.execute(() -> {
                 // todo 告警处理
-                log.info("触发告警处理：{}", JSONUtil.toJsonStr(request));
+
 
             });
         }
+
+
+
         /**
          * todo 2.统计指标数据，根据配置的统计规则，进行统计
          */
-        if (metricSetting != null) {
+        /*if (metricSetting != null) {
             Map<MetricUnit, Integer> metricUnitMap = metricSetting.getMetricUnitMap();
             Set<MetricUnit> metricUnits = metricUnitMap.keySet();
 
@@ -136,21 +159,7 @@ public class TaskMetricHandler {
                     taskMetricDao.save(taskMetricEntity);
                 }
             }
-        }
-
-        // 针对节点统计指标数据
-        TaskRuntimeEntity taskRuntimeEntity = new TaskRuntimeEntity();
-        //BeanUtils.copyProperties(request, taskRuntimeEntity);
-        taskRuntimeEntity.setIp(request.getIp());
-        taskRuntimeEntity.setCpuUsage(request.getCpuUsage());
-        taskRuntimeEntity.setMemUsage(request.getMemUsage());
-        taskRuntimeEntity.setDiskUsage(request.getDiskUsage());
-        taskRuntimeEntity.setNetUsage(request.getNetUsage());
-        taskRuntimeEntity.setHostTime(request.getHostTime());
-        if (taskRuntimeDao.save(taskRuntimeEntity)) {
-            return taskRuntimeEntity.getTaskRuntimeId();
-        }
-        throw new BusinessException(BusinessException.OPERATION_FAILED, "保存运行时节点指标失败");
+        }*/
     }
 
     /**

@@ -30,14 +30,11 @@ public class TaskRulePageRequest {
     @Schema(description = "规则名")
     public String ruleName;
 
-    @Schema(description = "json配置")
-    public String configJson;
+    @Schema(description = "项目标识")
+    public String workflowIdentifier;
 
-    @Schema(description = "应用类型（0:项目, 1:任务）")
-    public Integer referenceType;
-
-    @Schema(description = "引用ID（项目或任务）")
-    public Long referenceId;
+//    @Schema(description = "任务标识")
+    public String taskIdentifier;
 
 
 }

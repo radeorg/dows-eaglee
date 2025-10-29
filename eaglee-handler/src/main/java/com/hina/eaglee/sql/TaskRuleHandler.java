@@ -2,9 +2,14 @@ package com.hina.eaglee.sql;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.hina.eaglee.config.JsonConfig;
 import com.hina.eaglee.dao.TaskRuleDao;
+import com.hina.eaglee.dao.TaskSettingDao;
+import com.hina.eaglee.dolphin.DolphinClient;
+import com.hina.eaglee.dolphin.TaskDefinition;
 import com.hina.eaglee.entity.TaskConfigEntity;
 import com.hina.eaglee.entity.TaskRuleEntity;
+import com.hina.eaglee.entity.TaskSettingEntity;
 import com.hina.eaglee.exception.BusinessException;
 import com.hina.eaglee.request.TaskRulePageRequest;
 import com.hina.eaglee.request.TaskRuleSaveRequest;
@@ -15,8 +20,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,11 +33,23 @@ import java.util.stream.Collectors;
 @Component
 public class TaskRuleHandler {
     private final TaskRuleDao taskRuleDao;
+    private final TaskSettingDao taskSettingDao;
+    private final DolphinClient dolphinClient;
 
-
+    /**
+     * 保存规则并绑定任务标识
+     * @param taskRuleSaveRequest
+     * @return
+     */
+    @Transactional
     public Long save(TaskRuleSaveRequest taskRuleSaveRequest) {
-
         log.info("保存配置键名：{}", JSONUtil.toJsonStr(taskRuleSaveRequest));
+        String workflowIdentifier = taskRuleSaveRequest.getWorkflowIdentifier();
+        // todo 去dolphin根据流程ID查询所有任务定义
+        List<TaskDefinition> taskDefinitions = dolphinClient.getTaskDefinitionByWorkflowId(workflowIdentifier);
+        if (taskDefinitions == null || taskDefinitions.isEmpty()) {
+            throw new BusinessException(BusinessException.INVALID_PARAMETER, "流程ID不存在,或者没有任务定义");
+        }
         // 构建实体对象
         TaskRuleEntity taskRuleEntity = new TaskRuleEntity();
         BeanUtils.copyProperties(taskRuleSaveRequest, taskRuleEntity);
@@ -38,26 +57,48 @@ public class TaskRuleHandler {
         LocalDateTime now = LocalDateTime.now();
         taskRuleEntity.setCt(now);
         taskRuleEntity.setUt(now);
-        taskRuleEntity.setDeleted(false);
-        // 保存到数据库
-        boolean save = taskRuleDao.save(taskRuleEntity);
-        if (!save) {
-            throw new BusinessException(BusinessException.OPERATION_FAILED, "创建任务规则失败");
+
+        String jsonConfig = JsonConfig.toJsonConfig(taskRuleSaveRequest.getSettings());
+        taskRuleEntity.setConfigJson(jsonConfig);
+
+        if (taskRuleDao.save(taskRuleEntity)) {
+            // 绑定任务
+            bind(taskRuleEntity.getTaskRuleId(),workflowIdentifier,taskDefinitions);
+            return taskRuleEntity.getTaskRuleId();
         }
-        Long taskConfigId = taskRuleEntity.getTaskRuleId();
-        log.info("任务规则创建成功，ID: {}", taskConfigId);
-        return taskConfigId;
+        throw new BusinessException(BusinessException.OPERATION_FAILED, "创建任务规则失败");
     }
+
+    /**
+     * 绑定任务规则
+     * @param taskRuleId
+     * @param workflowIdentifier
+     * @param taskDefinitions
+     */
+    private void bind(Long taskRuleId, String workflowIdentifier, List<TaskDefinition> taskDefinitions) {
+        List<TaskSettingEntity> taskSettingEntities = new ArrayList<>(taskDefinitions.size());
+        for (TaskDefinition taskDefinition : taskDefinitions) {
+            TaskSettingEntity taskRuleEntity = new TaskSettingEntity();
+            taskRuleEntity.setTaskRuleId(taskRuleId);
+            taskRuleEntity.setWorkflowIdentifier(workflowIdentifier);
+            taskRuleEntity.setTaskIdentifier(taskDefinition.getTaskIdentifier());
+            taskSettingEntities.add(taskRuleEntity);
+        }
+        taskSettingDao.saveBatch(taskSettingEntities);
+    }
+
+
 
     public Boolean update(TaskRuleSaveRequest taskRuleSaveRequest) {
         log.info("更新任务配置，请求参数: {}", taskRuleSaveRequest);
-        TaskRuleEntity taskConfig = taskRuleDao.getById(taskRuleSaveRequest.getTaskRuleId());
-        if (taskConfig == null) {
+        TaskRuleEntity taskRuleEntity = taskRuleDao.getById(taskRuleSaveRequest.getTaskRuleId());
+        if (taskRuleEntity == null) {
             throw new BusinessException(BusinessException.INVALID_PARAMETER, "任务规则不存在");
         }
-        BeanUtils.copyProperties(taskRuleSaveRequest, taskConfig);
-        taskConfig.setUt(LocalDateTime.now());
-        return taskRuleDao.updateById(taskConfig);
+        BeanUtils.copyProperties(taskRuleSaveRequest, taskRuleEntity);
+        String jsonConfig = JsonConfig.toJsonConfig(taskRuleSaveRequest.getSettings());
+        taskRuleEntity.setConfigJson(jsonConfig);
+        return taskRuleDao.updateById(taskRuleEntity);
     }
 
     public Page<TaskRuleResponse> page(TaskRulePageRequest taskRulePageRequest) {
@@ -67,11 +108,11 @@ public class TaskRuleHandler {
         if (StrUtil.isNotBlank(taskRulePageRequest.getRuleName())) {
             queryWrapper.and(TaskRuleEntity::getRuleName).like(taskRulePageRequest.getRuleName());
         }
-        if (taskRulePageRequest.getReferenceType() != null) {
-            queryWrapper.and(TaskRuleEntity::getReferenceType).eq(taskRulePageRequest.getReferenceType());
+        if (taskRulePageRequest.getWorkflowIdentifier() != null) {
+            queryWrapper.and(TaskRuleEntity::getWorkflowIdentifier).like(taskRulePageRequest.getWorkflowIdentifier());
         }
-        if (taskRulePageRequest.getReferenceId() != null) {
-            queryWrapper.and(TaskRuleEntity::getReferenceId).eq(taskRulePageRequest.getReferenceId());
+        if (taskRulePageRequest.getTaskIdentifier() != null) {
+            queryWrapper.and(TaskRuleEntity::getTaskIdentifier).like(taskRulePageRequest.getTaskIdentifier());
         }
         return taskRuleDao
                 .pageAs(Page.of(taskRulePageRequest.getPageNo(), taskRulePageRequest.getPageSize()), queryWrapper, TaskRuleResponse.class);

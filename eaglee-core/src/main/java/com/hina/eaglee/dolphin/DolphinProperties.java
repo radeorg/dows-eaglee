@@ -1,0 +1,16 @@
+package com.hina.eaglee.dolphin;
+
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+@Component
+@Data
+@ConfigurationProperties(prefix = "hina.eaglee.dolphin")
+public class DolphinProperties {
+    private String host;
+    private String token;
+    private Map<String, String> endpoints;
+}

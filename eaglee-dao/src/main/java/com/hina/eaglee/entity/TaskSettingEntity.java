@@ -1,10 +1,10 @@
 package com.hina.eaglee.entity;
 
-import java.time.LocalDateTime;
-
 import com.mybatisflex.annotation.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 /**
  * 任务设置实体
@@ -20,8 +20,8 @@ public class TaskSettingEntity {
     @Schema(description = "任务规则ID")
     public Long taskRuleId;
 
-    @Schema(description = "项目标识")
-    public String projectIdentifier;
+    @Schema(description = "流程标识")
+    public String workflowIdentifier;
 
     @Schema(description = "同一类任务的标识")
     public String taskIdentifier;

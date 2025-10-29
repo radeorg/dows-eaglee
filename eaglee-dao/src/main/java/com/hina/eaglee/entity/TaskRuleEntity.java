@@ -27,11 +27,11 @@ public class TaskRuleEntity {
     @Schema(description = "json配置")
     public String configJson;
 
-    @Schema(description = "应用类型（0:项目, 1:任务）")
-    public Integer referenceType;
+    @Schema(description = "所属工作流标识", example = "workflow_xxx")
+    public String workflowIdentifier;
 
-    @Schema(description = "引用ID（项目或任务）")
-    public Long referenceId;
+    @Schema(description = "所属任务标识", example = "task_xxx")
+    public String taskIdentifier;
 
     @Schema(description = "创建时间")
     public LocalDateTime ct;

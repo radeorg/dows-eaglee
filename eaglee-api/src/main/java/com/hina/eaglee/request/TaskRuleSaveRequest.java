@@ -1,16 +1,8 @@
 package com.hina.eaglee.request;
 
+import com.hina.eaglee.setting.TaskRuleConfig;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Pattern;
-
-import java.time.LocalDateTime;
 
 /**
  * 任务规则保存请求类
@@ -21,36 +13,19 @@ import java.time.LocalDateTime;
 @Schema(description = "任务规则保存请求")
 public class TaskRuleSaveRequest {
 
-    @Schema(description = "任务规则ID")
+    @Schema(description = "任务规则ID(更新时必填)")
     public Long taskRuleId;
 
     @Schema(description = "规则名")
     public String ruleName;
 
+    @Schema(description = "所属工作流标识", example = "workflow_xxx")
+    public String workflowIdentifier;
+
     @Schema(description = "json配置")
-    public String configJson;
+    public TaskRuleConfig settings;
 
-    @Schema(description = "应用类型（0:项目, 1:任务）")
-    public Integer referenceType;
 
-    @Schema(description = "引用ID（项目或任务）")
-    public Long referenceId;
-
-    @Schema(description = "创建时间")
-    public LocalDateTime ct;
-
-    @Schema(description = "更新时间")
-    public LocalDateTime ut;
-
-    @Schema(description = "创建者ID")
-    public Long cid;
-
-    @Schema(description = "更新者ID")
-    public Long uid;
-
-    @Schema(description = "删除标记")
-    public Boolean deleted;
-
-    @Schema(description = "乐观锁版本")
-    public Integer version;
+//    @Schema(description = "所属任务标识", example = "task_xxx")
+//    public String taskIdentifier;
 }
