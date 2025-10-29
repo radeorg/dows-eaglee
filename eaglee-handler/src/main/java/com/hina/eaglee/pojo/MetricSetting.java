@@ -15,4 +15,9 @@ public class MetricSetting {
     private Map<MetricUnit, Integer> metricUnitMap;
 
 
+    /**
+     * key:任务类型标识
+     * value:任务配置
+     */
+    private Map<String, TaskSetting> taskSettingMap;
 }

@@ -55,7 +55,17 @@ public class TaskRuntimeSaveRequest {
 
     @Schema(description = "主机时间(主机上报时间)")
     private LocalDateTime hostTime;
-    
+
+    // 应用ID
+    private String applicationId;
+    // 任务实例ID
+    private String taskInstanceId;
+    // 流程实例ID
+    private String processInstanceId;
+
+    //code标识码（项目+任务标识）
+    private String codeIdentifier;
+
     @Schema(description = "采集时间（不传则使用当前时间）")
     private LocalDateTime ct;
 }

@@ -2,15 +2,15 @@ package com.hina.eaglee.sql;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.hina.eaglee.cache.TaskRuleCache;
+import com.hina.eaglee.cache.TaskCacheHandler;
 import com.hina.eaglee.dao.TaskMetricDao;
-import com.hina.eaglee.dao.TaskRuleDao;
 import com.hina.eaglee.dao.TaskRuntimeDao;
 import com.hina.eaglee.entity.TaskMetricEntity;
 import com.hina.eaglee.entity.TaskRuntimeEntity;
 import com.hina.eaglee.exception.BusinessException;
 import com.hina.eaglee.pojo.MetricSetting;
 import com.hina.eaglee.pojo.MetricUnit;
+import com.hina.eaglee.pojo.TaskSetting;
 import com.hina.eaglee.request.TaskMetricAnalyseRequest;
 import com.hina.eaglee.request.TaskMetricQueryRequest;
 import com.hina.eaglee.request.TaskRuntimePageRequest;
@@ -28,6 +28,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 @Slf4j
@@ -37,9 +38,10 @@ public class TaskMetricHandler {
 
     private final TaskMetricDao taskMetricDao;
     private final TaskRuntimeDao taskRuntimeDao;
-    private final TaskRuleDao taskRuleDao;
 
-    private final TaskRuleCache taskRuleCache;
+    private final TaskCacheHandler taskCacheHandler;
+
+    private final ThreadPoolExecutor threadPoolExecutor;
 
 
     /**
@@ -51,7 +53,29 @@ public class TaskMetricHandler {
      */
     public Long save(TaskRuntimeSaveRequest request) {
         log.info("保存运行时节点指标：{}", JSONUtil.toJsonStr(request));
-        MetricSetting metricSetting = taskRuleCache.getMetricSetting(request.getIp());
+        MetricSetting metricSetting = taskCacheHandler.getMetricSetting(request.getIp());
+        String applicationId = request.getApplicationId();
+        String processInstanceId = request.getProcessInstanceId();
+        String taskInstanceId = request.getTaskInstanceId();
+        String codeIdentifier = request.getCodeIdentifier();
+
+        /**
+         * todo 1.根据流程实例ID, 查询TaskProject表，找到项目标识
+         *      - 根据项目标识, 查询项目配置表，找到项目配置TaskSetting表，找到这类任务的运行时指标统计规则
+         *      - 动态计算，触发规则
+         */
+        TaskSetting taskSetting = taskCacheHandler.getTaskSetting(codeIdentifier);
+        if (taskSetting != null) {
+            // todo 根据任务配置的触发告警规则，判断是否触发告警，此处通过下线程池提交异步处理
+            threadPoolExecutor.execute(() -> {
+                // todo 告警处理
+                log.info("触发告警处理：{}", JSONUtil.toJsonStr(request));
+
+            });
+        }
+        /**
+         * todo 2.统计指标数据，根据配置的统计规则，进行统计
+         */
         if (metricSetting != null) {
             Map<MetricUnit, Integer> metricUnitMap = metricSetting.getMetricUnitMap();
             Set<MetricUnit> metricUnits = metricUnitMap.keySet();
