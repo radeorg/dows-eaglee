@@ -1,14 +1,31 @@
-spring:
+#spring:
+#  datasource:
+#    #    url: jdbc:h2:file:./data/testdb;AUTO_SERVER=TRUE
+#    #    driver-class-name: org.h2.Driver
+#    #    username: sa
+#    #    password:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:13306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+#    username: root
+#    password: 123456
+#    hikari:
+#      # 连接池基础配置
+#      maximum-pool-size: 10          # 减少最大连接数
+#      minimum-idle: 2               # 减少最小空闲连接
+#      connection-timeout: 3000      # 3秒连接超时
+#      validation-timeout: 2000      # 2秒验证超时
+#      idle-timeout: 600000         # 10分钟空闲超时
+#      max-lifetime: 1800000        # 30分钟最大生命周期
+#      leak-detection-threshold: 0  # 关闭泄漏检测以减少开销
+
+mybatis-flex:
+  default-datasource-key: hina_eaglee
   datasource:
-    #    url: jdbc:h2:file:./data/testdb;AUTO_SERVER=TRUE
-    #    driver-class-name: org.h2.Driver
-    #    username: sa
-    #    password:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:13306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-    username: root
-    password: 123456
-    hikari:
+    hina_eaglee:
+      type: com.zaxxer.hikari.HikariDataSource
+      url: jdbc:mysql://10.254.46.135:3306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      username: hinadt_write
+      password: hinadt@123
       # 连接池基础配置
       maximum-pool-size: 10          # 减少最大连接数
       minimum-idle: 2               # 减少最小空闲连接
@@ -17,29 +34,43 @@ spring:
       idle-timeout: 600000         # 10分钟空闲超时
       max-lifetime: 1800000        # 30分钟最大生命周期
       leak-detection-threshold: 0  # 关闭泄漏检测以减少开销
+    dolphinscheduler:
+      type: com.zaxxer.hikari.HikariDataSource
+      url: jdbc:mysql://10.254.46.135:3306/dolphinscheduler?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      username: hinadt_write
+      password: hinadt@123
+      # 连接池基础配置
+      maximum-pool-size: 10          # 减少最大连接数
+      minimum-idle: 2               # 减少最小空闲连接
+      connection-timeout: 3000      # 3秒连接超时
+      validation-timeout: 2000      # 2秒验证超时
+      idle-timeout: 600000         # 10分钟空闲超时
+      max-lifetime: 1800000        # 30分钟最大生命周期
+      leak-detection-threshold: 0  # 关闭泄漏检测以减少开销
+
 ---
 spring:
   config:
     activate:
       on-profile: dev
-  datasource:
-    #    url: jdbc:h2:file:./data/testdb;AUTO_SERVER=TRUE
-    #    driver-class-name: org.h2.Driver
-    #    username: sa
-    #    password:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://10.254.46.135:3306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-    username: hinadt_write
-    password: hinadt@123
-    hikari:
-      # 连接池基础配置
-      maximum-pool-size: 10          # 减少最大连接数
-      minimum-idle: 2               # 减少最小空闲连接
-      connection-timeout: 3000      # 3秒连接超时
-      validation-timeout: 2000      # 2秒验证超时
-      idle-timeout: 600000         # 10分钟空闲超时
-      max-lifetime: 1800000        # 30分钟最大生命周期
-      leak-detection-threshold: 0  # 关闭泄漏检测以减少开销
+#  datasource:
+#    #    url: jdbc:h2:file:./data/testdb;AUTO_SERVER=TRUE
+#    #    driver-class-name: org.h2.Driver
+#    #    username: sa
+#    #    password:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://10.254.46.135:3306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+#    username: hinadt_write
+#    password: hinadt@123
+#    hikari:
+#      # 连接池基础配置
+#      maximum-pool-size: 10          # 减少最大连接数
+#      minimum-idle: 2               # 减少最小空闲连接
+#      connection-timeout: 3000      # 3秒连接超时
+#      validation-timeout: 2000      # 2秒验证超时
+#      idle-timeout: 600000         # 10分钟空闲超时
+#      max-lifetime: 1800000        # 30分钟最大生命周期
+#      leak-detection-threshold: 0  # 关闭泄漏检测以减少开销
 
 
 ---

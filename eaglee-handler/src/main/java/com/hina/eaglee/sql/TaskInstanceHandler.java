@@ -136,12 +136,12 @@ public class TaskInstanceHandler {
         if (StrUtil.isNotBlank(request.getTaskIdentifier())) {
             queryWrapper.and(TaskInstanceEntity::getTaskIdentifier).like(request.getTaskIdentifier());
         }
-        if (StrUtil.isNotBlank(request.getApplicationId())) {
-            queryWrapper.and(TaskInstanceEntity::getApplicationId).like(request.getApplicationId());
-        }
-        if (StrUtil.isNotBlank(request.getProcessName())) {
-            queryWrapper.and(TaskInstanceEntity::getProcessName).like(request.getProcessName());
-        }
+//        if (StrUtil.isNotBlank(request.getApplicationId())) {
+//            queryWrapper.and(TaskInstanceEntity::getApplicationId).like(request.getApplicationId());
+//        }
+//        if (StrUtil.isNotBlank(request.getProcessName())) {
+//            queryWrapper.and(TaskInstanceEntity::getProcessName).like(request.getProcessName());
+//        }
         if (request.getState() != null) {
             queryWrapper.and(TaskInstanceEntity::getState).eq(request.getState());
         }
@@ -155,7 +155,7 @@ public class TaskInstanceHandler {
             queryWrapper.and(TaskInstanceEntity::getDuration).ge(request.getDuration());
         }
         Page<TaskInstanceResponse> page = taskInstanceDao
-                .pageAs(Page.of(request.getCurrent(), request.getSize()), queryWrapper, TaskInstanceResponse.class);
+                .pageAs(Page.of(request.getPageNumber(), request.getPageSize()), queryWrapper, TaskInstanceResponse.class);
 
         log.info("任务分页查询成功，当前页: {}, 每页大小: {}, 总页数: {}, 总条数: {}",
                 page.getPageNumber(), page.getPageSize(), page.getTotalPage(), page.getTotalRow());

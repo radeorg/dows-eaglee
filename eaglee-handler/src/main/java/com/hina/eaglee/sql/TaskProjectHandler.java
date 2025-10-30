@@ -3,13 +3,17 @@ package com.hina.eaglee.sql;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.hina.eaglee.dao.DolphinProcessDefinitionDao;
+import com.hina.eaglee.dao.DolphinProjectDao;
+import com.hina.eaglee.dao.DolphinTaskRelationDao;
 import com.hina.eaglee.dao.TaskProjectDao;
-import com.hina.eaglee.entity.TaskConfigEntity;
+import com.hina.eaglee.entity.DolphinProcessDefinitionEntity;
+import com.hina.eaglee.entity.DolphinProjectEntity;
 import com.hina.eaglee.entity.TaskProjectEntity;
 import com.hina.eaglee.exception.BusinessException;
-import com.hina.eaglee.request.TaskProjectPageRequest;
-import com.hina.eaglee.request.TaskProjectSaveRequest;
-import com.hina.eaglee.response.TaskProjectResponse;
+import com.hina.eaglee.request.TaskProcessPageRequest;
+import com.hina.eaglee.request.TaskProcessSaveRequest;
+import com.hina.eaglee.response.TaskProcessResponse;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +32,32 @@ import java.util.stream.Collectors;
 public class TaskProjectHandler {
     private final TaskProjectDao taskProjectDao;
 
+    private final DolphinProjectDao dolphinProjectDao;
+    private final DolphinProcessDefinitionDao dolphinProcessDefinitionDao;
+    private final DolphinTaskRelationDao dolphinTaskRelationDao;
 
-    public Long save(TaskProjectSaveRequest taskProjectSaveRequest) {
+    /**
+     * 同步DS项目信息
+     */
+    public void sync() {
+
+
+        // 查询所有DolphinProject和DolphinTaskRelation数据
+        List<DolphinProjectEntity> dolphinProjects = dolphinProjectDao.list();
+        List<Long> projectCodes = dolphinProjects.stream().map(DolphinProjectEntity::getCode).toList();
+
+        QueryWrapper queryWrapper = QueryWrapper.create().from(DolphinProcessDefinitionEntity.class)
+                .and(DolphinProcessDefinitionEntity::getProjectCode).in(projectCodes);
+        List<DolphinProcessDefinitionEntity> dolphinProcessDefinitionEntities = dolphinProcessDefinitionDao.list(queryWrapper);
+
+
+
+        TaskProjectEntity taskProject = new TaskProjectEntity();
+        boolean save = taskProjectDao.save(taskProject);
+
+    }
+
+    public Long save(TaskProcessSaveRequest taskProjectSaveRequest) {
 
         log.info("保存任务项目：{}", JSONUtil.toJsonStr(taskProjectSaveRequest));
         // 构建实体对象
@@ -50,7 +78,7 @@ public class TaskProjectHandler {
         return taskProjectId;
     }
 
-    public Boolean update(TaskProjectSaveRequest taskProjectSaveRequest) {
+    public Boolean update(TaskProcessSaveRequest taskProjectSaveRequest) {
         log.info("更新任务项目：{}", JSONUtil.toJsonStr(taskProjectSaveRequest));
         // 构建实体对象
         TaskProjectEntity taskProject = new TaskProjectEntity();
@@ -67,19 +95,19 @@ public class TaskProjectHandler {
         return true;
     }
 
-    public Page<TaskProjectResponse> page(TaskProjectPageRequest request) {
+    public Page<TaskProcessResponse> page(TaskProcessPageRequest request) {
         log.info("分页查询任务项目：{}", JSONUtil.toJsonStr(request));
         QueryWrapper queryWrapper = QueryWrapper.create().from(TaskProjectEntity.class);
         // 只添加有效的过滤条件，不包括分页参数
-        if (StrUtil.isNotBlank(request.getProjectName())) {
-            queryWrapper.and(TaskProjectEntity::getProjectName).like(request.getProjectName());
+        if (StrUtil.isNotBlank(request.getProcessInstanceName())) {
+            queryWrapper.and(TaskProjectEntity::getProjectName).like(request.getProcessInstanceName());
         }
-        if (StrUtil.isNotBlank(request.getProcessCode())) {
-            queryWrapper.and(TaskProjectEntity::getProcessCode).like(request.getProcessCode());
-        }
-        if (StrUtil.isNotBlank(request.getProjectIdentifier())) {
-            queryWrapper.and(TaskProjectEntity::getProjectIdentifier).like(request.getProjectIdentifier());
-        }
+//        if (StrUtil.isNotBlank(request.getProcessCode())) {
+//            queryWrapper.and(TaskProjectEntity::getProcessCode).like(request.getProcessCode());
+//        }
+//        if (StrUtil.isNotBlank(request.getProjectIdentifier())) {
+//            queryWrapper.and(TaskProjectEntity::getProjectIdentifier).like(request.getProjectIdentifier());
+//        }
         if (request.getState() != null) {
             queryWrapper.and(TaskProjectEntity::getState).eq(request.getState());
         }
@@ -89,8 +117,8 @@ public class TaskProjectHandler {
         if (request.getEndTime() != null) {
             queryWrapper.and(TaskProjectEntity::getEndTime).le(request.getEndTime());
         }
-        Page<TaskProjectResponse> page = taskProjectDao
-                .pageAs(Page.of(request.getCurrent(), request.getSize()), queryWrapper, TaskProjectResponse.class);
+        Page<TaskProcessResponse> page = taskProjectDao
+                .pageAs(Page.of(request.getPageNumber(), request.getPageSize()), queryWrapper, TaskProcessResponse.class);
 
         log.info("任务项目分页查询成功，当前页: {}, 每页大小: {}, 总页数: {}, 总条数: {}",
                 page.getPageNumber(), page.getPageSize(), page.getTotalPage(), page.getTotalRow());

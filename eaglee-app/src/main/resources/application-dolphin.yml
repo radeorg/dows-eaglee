@@ -1,8 +1,8 @@
 hina:
   eaglee:
     dolphin:
-      host: http://localhost:8080
-      token: 123456
+      host: http://10.0.20.25:12345/dolphinscheduler
+      token: 299e2f1483fd6c0718cecc4db06a74cc
       endpoints:
-        listWorkflowDefinition: /api/v1/endpoint2
-        getTaskDefinitionByWorkflowId: /api/v1/endpoint1
+        listWorkflowDefinition: projects/%s/process-definition?pageSize=50&pageNo=1
+        getTaskDefinitionByProjectId: projects/%s/task-definition?pageSize=10&pageNo=1

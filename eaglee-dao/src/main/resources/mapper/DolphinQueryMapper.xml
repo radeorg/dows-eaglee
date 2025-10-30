@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hina.eaglee.mapper.DolphinQueryMapper">
+
+    <select id="queryProcessInstanceForCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM (
+            SELECT pi.id
+            FROM t_ds_process_instance pi
+            LEFT JOIN t_ds_task_instance ti
+            ON pi.id = ti.process_instance_id
+            WHERE 1=1
+            <if test="intervalDay != null">
+                AND ti.start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalDay} DAY)
+            </if>
+            <if test="intervalMinutes != null">
+                AND ti.start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalMinutes} MINUTE)
+            </if>
+            <if test="processInstanceName != null and processInstanceName != ''">
+                AND pi.name LIKE CONCAT('%', #{processInstanceName}, '%')
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND pi.start_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+            <if test="startTime != null">
+                AND pi.start_time  &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND pi.end_time &lt;= #{endTime}
+            </if>
+            <if test="state != null">
+                AND pi.state = #{state}
+            </if>
+            GROUP BY pi.id, pi.name, pi.start_time, pi.end_time, pi.state
+        ) AS temp
+
+    </select>
+    <select id="queryProcessInstanceForPage" resultType="com.hina.eaglee.response.TaskProcessResponse">
+        SELECT
+            pi.id as processInstanceId,
+            pi.name AS processInstanceName,
+            COUNT(DISTINCT ti.task_code) AS taskCount,
+            pi.start_time as startTime,
+            pi.end_time as endTime,
+            pi.state as state
+        FROM t_ds_process_instance pi
+        LEFT JOIN t_ds_task_instance ti
+        ON pi.id = ti.process_instance_id
+        WHERE 1=1
+        <if test="intervalDay != null">
+            AND ti.start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalDay} DAY)
+        </if>
+        <if test="intervalMinutes != null">
+            AND ti.start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalMinutes} MINUTE)
+        </if>
+        <if test="processInstanceName != null and processInstanceName != ''">
+            AND pi.name LIKE CONCAT('%', #{processInstanceName}, '%')
+        </if>
+        <if test="startTime != null and endTime != null">
+            AND pi.start_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="startTime != null">
+            AND pi.start_time  &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND pi.end_time  &lt;= #{endTime}
+        </if>
+        <if test="state != null">
+            AND pi.state = #{state}
+        </if>
+        GROUP BY pi.id, pi.name, pi.start_time, pi.end_time, pi.state
+        ORDER BY pi.start_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+
+    </select>
+
+
+    <select id="queryTaskInstanceForCount" resultType="Integer">
+        SELECT
+            COUNT(*) AS taskCount
+        FROM t_ds_task_instance ti
+        WHERE 1=1
+        <if test="intervalDay != null">
+            AND ti.start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalDay} DAY)
+        </if>
+        <if test="intervalMinutes != null">
+            AND ti.start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalMinutes} MINUTE)
+        </if>
+        <if test="startTime != null and endTime != null">
+            AND ti.start_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="startTime != null and endTime == null">
+            AND ti.start_time  &gt;= #{startTime}
+        </if>
+        <if test="startTime == null and endTime != null">
+            AND ti.start_time  &lt;= #{endTime}
+        </if>
+        <if test="state != null">
+            AND ti.state = #{state}
+        </if>
+    </select>
+
+    <select id="queryTaskInstanceForPage" resultType="com.hina.eaglee.response.TaskInstanceResponse">
+        SELECT
+            ti.id AS taskInstanceId,
+            ti.name AS taskName,
+            ti.task_type AS taskType,
+            ti.task_code AS taskCode,
+            ti.process_instance_id AS processInstanceId,
+            ti.process_instance_name AS processInstanceName,
+            ti.state AS taskState,
+            ti.start_time AS startTime,
+            ti.submit_time AS submitTime,
+            ti.end_time AS endTime,
+            ti.retry_times AS retryTimes,
+            TIMESTAMPDIFF(SECOND, ti.submit_time, NOW()) AS duration,
+            task_avg.avg_duration AS avgDuration
+        FROM t_ds_task_instance ti
+        LEFT JOIN (
+            SELECT
+                task_code,
+                ROUND(AVG(TIMESTAMPDIFF(SECOND, submit_time, end_time))) AS avg_duration
+            FROM t_ds_task_instance
+            WHERE 1=1
+            <if test="intervalDay != null">
+                AND start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalDay} DAY)
+            </if>
+            <if test="intervalMinutes != null">
+                AND start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalMinutes} MINUTE)
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND start_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+            <if test="startTime != null and endTime == null">
+                AND start_time  &gt;= #{startTime}
+            </if>
+            <if test="startTime == null and endTime != null">
+                AND start_time  &lt;= #{endTime}
+            </if>
+            AND state = 7
+            AND end_time IS NOT NULL
+            AND submit_time IS NOT NULL
+            GROUP BY task_code
+        ) task_avg
+        ON ti.task_code = task_avg.task_code
+        WHERE 1=1
+        <if test="intervalDay != null">
+            AND ti.start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalDay} DAY)
+        </if>
+        <if test="intervalMinutes != null">
+            AND ti.start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalMinutes} MINUTE)
+        </if>
+        <if test="startTime != null and endTime != null">
+            AND ti.start_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="startTime != null and endTime == null">
+            AND ti.start_time  &gt;= #{startTime}
+        </if>
+        <if test="startTime == null and endTime != null">
+            AND ti.start_time  &lt;= #{endTime}
+        </if>
+        <if test="state != null">
+            AND ti.state = #{state}
+        </if>
+        ORDER BY ti.start_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+</mapper>

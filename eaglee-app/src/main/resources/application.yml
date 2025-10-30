@@ -9,7 +9,9 @@ spring:
   web:
     resources:
       static-locations: classpath:/META-INF/resources/,classpath:/static/,classpath:META-INF/resources/webjars
-
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
   jmx:
     enabled: false
 
@@ -26,7 +28,7 @@ spring:
 server:
   port: 8080
   servlet:
-    context-path: /api
+#    context-path: /api
     # cookie 30 天过期
     session:
       cookie:
@@ -48,9 +50,9 @@ springdoc:
     - group: '数据采集'
       paths-to-match: '/**'
       packages-to-scan: com.hina.eaglee.collect
-    - group: '数据生成'
+    - group: '数据管理'
       paths-to-match: '/**'
-      packages-to-scan: com.hina.eaglee.generate
+      packages-to-scan: com.hina.eaglee.manage
     - group: '数据度量'
       paths-to-match: '/**'
       packages-to-scan: com.hina.eaglee.metric

@@ -1,17 +1,25 @@
 package com.hina.eaglee.config;
 
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Swagger API文档配置类
@@ -50,12 +58,46 @@ public class SwaggerConfig {
     @Value("${spring.profiles.active:dev}")
     private String activeProfile;
 
+//    @Bean
+//    public SchemaCustomizer localDateTimeSchemaCustomizer() {
+//        // 自定义LocalDateTime类型的Schema
+//        return (schema, type) -> {
+//            // 判断当前处理的类型是否为LocalDateTime
+//            if (type.getRawClass().equals(LocalDateTime.class)) {
+//                // 设置Swagger文档中显示的格式说明
+//                schema.setPattern(DATE_TIME_PATTERN);
+//                // 设置示例值（按指定格式生成一个示例）
+//                String example = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN));
+//                schema.setExample(example);
+//                // 可选：设置描述，提示用户格式
+//                schema.setDescription("时间格式：" + DATE_TIME_PATTERN);
+//            }
+//        };
+//    }
+
     /**
      * 创建OpenAPI配置
      */
     @Bean
     public OpenAPI createOpenAPI() {
+
+        /*// 定义LocalDateTime类型的Schema
+        Schema<LocalDateTime> localDateTimeSchema = new Schema<>();
+        // 支持的格式说明
+        localDateTimeSchema.setDescription("支持的时间格式：\n" +
+                "1. yyyy-MM-dd HH:mm:ss（如2025-10-30 09:15:36）\n" +
+                "2. yyyy-MM-dd'T'HH:mm:ss.SSSZ（如2025-10-30T09:15:36.485Z）");
+        // 示例值
+        String example1 = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String example2 = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX"));
+        localDateTimeSchema.setExample(example1 + " 或 " + example2);
+
+        // 将自定义Schema注册到全局
+        Map<String, Schema> schemas = new HashMap<>();
+        schemas.put("LocalDateTime", localDateTimeSchema);*/
+
         return new OpenAPI()
+                //.components(new io.swagger.v3.oas.models.Components().schemas(schemas))
                 .info(createApiInfo())
                 .servers(createServers());
     }

@@ -1,9 +1,9 @@
 package com.hina.eaglee.manage;
 
-import com.hina.eaglee.request.TaskProjectPageRequest;
-import com.hina.eaglee.request.TaskProjectSaveRequest;
+import com.hina.eaglee.request.TaskProcessPageRequest;
+import com.hina.eaglee.request.TaskProcessSaveRequest;
 import com.hina.eaglee.response.TaskInstanceResponse;
-import com.hina.eaglee.response.TaskProjectResponse;
+import com.hina.eaglee.response.TaskProcessResponse;
 import com.hina.eaglee.sql.TaskInstanceHandler;
 import com.hina.eaglee.sql.TaskProjectHandler;
 import com.mybatisflex.core.paginate.Page;
@@ -26,20 +26,20 @@ public class ManageProjectRest {
 
     @Operation(summary = "保存项目")
     @PostMapping("manage/project/save")
-    public Long save(@RequestBody TaskProjectSaveRequest taskProjectSaveRequest) {
+    public Long save(@RequestBody TaskProcessSaveRequest taskProjectSaveRequest) {
         return taskProjectHandler.save(taskProjectSaveRequest);
     }
 
 
     @Operation(summary = "保存项目")
     @PutMapping("manage/project/save")
-    public Boolean update(@RequestBody TaskProjectSaveRequest taskProjectSaveRequest) {
+    public Boolean update(@RequestBody TaskProcessSaveRequest taskProjectSaveRequest) {
         return taskProjectHandler.update(taskProjectSaveRequest);
     }
 
     @Operation(summary = "分页查询项目")
     @GetMapping("manage/project/page")
-    public Page<TaskProjectResponse> page(TaskProjectPageRequest taskProjectPageRequest) {
+    public Page<TaskProcessResponse> page(TaskProcessPageRequest taskProjectPageRequest) {
         return taskProjectHandler.page(taskProjectPageRequest);
     }
 
