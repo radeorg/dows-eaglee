@@ -107,6 +107,8 @@ public class TaskRuleHandler {
             taskSettingEntity.setProjectCode(taskDefinition.getProjectCode());
             taskSettingEntity.setTaskCode(taskDefinition.getTaskCode());
             taskSettingEntity.setTaskName(taskDefinition.getTaskName());
+            taskSettingEntity.setTaskType(taskDefinition.getTaskType());
+            taskSettingEntity.setProjectName(taskDefinition.getProjectName());
             taskSettingEntities.add(taskSettingEntity);
         }
         taskSettingDao.saveBatch(taskSettingEntities);
@@ -127,7 +129,7 @@ public class TaskRuleHandler {
     }
 
     public Page<TaskRuleResponse> page(TaskRulePageRequest taskRulePageRequest) {
-        QueryWrapper queryWrapper = QueryWrapper.create().from(TaskConfigEntity.class);
+        QueryWrapper queryWrapper = QueryWrapper.create().from(TaskRuleEntity.class);
         //queryWrapper.where(BeanUtil.beanToMap(request));
         // 只添加有效的过滤条件，不包括分页参数
         if (StrUtil.isNotBlank(taskRulePageRequest.getRuleName())) {

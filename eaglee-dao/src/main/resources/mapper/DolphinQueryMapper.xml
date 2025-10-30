@@ -203,4 +203,17 @@
         WHERE td.project_code = #{projectCode}
     </select>
 
+    <select id="findProjectByProjectName" resultType="com.hina.eaglee.response.TaskProjectResponse">
+        SELECT
+            p.id AS projectId,
+            p.name AS projectName,
+            p.code AS projectCode
+        FROM t_ds_project p
+        WHERE p.name LIKE CONCAT('%', #{projectName}, '%')
+    </select>
+
+    <select id="listTaskByProcessInstanceId" resultType="com.hina.eaglee.response.TaskInstanceResponse">
+
+    </select>
+
 </mapper>

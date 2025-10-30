@@ -23,10 +23,10 @@ public class TaskRuleResponse {
     @Schema(description = "json配置")
     public String configJson;
 
-    @Schema(description = "项目标识")
-    public String workflowIdentifier;
-
-    @Schema(description = "任务标识")
-    public String taskIdentifier;
+//    @Schema(description = "项目标识")
+//    public String workflowIdentifier;
+//
+//    @Schema(description = "任务标识")
+//    public String taskIdentifier;
 
 }

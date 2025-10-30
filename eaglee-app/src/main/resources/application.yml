@@ -56,6 +56,9 @@ springdoc:
     - group: '数据度量'
       paths-to-match: '/**'
       packages-to-scan: com.hina.eaglee.metric
+    - group: 'dolphin'
+      paths-to-match: '/**'
+      packages-to-scan: com.hina.eaglee.dolphin
 
 
 logging:

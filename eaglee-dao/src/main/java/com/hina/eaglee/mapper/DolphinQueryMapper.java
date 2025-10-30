@@ -5,6 +5,7 @@ import com.hina.eaglee.request.TaskInstancePageRequest;
 import com.hina.eaglee.request.TaskProcessPageRequest;
 import com.hina.eaglee.response.TaskInstanceResponse;
 import com.hina.eaglee.response.TaskProcessResponse;
+import com.hina.eaglee.response.TaskProjectResponse;
 import com.mybatisflex.annotation.UseDataSource;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -26,9 +27,13 @@ public interface DolphinQueryMapper {
     // 根据条件查询任务实例分页
     List<TaskInstanceResponse> queryTaskInstanceForPage(TaskInstancePageRequest request);
 
-
-    List<TaskInstanceResponse> listDolphinTaskInstanceByProcessInstanceId(Integer processInstanceId);
+    // 根据流程实例ID查询任务实例
+    List<TaskInstanceResponse> listDolphinTaskInstanceByProcessInstanceId(Long processInstanceId);
 
     // 根据
     List<DolphinTaskDefinition> listTaskDefinitionByProjectCodeFromTaskDefinition(Long projectCode);
+
+    List<TaskProjectResponse> findProjectByProjectName(String projectName);
+
+    List<TaskInstanceResponse> listTaskByProcessInstanceId(Long processInstanceId);
 }

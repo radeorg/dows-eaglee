@@ -8,6 +8,7 @@ import com.hina.eaglee.request.TaskInstancePageRequest;
 import com.hina.eaglee.request.TaskProcessPageRequest;
 import com.hina.eaglee.response.TaskInstanceResponse;
 import com.hina.eaglee.response.TaskProcessResponse;
+import com.hina.eaglee.response.TaskProjectResponse;
 import com.mybatisflex.core.datasource.DataSourceKey;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.row.Db;
@@ -25,6 +26,11 @@ public class DolphinQueryHandler {
     private final DolphinQueryMapper mapper;
 
 
+
+    public List<TaskProjectResponse> listDolphinProject(String projectName) {
+        return mapper.findProjectByProjectName(projectName);
+    }
+
     public Page<TaskProcessResponse> pageDolphinProjectInstance(TaskProcessPageRequest request) {
         Page<TaskProcessResponse> page = Page.of(request.getPageNumber(), request.getPageSize());
         page.setTotalRow(mapper.queryProcessInstanceForCount(request));
@@ -33,7 +39,7 @@ public class DolphinQueryHandler {
     }
 
 
-    public List<TaskInstanceResponse> listDolphinTaskInstanceByProcessInstanceId(Integer  processInstanceId) {
+    public List<TaskInstanceResponse> listDolphinTaskInstanceByProcessInstanceId(Long  processInstanceId) {
         return mapper.listDolphinTaskInstanceByProcessInstanceId(processInstanceId);
     }
 
@@ -116,5 +122,7 @@ public class DolphinQueryHandler {
     }
 
 
-
+    public List<TaskInstanceResponse> listTaskByProcessInstanceId(Long processInstanceId) {
+        return mapper.listTaskByProcessInstanceId(processInstanceId);
+    }
 }

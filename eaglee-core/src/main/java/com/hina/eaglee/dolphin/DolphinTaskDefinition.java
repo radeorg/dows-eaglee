@@ -9,5 +9,5 @@ public class DolphinTaskDefinition {
     private Long taskCode;
     private String taskType;
     private Long projectCode;
-
+    private String projectName;
 }

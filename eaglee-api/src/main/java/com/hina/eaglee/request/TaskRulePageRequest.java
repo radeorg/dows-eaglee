@@ -30,11 +30,11 @@ public class TaskRulePageRequest {
     @Schema(description = "规则名")
     public String ruleName;
 
-    @Schema(description = "项目标识")
-    public String workflowIdentifier;
-
+//    @Schema(description = "项目标识")
+//    public String workflowIdentifier;
+//
 //    @Schema(description = "任务标识")
-    public String taskIdentifier;
+//    public String taskIdentifier;
 
 
 }
