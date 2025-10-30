@@ -20,14 +20,28 @@ public class TaskSettingEntity {
     @Schema(description = "任务规则ID")
     public Long taskRuleId;
 
-    @Schema(description = "流程标识")
-    public String workflowIdentifier;
+    //    @Schema(description = "流程标识")
+//    public String workflowIdentifier;
+//
+//    @Schema(description = "同一类任务的标识")
+//    public String taskIdentifier;
+//
+//    @Schema(description = "code标识码（projectIdentifier_taskIdentifier）")
+//    public String codeIdentifier;
+    @Schema(description = "项目code")
+    private Long projectCode;
+    @Schema(description = "项目名称")
+    private String projectName;
 
-    @Schema(description = "同一类任务的标识")
-    public String taskIdentifier;
+    @Schema(description = "任务code")
+    private Long taskCode;
+    @Schema(description = "任务名称")
+    private String taskName;
+    @Schema(description = "任务类型")
+    private String taskType;
 
-    @Schema(description = "code标识码（projectIdentifier_taskIdentifier）")
-    public String codeIdentifier;
+
+
 
     @Schema(description = "创建时间")
     public LocalDateTime ct;

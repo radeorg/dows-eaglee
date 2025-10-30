@@ -19,12 +19,12 @@ public class TaskRuleSaveRequest {
     @Schema(description = "规则名")
     public String ruleName;
 
-    @Schema(description = "所属工作流标识", example = "workflow_xxx")
-    public String workflowIdentifier;
-
     @Schema(description = "json配置")
     public TaskRuleConfig settings;
 
+
+    @Schema(description = "所属工作流标识", example = "15091097411584")
+    public Long projectCode;
 
 //    @Schema(description = "所属任务标识", example = "task_xxx")
 //    public String taskIdentifier;

@@ -20,7 +20,7 @@ public class DolphinClient {
     private final RestTemplate restTemplate;
 
 
-    public List<TaskDefinition> getTaskDefinitionByWorkflowId(String workflowIdentifier) {
+    public List<DolphinTaskDefinition> getTaskDefinitionByWorkflowId(Long projectCode) {
         // 方法名直接映射
         String endpoint = dolphinProperties.getEndpoints().get("getTaskDefinitionByWorkflowId");
         String url = dolphinProperties.getHost() + endpoint;
@@ -31,18 +31,18 @@ public class DolphinClient {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
-                .queryParam("workflowIdentifier", workflowIdentifier);
+                .queryParam("workflowIdentifier", projectCode);
 
         HttpEntity<?> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<List<TaskDefinition>> response = restTemplate.exchange(
+            ResponseEntity<List<DolphinTaskDefinition>> response = restTemplate.exchange(
                     builder.toUriString(), HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<List<TaskDefinition>>() {
+                    new ParameterizedTypeReference<List<DolphinTaskDefinition>>() {
                     }
             );
             return response.getBody();
         } catch (RestClientException e) {
-            log.error("Failed to get task definitions for workflow: {}", workflowIdentifier, e);
+            log.error("Failed to get task definitions for workflow: {}", projectCode, e);
             throw new RuntimeException("Failed to fetch task definitions from Dolphin API", e);
         }
     }

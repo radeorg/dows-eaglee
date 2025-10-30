@@ -26,13 +26,15 @@ public class TaskInstancePageRequest {
     @Max(value = 100, message = "每页大小不能超过100")
     @Schema(description = "每页大小", example = "10")
     private Integer pageSize = 10;
-    
+
+    @Schema(description = "时间范围-分钟", example = "10")
+    private Integer intervalMinutes;
+    @Schema(description = "时间范围-天", example = "10")
+    private Integer intervalDay;
+
 
     @Schema(description = "任务名称（模糊查询）", example = "用户数据")
     private String taskName;
-    
-    @Schema(description = "任务标识", example = "user-data-process")
-    private String taskIdentifier;
     
 //    @Schema(description = "应用ID", example = "app-001")
 //    private String applicationId;
@@ -44,11 +46,9 @@ public class TaskInstancePageRequest {
     @Schema(description = "状态", example = "1")
     private Integer state;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Schema(description = "开始时间范围-开始")
+    @Schema(description = "开始时间范围-开始",example = "2025-10-30 09:15:36")
     private LocalDateTime startTime;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Schema(description = "结束时间范围-结束")
+    @Schema(description = "结束时间范围-结束",example = "2025-10-30 09:15:36")
     private LocalDateTime endTime;
     
     @Schema(description = "耗时（毫秒）", example = "1000")

@@ -1,5 +1,6 @@
 package com.hina.eaglee.mapper;
 
+import com.hina.eaglee.dolphin.DolphinTaskDefinition;
 import com.hina.eaglee.request.TaskInstancePageRequest;
 import com.hina.eaglee.request.TaskProcessPageRequest;
 import com.hina.eaglee.response.TaskInstanceResponse;
@@ -26,4 +27,8 @@ public interface DolphinQueryMapper {
     List<TaskInstanceResponse> queryTaskInstanceForPage(TaskInstancePageRequest request);
 
 
+    List<TaskInstanceResponse> listDolphinTaskInstanceByProcessInstanceId(Integer processInstanceId);
+
+    // 根据
+    List<DolphinTaskDefinition> listTaskDefinitionByProjectCodeFromTaskDefinition(Long projectCode);
 }

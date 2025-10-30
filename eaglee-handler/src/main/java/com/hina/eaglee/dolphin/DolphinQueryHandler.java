@@ -32,6 +32,11 @@ public class DolphinQueryHandler {
         return page;
     }
 
+
+    public List<TaskInstanceResponse> listDolphinTaskInstanceByProcessInstanceId(Integer  processInstanceId) {
+        return mapper.listDolphinTaskInstanceByProcessInstanceId(processInstanceId);
+    }
+
     public Page<TaskInstanceResponse> pageDolphinTaskInstance(TaskInstancePageRequest request) {
         Page<TaskInstanceResponse> page = Page.of(request.getPageNumber(), request.getPageSize());
         page.setTotalRow(mapper.queryTaskInstanceForCount(request));

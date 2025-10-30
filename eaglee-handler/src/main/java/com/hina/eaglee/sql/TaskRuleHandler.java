@@ -6,11 +6,12 @@ import com.hina.eaglee.config.JsonConfig;
 import com.hina.eaglee.dao.TaskRuleDao;
 import com.hina.eaglee.dao.TaskSettingDao;
 import com.hina.eaglee.dolphin.DolphinClient;
-import com.hina.eaglee.dolphin.TaskDefinition;
+import com.hina.eaglee.dolphin.DolphinTaskDefinition;
 import com.hina.eaglee.entity.TaskConfigEntity;
 import com.hina.eaglee.entity.TaskRuleEntity;
 import com.hina.eaglee.entity.TaskSettingEntity;
 import com.hina.eaglee.exception.BusinessException;
+import com.hina.eaglee.mapper.DolphinQueryMapper;
 import com.hina.eaglee.request.TaskRulePageRequest;
 import com.hina.eaglee.request.TaskRuleSaveRequest;
 import com.hina.eaglee.response.TaskRuleResponse;
@@ -35,18 +36,42 @@ public class TaskRuleHandler {
     private final TaskRuleDao taskRuleDao;
     private final TaskSettingDao taskSettingDao;
     private final DolphinClient dolphinClient;
+    private final DolphinQueryMapper dolphinQueryMapper;
+
+
+    @Transactional
+    public Long saveAndBind(TaskRuleSaveRequest taskRuleSaveRequest) {
+        log.info("保存配置键名：{}", JSONUtil.toJsonStr(taskRuleSaveRequest));
+        Long projectCode = taskRuleSaveRequest.getProjectCode();
+        // 根据项目ID查询所有任务定义
+        List<DolphinTaskDefinition> taskDefinitions = dolphinQueryMapper.listTaskDefinitionByProjectCodeFromTaskDefinition(projectCode);
+
+        // 构建实体对象
+        TaskRuleEntity taskRuleEntity = new TaskRuleEntity();
+        BeanUtils.copyProperties(taskRuleSaveRequest, taskRuleEntity);
+        // json 化处理
+        taskRuleEntity.setConfigJson(JsonConfig.toJsonConfig(taskRuleSaveRequest.getSettings()));
+
+        if (taskRuleDao.save(taskRuleEntity)) {
+            // 绑定任务
+            bind(taskRuleEntity.getTaskRuleId(),taskDefinitions);
+            return taskRuleEntity.getTaskRuleId();
+        }
+        throw new BusinessException(BusinessException.OPERATION_FAILED, "创建任务规则失败");
+    }
 
     /**
      * 保存规则并绑定任务标识
      * @param taskRuleSaveRequest
      * @return
      */
+    @Deprecated
     @Transactional
     public Long save(TaskRuleSaveRequest taskRuleSaveRequest) {
         log.info("保存配置键名：{}", JSONUtil.toJsonStr(taskRuleSaveRequest));
-        String workflowIdentifier = taskRuleSaveRequest.getWorkflowIdentifier();
+        Long projectCode = taskRuleSaveRequest.getProjectCode();
         // todo 去dolphin根据流程ID查询所有任务定义
-        List<TaskDefinition> taskDefinitions = dolphinClient.getTaskDefinitionByWorkflowId(workflowIdentifier);
+        List<DolphinTaskDefinition> taskDefinitions = dolphinClient.getTaskDefinitionByWorkflowId(projectCode);
         if (taskDefinitions == null || taskDefinitions.isEmpty()) {
             throw new BusinessException(BusinessException.INVALID_PARAMETER, "流程ID不存在,或者没有任务定义");
         }
@@ -63,7 +88,7 @@ public class TaskRuleHandler {
 
         if (taskRuleDao.save(taskRuleEntity)) {
             // 绑定任务
-            bind(taskRuleEntity.getTaskRuleId(),workflowIdentifier,taskDefinitions);
+            bind(taskRuleEntity.getTaskRuleId(),taskDefinitions);
             return taskRuleEntity.getTaskRuleId();
         }
         throw new BusinessException(BusinessException.OPERATION_FAILED, "创建任务规则失败");
@@ -72,17 +97,17 @@ public class TaskRuleHandler {
     /**
      * 绑定任务规则
      * @param taskRuleId
-     * @param workflowIdentifier
      * @param taskDefinitions
      */
-    private void bind(Long taskRuleId, String workflowIdentifier, List<TaskDefinition> taskDefinitions) {
+    private void bind(Long taskRuleId, List<DolphinTaskDefinition> taskDefinitions) {
         List<TaskSettingEntity> taskSettingEntities = new ArrayList<>(taskDefinitions.size());
-        for (TaskDefinition taskDefinition : taskDefinitions) {
-            TaskSettingEntity taskRuleEntity = new TaskSettingEntity();
-            taskRuleEntity.setTaskRuleId(taskRuleId);
-            taskRuleEntity.setWorkflowIdentifier(workflowIdentifier);
-            taskRuleEntity.setTaskIdentifier(taskDefinition.getTaskIdentifier());
-            taskSettingEntities.add(taskRuleEntity);
+        for (DolphinTaskDefinition taskDefinition : taskDefinitions) {
+            TaskSettingEntity taskSettingEntity = new TaskSettingEntity();
+            taskSettingEntity.setTaskRuleId(taskRuleId);
+            taskSettingEntity.setProjectCode(taskDefinition.getProjectCode());
+            taskSettingEntity.setTaskCode(taskDefinition.getTaskCode());
+            taskSettingEntity.setTaskName(taskDefinition.getTaskName());
+            taskSettingEntities.add(taskSettingEntity);
         }
         taskSettingDao.saveBatch(taskSettingEntities);
     }
@@ -108,12 +133,12 @@ public class TaskRuleHandler {
         if (StrUtil.isNotBlank(taskRulePageRequest.getRuleName())) {
             queryWrapper.and(TaskRuleEntity::getRuleName).like(taskRulePageRequest.getRuleName());
         }
-        if (taskRulePageRequest.getWorkflowIdentifier() != null) {
-            queryWrapper.and(TaskRuleEntity::getWorkflowIdentifier).like(taskRulePageRequest.getWorkflowIdentifier());
-        }
-        if (taskRulePageRequest.getTaskIdentifier() != null) {
-            queryWrapper.and(TaskRuleEntity::getTaskIdentifier).like(taskRulePageRequest.getTaskIdentifier());
-        }
+//        if (taskRulePageRequest.getWorkflowIdentifier() != null) {
+//            queryWrapper.and(TaskRuleEntity::getWorkflowIdentifier).like(taskRulePageRequest.getWorkflowIdentifier());
+//        }
+//        if (taskRulePageRequest.getTaskIdentifier() != null) {
+//            queryWrapper.and(TaskRuleEntity::getTaskIdentifier).like(taskRulePageRequest.getTaskIdentifier());
+//        }
         return taskRuleDao
                 .pageAs(Page.of(taskRulePageRequest.getPageNo(), taskRulePageRequest.getPageSize()), queryWrapper, TaskRuleResponse.class);
     }

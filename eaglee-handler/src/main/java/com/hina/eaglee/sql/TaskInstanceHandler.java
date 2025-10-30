@@ -133,9 +133,9 @@ public class TaskInstanceHandler {
         if (StrUtil.isNotBlank(request.getTaskName())) {
             queryWrapper.and(TaskConfigEntity::getKey).like(request.getTaskName());
         }
-        if (StrUtil.isNotBlank(request.getTaskIdentifier())) {
-            queryWrapper.and(TaskInstanceEntity::getTaskIdentifier).like(request.getTaskIdentifier());
-        }
+//        if (StrUtil.isNotBlank(request.getTaskIdentifier())) {
+//            queryWrapper.and(TaskInstanceEntity::getTaskIdentifier).like(request.getTaskIdentifier());
+//        }
 //        if (StrUtil.isNotBlank(request.getApplicationId())) {
 //            queryWrapper.and(TaskInstanceEntity::getApplicationId).like(request.getApplicationId());
 //        }

@@ -23,7 +23,7 @@ public class ConfigRuleRest {
     @Operation(summary = "保存规则")
     @PostMapping("config/rule/save")
     public Long save(@RequestBody TaskRuleSaveRequest taskRuleSaveRequest) {
-        return taskRuleHandler.save(taskRuleSaveRequest);
+        return taskRuleHandler.saveAndBind(taskRuleSaveRequest);
     }
 
     @Operation(summary = "更新规则")

@@ -74,6 +74,31 @@
     </select>
 
 
+
+    <select id="listDolphinTaskInstanceByProcessInstanceId"
+            resultType="com.hina.eaglee.response.TaskInstanceResponse">
+        SELECT
+            ti.id AS taskInstanceId,
+            ti.name AS taskName,
+            ti.task_type AS taskType,
+            ti.task_code AS taskCode,
+            ti.process_instance_id AS processInstanceId,
+            pi.name AS processInstanceName,
+            ti.state AS taskState,
+            ti.start_time AS startTime,
+            ti.submit_time AS submitTime,
+            ti.end_time AS endTime,
+            ti.retry_times AS retryTimes
+        FROM t_ds_task_instance ti
+        LEFT JOIN t_ds_process_instance pi
+        ON ti.process_instance_id = pi.id
+        WHERE ti.process_instance_id = #{processInstanceId}
+        ORDER BY ti.start_time DESC
+    </select>
+
+
+
+
     <select id="queryTaskInstanceForCount" resultType="Integer">
         SELECT
             COUNT(*) AS taskCount
@@ -164,4 +189,18 @@
         ORDER BY ti.start_time DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
+
+
+    <select id="listTaskDefinitionByProjectCodeFromTaskDefinition"
+            resultType="com.hina.eaglee.dolphin.DolphinTaskDefinition">
+        SELECT
+            td.id AS taskId,
+            td.name AS taskName,
+            td.code AS taskCode,
+            td.task_type AS taskType,
+            td.project_code AS projectCode
+        FROM t_ds_task_definition td
+        WHERE td.project_code = #{projectCode}
+    </select>
+
 </mapper>
