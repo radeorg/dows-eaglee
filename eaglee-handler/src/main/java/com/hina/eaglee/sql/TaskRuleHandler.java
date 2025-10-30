@@ -123,8 +123,7 @@ public class TaskRuleHandler {
             throw new BusinessException(BusinessException.INVALID_PARAMETER, "任务规则不存在");
         }
         BeanUtils.copyProperties(taskRuleSaveRequest, taskRuleEntity);
-        String jsonConfig = JsonConfig.toJsonConfig(taskRuleSaveRequest.getSettings());
-        taskRuleEntity.setConfigJson(jsonConfig);
+        taskRuleEntity.setConfigJson(JsonConfig.toJsonConfig(taskRuleSaveRequest.getSettings()));
         return taskRuleDao.updateById(taskRuleEntity);
     }
 

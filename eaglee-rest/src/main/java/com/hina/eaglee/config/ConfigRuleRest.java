@@ -21,22 +21,22 @@ public class ConfigRuleRest {
 
     private final TaskRuleHandler taskRuleHandler;
     @Operation(summary = "保存规则")
-    @PostMapping("config/rule/save")
+    @PostMapping("config/rule/instance")
     public Long save(@RequestBody TaskRuleSaveRequest taskRuleSaveRequest) {
         return taskRuleHandler.saveAndBind(taskRuleSaveRequest);
     }
 
     @Operation(summary = "更新规则")
-    @PutMapping("config/rule/update")
+    @PutMapping("config/rule/instance")
     public Boolean update(@RequestBody TaskRuleSaveRequest taskRuleSaveRequest){
         return taskRuleHandler.update(taskRuleSaveRequest);
     }
+
 
     @Operation(summary = "分页查询规则")
     @GetMapping("config/rule/page")
     public Page<TaskRuleResponse> page(TaskRulePageRequest taskRulePageRequest){
         return taskRuleHandler.page(taskRulePageRequest);
-
     }
 
     @Operation(summary = "删除规则")
