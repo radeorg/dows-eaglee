@@ -15,4 +15,9 @@ public class JsonConfig {
         jsonConfig.setProperties(object);
         return JSONUtil.toJsonStr(jsonConfig);
     }
+
+
+    public static <T> T fromJsonConfig(String jsonConfig, Class<T> clazz) {
+        return JSONUtil.toBean(jsonConfig, clazz);
+    }
 }

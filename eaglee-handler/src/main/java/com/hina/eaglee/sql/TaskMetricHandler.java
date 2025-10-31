@@ -8,7 +8,6 @@ import com.hina.eaglee.dao.TaskRuntimeDao;
 import com.hina.eaglee.entity.TaskMetricEntity;
 import com.hina.eaglee.entity.TaskRuntimeEntity;
 import com.hina.eaglee.exception.BusinessException;
-import com.hina.eaglee.pojo.MetricSetting;
 import com.hina.eaglee.request.TaskMetricAnalyseRequest;
 import com.hina.eaglee.request.TaskMetricQueryRequest;
 import com.hina.eaglee.request.TaskRuntimePageRequest;
@@ -73,7 +72,7 @@ public class TaskMetricHandler {
      */
     public void check(TaskRuntimeSaveRequest request) {
 
-        MetricSetting metricSetting = taskCacheHandler.getMetricSetting(request.getIp());
+//        MetricSetting metricSetting = taskCacheHandler.getMetricSetting(request.getIp());
         String applicationId = request.getApplicationId();
         String processInstanceId = request.getProcessInstanceId();
         String taskInstanceId = request.getTaskInstanceId();
