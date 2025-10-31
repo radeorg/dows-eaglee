@@ -2,14 +2,13 @@ package com.hina.eaglee.sql;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.hina.eaglee.cache.TaskCacheHandler;
+import com.hina.eaglee.cache.TaskSettingCache;
 import com.hina.eaglee.dao.TaskMetricDao;
 import com.hina.eaglee.dao.TaskRuntimeDao;
 import com.hina.eaglee.entity.TaskMetricEntity;
 import com.hina.eaglee.entity.TaskRuntimeEntity;
 import com.hina.eaglee.exception.BusinessException;
 import com.hina.eaglee.pojo.MetricSetting;
-import com.hina.eaglee.pojo.TaskSetting;
 import com.hina.eaglee.request.TaskMetricAnalyseRequest;
 import com.hina.eaglee.request.TaskMetricQueryRequest;
 import com.hina.eaglee.request.TaskRuntimePageRequest;
@@ -34,7 +33,7 @@ public class TaskMetricHandler {
     private final TaskMetricDao taskMetricDao;
     private final TaskRuntimeDao taskRuntimeDao;
 
-    private final TaskCacheHandler taskCacheHandler;
+    private final TaskSettingCache taskCacheHandler;
 
     private final ThreadPoolExecutor threadPoolExecutor;
 
@@ -84,15 +83,15 @@ public class TaskMetricHandler {
          *      - 根据项目标识, 查询项目配置表，找到项目配置TaskSetting表，找到这类任务的运行时指标统计规则
          *      - 动态计算，触发规则
          */
-        TaskSetting taskSetting = taskCacheHandler.getTaskSetting(codeIdentifier);
-        if (taskSetting != null) {
-            // todo 根据任务配置的触发告警规则，判断是否触发告警，此处通过下线程池提交异步处理
-            threadPoolExecutor.execute(() -> {
-                // todo 告警处理
-
-
-            });
-        }
+//        TaskSetting taskSetting = taskCacheHandler.getTaskSetting(codeIdentifier);
+//        if (taskSetting != null) {
+//            // todo 根据任务配置的触发告警规则，判断是否触发告警，此处通过下线程池提交异步处理
+//            threadPoolExecutor.execute(() -> {
+//                // todo 告警处理
+//
+//
+//            });
+//        }
 
 
 

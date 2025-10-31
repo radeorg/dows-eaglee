@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema(description = "任务规则配置")
-public class TaskRuleConfig {
+public class TaskRuleSetting {
 
     @Schema(description = "规则名", example = "150")
     public String ruleName;

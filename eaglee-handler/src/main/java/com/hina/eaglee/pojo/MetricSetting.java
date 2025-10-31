@@ -19,5 +19,5 @@ public class MetricSetting {
      * key:任务类型标识
      * value:任务配置
      */
-    private Map<String, TaskSetting> taskSettingMap;
+    private Map<String, String> taskSettingMap;
 }

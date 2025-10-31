@@ -1,6 +1,6 @@
 package com.hina.eaglee.request;
 
-import com.hina.eaglee.setting.TaskRuleConfig;
+import com.hina.eaglee.setting.TaskRuleSetting;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -20,7 +20,7 @@ public class TaskRuleSaveRequest {
     public String ruleName;
 
     @Schema(description = "json配置")
-    public TaskRuleConfig settings;
+    public TaskRuleSetting settings;
 
 
     @Schema(description = "所属工作流标识", example = "15091097411584")

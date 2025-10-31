@@ -36,7 +36,7 @@ mybatis-flex:
       leak-detection-threshold: 0  # 关闭泄漏检测以减少开销
     dolphinscheduler:
       type: com.zaxxer.hikari.HikariDataSource
-      url: jdbc:mysql://10.254.46.135:3306/dolphinscheduler?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      url: jdbc:mysql://10.254.46.135:3306/dolphinscheduler_prd?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
       username: hinadt_write
       password: hinadt@123
       # 连接池基础配置

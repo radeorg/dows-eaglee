@@ -1,18 +1,18 @@
-package com.hina.eaglee.dolphin;
+package com.hina.eaglee.cluster;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
-@Component
 @Data
-@ConfigurationProperties(prefix = "hina.eaglee.dolphin")
-public class DolphinProperties {
-    private String host;
+@Component
+@ConfigurationProperties(prefix = "hina.eaglee.cluster")
+public class ClusterProperties {
+
+    private List<String> host;
     private String token;
     private Map<String, String> endpoints;
-
-    private Map<String,MonitorSetting> monitors;
 }

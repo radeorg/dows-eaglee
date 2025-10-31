@@ -209,7 +209,10 @@
             p.name AS projectName,
             p.code AS projectCode
         FROM t_ds_project p
-        WHERE p.name LIKE CONCAT('%', #{projectName}, '%')
+        WHERE 1=1
+        <if test="projectName != null">
+            AND p.name LIKE CONCAT('%', #{projectName}, '%')
+        </if>
     </select>
 
     <select id="listTaskByProcessInstanceId" resultType="com.hina.eaglee.response.TaskInstanceResponse">

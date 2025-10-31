@@ -6,3 +6,10 @@ hina:
       endpoints:
         listWorkflowDefinition: projects/%s/process-definition?pageSize=50&pageNo=1
         getTaskDefinitionByProjectId: projects/%s/task-definition?pageSize=10&pageNo=1
+      monitors:
+        #回溯监控
+        tracebackMonitor:
+          enable: true
+          project-code:
+          cron: 0 * * * * ?
+

@@ -39,7 +39,7 @@ public class ConfigRuleRest {
         return taskRuleHandler.page(taskRulePageRequest);
     }
 
-    @Operation(summary = "删除规则")
+    @Operation(summary = "删除规则(多个id逗号分隔)")
     @DeleteMapping("config/rule/ids")
     public Boolean delete(@RequestParam("taskRuleIds") String taskRuleIds){
         return taskRuleHandler.deleteByIds(taskRuleIds);

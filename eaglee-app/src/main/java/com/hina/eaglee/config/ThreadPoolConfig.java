@@ -4,9 +4,21 @@ import java.util.concurrent.*;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @Configuration
 public class ThreadPoolConfig {
+
+    @Bean
+    public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(10); // 设置线程池大小
+        scheduler.setThreadNamePrefix("scheduled-task-"); // 线程名前缀
+        scheduler.setAwaitTerminationSeconds(60); // 等待任务完成时间（秒）
+        scheduler.setWaitForTasksToCompleteOnShutdown(true); // 关闭时等待任务完成
+        scheduler.setRemoveOnCancelPolicy(true); // 取消任务后立即移除
+        return scheduler;
+    }
 
     /**
      * 配置一个固定大小的线程池，用于处理异步任务

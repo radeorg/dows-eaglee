@@ -46,7 +46,7 @@ public class DolphinQueryRest {
 
     @Operation(summary = "根据名称查询项目列表")
     @GetMapping("/dolphin/project/list")
-    public List<TaskProjectResponse> pageTaskInstance(@RequestParam("projectName") String projectName) {
+    public List<TaskProjectResponse> pageTaskInstance(@RequestParam(value = "projectName", required = false) String projectName) {
         return dolphinQueryHandler.listDolphinProject(projectName);
     }
 }
