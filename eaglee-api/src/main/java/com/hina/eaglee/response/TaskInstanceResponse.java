@@ -29,6 +29,9 @@ public class TaskInstanceResponse {
     @Schema(description = "任务状态", example = "1")
     private Integer taskState;
 
+    @Schema(description = "应用ID", example = "application_1645100000000_0001")
+    private String applicationId;
+
     @Schema(description = "任务类型")
     private String taskType;
     @Schema(description = "任务标识", example = "user-data-process")

@@ -32,6 +32,8 @@ public class TaskInstancePageRequest {
     @Schema(description = "时间范围-天", example = "10")
     private Integer intervalDay;
 
+    @Schema(description = "应用ID", example = "application_1645100000000_0001")
+    private String applicationId;
 
     @Schema(description = "任务名称（模糊查询）", example = "用户数据")
     private String taskName;

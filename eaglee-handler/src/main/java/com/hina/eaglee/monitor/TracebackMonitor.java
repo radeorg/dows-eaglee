@@ -11,6 +11,7 @@ import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.setting.TaskRuleSetting;
 import com.hina.eaglee.task.TaskRetry;
 import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.processor.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -72,8 +73,26 @@ public class TracebackMonitor implements DolphinMonitor {
             if (taskRuleSetting == null) {
                 continue;
             }
-            for (YarnApp yarnApp : appList) {
+            // 获取任务实例的appLink
+            String appLink = dolphinTaskEntity.getAppLink();
+            if(StrUtil.isBlank(appLink)){
+                continue;
+            }
+            YarnApp node = clusterClient.node(appLink);
+            if(node == null){
+                continue;
+            }
+            log.info("监控任务实例 {} : {} 运行中", taskCode,node.getId());
+            String trackingUrl = node.getTrackingUrl();
+            String amContainerLogs = node.getAmContainerLogs();
+
+            // 告警级别
+            String alarmLevel = taskRuleSetting.getAlarmLevel();
+
+
+            /*for (YarnApp yarnApp : appList) {
                 if (yarnApp.getName().equals(dolphinTaskEntity.getName())) {
+                    log.info("监控任务实例 {} 运行中", taskCode);
                     if (yarnApp.getState().equals("FAILED")) {
                         log.info("监控任务实例 {} 运行失败", taskCode);
                         // 获取dolphin中最大重试次数
@@ -88,7 +107,7 @@ public class TracebackMonitor implements DolphinMonitor {
                         });
                     }
                 }
-            }
+            }*/
         }
     }
 }

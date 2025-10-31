@@ -6,14 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * 异常重试
+ * 资源异常重试，自动重试
  */
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ExceptionTaskRetry implements TaskRetry {
+public class ResourceExceptionRetry implements TaskRetry {
     @Override
     public void retry() {
-
+        log.info("资源异常重试");
     }
 }

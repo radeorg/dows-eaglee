@@ -79,6 +79,7 @@
             resultType="com.hina.eaglee.response.TaskInstanceResponse">
         SELECT
             ti.id AS taskInstanceId,
+            ti.app_link AS applicationId,
             ti.name AS taskName,
             ti.task_type AS taskType,
             ti.task_code AS taskCode,
@@ -127,6 +128,7 @@
     <select id="queryTaskInstanceForPage" resultType="com.hina.eaglee.response.TaskInstanceResponse">
         SELECT
             ti.id AS taskInstanceId,
+            ti.app_link AS applicationId,
             ti.name AS taskName,
             ti.task_type AS taskType,
             ti.task_code AS taskCode,
@@ -168,6 +170,9 @@
         ) task_avg
         ON ti.task_code = task_avg.task_code
         WHERE 1=1
+        <if test="applicationId != null">
+            AND ti.app_link = #{applicationId}
+        </if>
         <if test="intervalDay != null">
             AND ti.start_time  &gt;= DATE_SUB(NOW(), INTERVAL #{intervalDay} DAY)
         </if>
