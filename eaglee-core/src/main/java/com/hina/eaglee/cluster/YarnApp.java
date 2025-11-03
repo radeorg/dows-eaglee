@@ -1,10 +1,12 @@
 package com.hina.eaglee.cluster;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
+@Builder
 @Data
 @XmlRootElement(name = "app")
 @XmlAccessorType(XmlAccessType.FIELD)

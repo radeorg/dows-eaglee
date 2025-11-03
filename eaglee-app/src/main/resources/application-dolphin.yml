@@ -13,4 +13,6 @@ hina:
           enable: true
           project-code: 11986638487424
           cron: 0 * * * * ?
+          status: FAILED,RUNNING
+          #interval-time: 10000000
 

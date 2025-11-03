@@ -70,8 +70,12 @@ public class TracebackMonitor implements DolphinMonitor {
         for (DolphinTaskEntity dolphinTaskEntity : list) {
             Long taskCode = dolphinTaskEntity.getTaskCode();
             TaskRuleSetting taskRuleSetting = taskSettingCache.getTaskSetting(taskCode);
+            // todo 后面放开，先注释掉
             if (taskRuleSetting == null) {
-                continue;
+                // 如果是测试模式，则使用模拟数据，否则不使用模拟数据
+                if (!monitorSetting.isTestMode()) {
+                    continue;
+                }
             }
             // 获取任务实例的appLink
             String appLink = dolphinTaskEntity.getAppLink();
@@ -83,9 +87,15 @@ public class TracebackMonitor implements DolphinMonitor {
                 continue;
             }
 
-            YarnApp yarnAppInstance = yarnAppMap.get(dolphinTaskEntity.getAppLink());
-            if (yarnAppInstance == null) {
-                continue;
+            // todo 测试这里先模拟一个，后面放开，先注释掉
+            YarnApp yarnAppInstance;
+            if (monitorSetting.isTestMode()) {
+                yarnAppInstance = mock(appLink, yarnApp);
+            } else {
+                yarnAppInstance = yarnAppMap.get(dolphinTaskEntity.getAppLink());
+                if (yarnAppInstance == null) {
+                    continue;
+                }
             }
 
             /*
@@ -112,6 +122,18 @@ public class TracebackMonitor implements DolphinMonitor {
                 }
             }
         }
+    }
+
+    private YarnApp mock(String appLink, YarnApp yarnApp) {
+        return YarnApp.builder()
+                .id(appLink)
+                .state(yarnApp.getState())
+                .finalStatus(yarnApp.getFinalStatus())
+                .progress(yarnApp.getProgress())
+                .trackingUI(yarnApp.getTrackingUI())
+                .trackingUrl(yarnApp.getTrackingUrl())
+                .diagnostics(yarnApp.getDiagnostics())
+                .build();
     }
 
     private List<DolphinTaskEntity> getDolphinTaskInstance(MonitorSetting monitorSetting) {

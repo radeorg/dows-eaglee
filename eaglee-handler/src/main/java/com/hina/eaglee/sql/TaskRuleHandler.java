@@ -7,7 +7,6 @@ import com.hina.eaglee.dao.TaskRuleDao;
 import com.hina.eaglee.dao.TaskSettingDao;
 import com.hina.eaglee.dolphin.DolphinClient;
 import com.hina.eaglee.dolphin.DolphinTaskDefinition;
-import com.hina.eaglee.entity.TaskConfigEntity;
 import com.hina.eaglee.entity.TaskRuleEntity;
 import com.hina.eaglee.entity.TaskSettingEntity;
 import com.hina.eaglee.exception.BusinessException;
@@ -138,6 +137,7 @@ public class TaskRuleHandler {
         if (StrUtil.isNotBlank(taskRulePageRequest.getRuleName())) {
             queryWrapper.and(TaskRuleEntity::getRuleName).like(taskRulePageRequest.getRuleName());
         }
+        queryWrapper.orderBy(TaskRuleEntity::getCt, false);
 //        if (taskRulePageRequest.getWorkflowIdentifier() != null) {
 //            queryWrapper.and(TaskRuleEntity::getWorkflowIdentifier).like(taskRulePageRequest.getWorkflowIdentifier());
 //        }

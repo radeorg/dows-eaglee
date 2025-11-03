@@ -22,6 +22,9 @@ public class TaskRuleEntity {
     @Schema(description = "任务规则ID")
     public Long taskRuleId;
 
+    @Schema(description = "项目标识")
+    public Long projectCode;
+
     @Schema(description = "规则名")
     public String ruleName;
 

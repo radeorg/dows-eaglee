@@ -1,5 +1,6 @@
 package com.hina.eaglee.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
@@ -30,7 +31,7 @@ public class RestTemplateConfig {
 
         RestTemplate restTemplate = new RestTemplate(factory);
         // 设置错误处理器
-        restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+        // restTemplate.setErrorHandler(new CustomResponseErrorHandler());
         return restTemplate;
     }
 
@@ -46,9 +47,10 @@ public class RestTemplateConfig {
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
             if (response.getStatusCode().is5xxServerError()) {
-                throw new RuntimeException("服务器错误: " + response.getStatusCode());
+                //log.error("服务器错误: {}", response.getStatusCode());
+                //throw new RuntimeException("服务器错误: " + response.getStatusCode());
             } else if (response.getStatusCode().is4xxClientError()) {
-                throw new RuntimeException("客户端错误: " + response.getStatusCode());
+                //throw new RuntimeException("客户端错误: " + response.getStatusCode());
             }
         }
     }

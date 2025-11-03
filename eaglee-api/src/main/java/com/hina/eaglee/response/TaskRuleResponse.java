@@ -20,6 +20,9 @@ public class TaskRuleResponse {
     @Schema(description = "规则名")
     public String ruleName;
 
+    @Schema(description = "所属工作流标识", example = "15091097411584")
+    public Long projectCode;
+
     @Schema(description = "json配置")
     public String configJson;
 

@@ -1,5 +1,6 @@
 package com.hina.eaglee.cluster;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hina.eaglee.dolphin.MonitorSetting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,9 +10,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Map;
 
 
 /**
@@ -29,6 +31,8 @@ public class ClusterClient {
     //todo private final WebClient webClient;
     private final RestTemplate restTemplate;
 
+    private final ObjectMapper mapper;
+
     /**
      * 获取任务列表
      * http://cdh85-39:8088/ws/v1/cluster/apps?state=RUNNING&queue=root.xy_yarn_pool.production
@@ -41,26 +45,56 @@ public class ClusterClient {
         //String url = clusterProperties.getHost() + endpoint;
         String token = clusterProperties.getToken();
 
+        // 构建请求头，添加Bearer认证token
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
 
-        /**
-         * state=RUNNING&queue=root.xy_yarn_pool.production
-         */
+        // 构建查询参数
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endpoint)
-                .queryParam("state", monitorSetting.getStatus())
-                .queryParam("queue", monitorSetting.getQueue());
+                .queryParam("state", monitorSetting.getYarnState())
+                .queryParam("queue", monitorSetting.getYarnQueue());
 
         HttpEntity<?> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<YarnApps> response = restTemplate.exchange(
-                    builder.toUriString(), HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<YarnApps>() {
-                    }
+            /*
+             * ResponseEntity<YarnApps> response = restTemplate.exchange(
+             *        builder.toUriString(), HttpMethod.GET, entity,
+             *        new ParameterizedTypeReference<YarnApps>() {
+             *       }
+             * );
+             * return response.getBody();
+             */
+            // 先获取原始字符串响应
+            ResponseEntity<String> response = restTemplate.exchange(
+                    builder.toUriString(), HttpMethod.GET, entity, String.class
             );
-            return response.getBody();
-        } catch (RestClientException e) {
-            throw new RuntimeException("Failed to fetch YarnApps from Cluster API", e);
+
+            // 根据响应状态手动处理转换
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String responseBody = response.getBody();
+                // 尝试不同转换.因为返回的数据结构不同，需要根据实际情况进行转换
+                try {
+                    return mapper.readValue(responseBody, YarnApps.class);
+                } catch (Exception e) {
+                    log.warn("Failed to parse response body: {}", e.getMessage());
+                }
+                try {
+                    Map map = mapper.readValue(responseBody, Map.class);
+                    return null;
+                } catch (Exception e) {
+                    log.warn("Failed to parse response body: {}", e.getMessage());
+                }
+                // 暂时保持原有逻辑，需要您根据实际需求实现手动转换
+                return null; // 需要实现手动转换逻辑
+            } else {
+                // 响应失败，记录日志并返回null或抛出异常
+                log.warn("Cluster API returned non-success status: {}", response.getStatusCode());
+                return null;
+            }
+        } catch (Exception e) {
+            // throw new RuntimeException("Failed to fetch YarnApps from Cluster API", e);
+            log.info("Failed to fetch YarnApps from Cluster API", e);
+            return null;
         }
     }
 
@@ -73,22 +107,23 @@ public class ClusterClient {
      */
     public YarnApp node(String appId) {
         // 方法名直接映射
-        String endpoint = clusterProperties.getEndpoints().get("node");
-        String token = clusterProperties.getToken();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endpoint + appId);
-        HttpEntity<?> entity = new HttpEntity<>(headers);
         try {
+            String endpoint = clusterProperties.getEndpoints().get("node") + "/" + appId;
+            String token = clusterProperties.getToken();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(token);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+
             ResponseEntity<YarnApp> response = restTemplate.exchange(
-                    builder.toUriString(), HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<YarnApp>() {
+                    endpoint, HttpMethod.GET, entity, new ParameterizedTypeReference<YarnApp>() {
                     }
             );
             return response.getBody();
-        } catch (RestClientException e) {
-            throw new RuntimeException("Failed to fetch YarnApps from Cluster API", e);
+        } catch (Exception e) {
+            log.warn("Failed to fetch yarn app: {}", e.getMessage());
+            return null; // 或返回默认值
         }
+
     }
 }

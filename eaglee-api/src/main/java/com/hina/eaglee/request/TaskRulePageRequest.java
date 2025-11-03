@@ -1,12 +1,11 @@
 package com.hina.eaglee.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Pattern;
-import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 任务规则分页查询请求类
@@ -29,6 +28,15 @@ public class TaskRulePageRequest {
 
     @Schema(description = "规则名")
     public String ruleName;
+
+    @Schema(description = "所属工作流标识", example = "15091097411584")
+    public Long projectCode;
+
+    @Schema(description = "降序字段列表")
+    public List<String> descFields;
+
+    @Schema(description = "升序字段列表")
+    public List<String> ascFields;
 
 //    @Schema(description = "项目标识")
 //    public String workflowIdentifier;
