@@ -1,5 +1,6 @@
 package com.hina.eaglee.cluster;
 
+import com.hina.eaglee.dolphin.MonitorSetting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -34,7 +35,7 @@ public class ClusterClient {
      *
      * @return
      */
-    public YarnApps apps(String state) {
+    public YarnApps apps(MonitorSetting monitorSetting) {
         // 方法名直接映射
         String endpoint = clusterProperties.getEndpoints().get("apps");
         //String url = clusterProperties.getHost() + endpoint;
@@ -47,8 +48,8 @@ public class ClusterClient {
          * state=RUNNING&queue=root.xy_yarn_pool.production
          */
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endpoint)
-                .queryParam("state", state)
-                .queryParam("queue", "root.xy_yarn_pool.production");
+                .queryParam("state", monitorSetting.getStatus())
+                .queryParam("queue", monitorSetting.getQueue());
 
         HttpEntity<?> entity = new HttpEntity<>(headers);
         try {

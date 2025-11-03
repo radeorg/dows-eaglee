@@ -51,7 +51,7 @@ public class TracebackMonitor implements DolphinMonitor {
         log.info("开始执行任务监控: {}", this.getClass().getSimpleName());
 
         // 查yarn 集群中运行中的任务实例
-        YarnApps yarnApps = clusterClient.apps("RUNNING");
+        YarnApps yarnApps = clusterClient.apps(monitorSetting);
         if (yarnApps == null) {
             log.info("监控yarn集群中没有运行中的任务实例");
             return;

@@ -10,4 +10,9 @@ public class MonitorSetting {
     private String projectCode;
     // 监控表达式
     private String cron;
+    // 需要监听的状态，默认RUNNING
+    private String status = "RUNNING";
+
+    // 需要监听的队列，默认root.xy_yarn_pool.production
+    private String queue = "root.xy_yarn_pool.production";
 }
