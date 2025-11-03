@@ -7,6 +7,7 @@ import com.hina.eaglee.cluster.YarnApps;
 import com.hina.eaglee.dao.DolphinTaskDao;
 import com.hina.eaglee.dolphin.DolphinMonitor;
 import com.hina.eaglee.dolphin.MonitorSetting;
+import com.hina.eaglee.dolphin.TaskStatus;
 import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.setting.TaskRuleSetting;
 import com.hina.eaglee.status.StateHandler;
@@ -119,7 +120,7 @@ public class TracebackMonitor implements DolphinMonitor {
                 .map(Long::parseLong).toList();
         // 获取查询任务状态列表
         List<Integer> status = Arrays.stream(monitorSetting.getStatus().split(","))
-                .map(Integer::parseInt).toList();
+                .map(state->TaskStatus.valueOf(state).getValue()).toList();
         // 获取间隔时间（单位分钟），前推时间，计算出查询时间范围（开始时间）
         LocalDateTime previousDateTime = getPreviousDateTime(monitorSetting.getIntervalTime());
 

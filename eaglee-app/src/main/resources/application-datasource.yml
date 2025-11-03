@@ -23,7 +23,7 @@ mybatis-flex:
   datasource:
     hina_eaglee:
       type: com.zaxxer.hikari.HikariDataSource
-      url: jdbc:mysql://10.254.46.135:3306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      url: jdbc:mysql://10.254.46.135:3306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
       username: hinadt_write
       password: hinadt@123
       # 连接池基础配置
@@ -36,7 +36,7 @@ mybatis-flex:
       leak-detection-threshold: 0  # 关闭泄漏检测以减少开销
     dolphinscheduler:
       type: com.zaxxer.hikari.HikariDataSource
-      url: jdbc:mysql://10.254.46.135:3306/dolphinscheduler_prd?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      url: jdbc:mysql://10.254.46.135:3306/dolphinscheduler_prd?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
       username: hinadt_write
       password: hinadt@123
       # 连接池基础配置
@@ -84,7 +84,7 @@ spring:
     #    username: sa
     #    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:13306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://localhost:13306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
     hikari:
@@ -108,7 +108,7 @@ spring:
     #    username: sa
     #    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:13306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://localhost:13306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
     hikari:

@@ -9,6 +9,8 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.TimeZone;
+
 /**
  * MyBatis-Flex配置类
  * 
@@ -33,7 +35,7 @@ public class MyBatisFlexConfig implements MyBatisFlexCustomizer {
         
         // 配置乐观锁
         globalConfig.setVersionColumn("version");
-        
+
         // 打印 MyBatis-Flex 的 LOGO
         globalConfig.setPrintBanner(false);
     }
