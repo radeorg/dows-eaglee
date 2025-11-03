@@ -6,7 +6,7 @@ import lombok.Data;
 
 import java.util.List;
 
-@Builder
+//@Builder
 @Data
 @XmlRootElement(name = "app")
 @XmlAccessorType(XmlAccessType.FIELD)

@@ -83,6 +83,6 @@ public class YarnXmlParser {
                 </apps>
                 """;
         YarnApps yarnApps = parseXml(xml);
-        System.out.println("解析到的应用数量：" + yarnApps.getAppList().size());
+        System.out.println("解析到的应用数量：" + yarnApps.getApp().size());
     }
 }

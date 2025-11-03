@@ -62,7 +62,7 @@ public class TracebackMonitor implements DolphinMonitor {
         }
 
         // 转换为Map<String, YarnApp>，key为任务实例id，value为任务实例详情
-        Map<String, YarnApp> yarnAppMap = yarnApps.getAppList().stream()
+        Map<String, YarnApp> yarnAppMap = yarnApps.getApp().stream()
                 .collect(Collectors.toMap(YarnApp::getId, yarnApp -> yarnApp));
 
         // 根据monitorSetting，获取所有任务实例
@@ -70,70 +70,86 @@ public class TracebackMonitor implements DolphinMonitor {
         for (DolphinTaskEntity dolphinTaskEntity : list) {
             Long taskCode = dolphinTaskEntity.getTaskCode();
             TaskRuleSetting taskRuleSetting = taskSettingCache.getTaskSetting(taskCode);
-            // todo 后面放开，先注释掉
-            if (taskRuleSetting == null) {
-                // 如果是测试模式，则使用模拟数据，否则不使用模拟数据
-                if (!monitorSetting.isTestMode()) {
-                    continue;
-                }
-            }
-            // 获取任务实例的appLink
-            String appLink = dolphinTaskEntity.getAppLink();
-            if(StrUtil.isBlank(appLink)){
-                continue;
-            }
-            YarnApp yarnApp = clusterClient.node(appLink);
-            if (yarnApp == null) {
-                continue;
-            }
-
-            // todo 测试这里先模拟一个，后面放开，先注释掉
-            YarnApp yarnAppInstance;
-            if (monitorSetting.isTestMode()) {
-                yarnAppInstance = mock(appLink, yarnApp);
+            // 测试模式不校验任务实例,直接用yarn 查询的数据
+            if (!monitorSetting.isTestMode()) {
+                yarnAppMap.forEach((appId, yarnApp) -> {
+                    YarnApp yarnAppInstance = mock(appId, yarnApp);
+                    doExec(dolphinTaskEntity, yarnAppInstance, yarnApp, taskRuleSetting);
+                });
             } else {
-                yarnAppInstance = yarnAppMap.get(dolphinTaskEntity.getAppLink());
-                if (yarnAppInstance == null) {
+                if (taskRuleSetting == null) {
+
                     continue;
                 }
-            }
-
-            /*
-             * yarn任务实例状态:
-             * NEW
-             * NEW_SAVING
-             * SUBMITTED
-             * ACCEPTED
-             * RUNNING
-             * FINISHED
-             * FAILED
-             * KILLED
-             * 1. 如果任务实例状态为"运行中"，则继续监控
-             * 2. 如果任务实例状态为"失败"，或任务执行时间超过预设的超时时间，则触发告警机制
-             * 3. 如果任务实例状态为"成功"，则触发告警机制
-             * 4. 如果任务实例状态为"杀死"，则触发告警机制
-             */
-            String state = yarnAppInstance.getState();
-            if (!StrUtil.isBlank(state)) {
-                StateHandler stateHandler = stateHandlers.get(state.toLowerCase() + "StateHandler");
-                if (stateHandler != null) {
-                    log.info("监控到：{} 类型任务实例 {} : {} 运行中", yarnApp.getApplicationType(), taskCode, yarnApp.getId());
-                    stateHandler.handle(dolphinTaskEntity, taskRuleSetting, yarnAppInstance);
+                // 获取任务实例的appLink
+                String appLink = dolphinTaskEntity.getAppLink();
+                if (StrUtil.isBlank(appLink)) {
+                    continue;
                 }
+                YarnApp runtimeYarnApp = clusterClient.node(appLink);
+                if (runtimeYarnApp == null) {
+                    continue;
+                }
+
+                // 根据appLink 获取任务实例的详细信息
+                YarnApp earlyYarnApp = yarnAppMap.get(dolphinTaskEntity.getAppLink());
+                if (earlyYarnApp == null) {
+                    continue;
+                }
+                doExec(dolphinTaskEntity, earlyYarnApp, runtimeYarnApp, taskRuleSetting);
+            }
+        }
+    }
+
+    /**
+     * 根据yarn 任务实例状态，判断任务实例是否运行中，是否超时，是否失败，是否成功
+     * 根据任务实例状态，调用不同的状态处理器，处理不同的状态
+     * <p>
+     * yarn任务实例状态:
+     * NEW
+     * NEW_SAVING
+     * SUBMITTED
+     * ACCEPTED
+     * RUNNING
+     * FINISHED
+     * FAILED
+     * KILLED
+     * 1. 如果任务实例状态为"运行中"，则继续监控
+     * 2. 如果任务实例状态为"失败"，或任务执行时间超过预设的超时时间，则触发告警机制
+     * 3. 如果任务实例状态为"成功"，则触发告警机制
+     * 4. 如果任务实例状态为"杀死"，则触发告警机制
+     * <p>
+     * 状态处理器：
+     * 1. runningStateHandler：处理任务实例状态为"运行中"的情况
+     * 2. failedStateHandler：处理任务实例状态为"失败"的情况
+     * 3. successStateHandler：处理任务实例状态为"成功"的情况
+     * 4. killedStateHandler：处理任务实例状态为"杀死"的情况
+     * 5. timeoutStateHandler：处理任务实例状态为"超时"的情况
+     * 6. finishedStateHandler：处理任务实例状态为"完成"的情况
+     *
+     */
+    private void doExec(DolphinTaskEntity dolphinTaskEntity, YarnApp yarnAppInstance, YarnApp yarnApp, TaskRuleSetting taskRuleSetting) {
+
+        String state = yarnAppInstance.getState();
+        if (!StrUtil.isBlank(state)) {
+            StateHandler stateHandler = stateHandlers.get(state.toLowerCase() + "StateHandler");
+            if (stateHandler != null) {
+                log.info("监控到：{} 类型任务实例 {} : {} 运行中", yarnApp.getApplicationType(), dolphinTaskEntity.getTaskCode(), yarnApp.getId());
+                stateHandler.handle(dolphinTaskEntity, taskRuleSetting, yarnAppInstance);
             }
         }
     }
 
     private YarnApp mock(String appLink, YarnApp yarnApp) {
-        return YarnApp.builder()
-                .id(appLink)
-                .state(yarnApp.getState())
-                .finalStatus(yarnApp.getFinalStatus())
-                .progress(yarnApp.getProgress())
-                .trackingUI(yarnApp.getTrackingUI())
-                .trackingUrl(yarnApp.getTrackingUrl())
-                .diagnostics(yarnApp.getDiagnostics())
-                .build();
+        YarnApp yarnAppInstance = new YarnApp();
+        yarnAppInstance.setId(appLink);
+        yarnAppInstance.setState(yarnApp.getState());
+        yarnAppInstance.setFinalStatus(yarnApp.getFinalStatus());
+        yarnAppInstance.setProgress(yarnApp.getProgress());
+        yarnAppInstance.setTrackingUI(yarnApp.getTrackingUI());
+        yarnAppInstance.setTrackingUrl(yarnApp.getTrackingUrl());
+        yarnAppInstance.setDiagnostics(yarnApp.getDiagnostics());
+        return yarnAppInstance;
     }
 
     private List<DolphinTaskEntity> getDolphinTaskInstance(MonitorSetting monitorSetting) {
