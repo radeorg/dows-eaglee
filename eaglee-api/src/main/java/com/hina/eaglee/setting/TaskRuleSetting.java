@@ -36,4 +36,7 @@ public class TaskRuleSetting {
 
     @Schema(description = "重试次数", example = "3")
     public Integer retryTimes;
+
+    @Schema(description = "任务的统计基数(默认3次),计算超时阈值时，需要根据任务的统计基数来计算(前三次运行时间的平均值为基数)", example = "3")
+    public Integer taskCardinalCount = 3;
 }

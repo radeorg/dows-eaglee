@@ -12,7 +12,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FailedStateHandler implements StateHandler {
     @Override
-    public void handle(DolphinTaskEntity dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance) {
+    public void handle(DolphinTaskEntity dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnApp) {
+        log.info("任务实例{}:{}已失败", dolphinTaskEntity.getName(),dolphinTaskEntity.getAppLink());
 
+        String applicationType = yarnApp.getApplicationType();
+        String trackingUrl = yarnApp.getTrackingUrl();
+        String amContainerLogs = yarnApp.getAmContainerLogs();
+
+        // 告警级别
+        String alarmLevel = taskRuleSetting.getAlarmLevel();
     }
 }

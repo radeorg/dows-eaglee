@@ -13,6 +13,6 @@ import org.springframework.stereotype.Component;
 public class KilledStateHandler implements StateHandler {
     @Override
     public void handle(DolphinTaskEntity dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance) {
-
+        log.info("任务实例{}:{}已被杀死", dolphinTaskEntity.getName(),dolphinTaskEntity.getAppLink());
     }
 }
