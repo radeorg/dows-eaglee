@@ -44,8 +44,12 @@ public class TaskRuleHandler {
         log.info("保存配置键名：{}", JSONUtil.toJsonStr(taskRuleSaveRequest));
         Long projectCode = taskRuleSaveRequest.getProjectCode();
         // 根据项目ID查询所有任务定义
-        List<DolphinTaskDefinition> taskDefinitions = dolphinQueryMapper.listTaskDefinitionByProjectCodeFromTaskDefinition(projectCode);
+        List<DolphinTaskDefinition> taskDefinitions = dolphinQueryMapper
+                .listTaskDefinitionByProjectCodeFromTaskDefinition(projectCode);
 
+        if (taskDefinitions == null || taskDefinitions.isEmpty()) {
+            throw new BusinessException(BusinessException.INVALID_PARAMETER, "项目ID不存在,或者没有任务定义");
+        }
         // 构建实体对象
         TaskRuleEntity taskRuleEntity = new TaskRuleEntity();
         BeanUtils.copyProperties(taskRuleSaveRequest, taskRuleEntity);

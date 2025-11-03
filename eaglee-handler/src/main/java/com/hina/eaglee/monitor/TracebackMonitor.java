@@ -9,6 +9,7 @@ import com.hina.eaglee.dolphin.DolphinMonitor;
 import com.hina.eaglee.dolphin.MonitorSetting;
 import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.setting.TaskRuleSetting;
+import com.hina.eaglee.status.StateHandler;
 import com.hina.eaglee.task.TaskRetry;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.processor.util.StrUtil;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 /**
  * 统一回溯项目监控
@@ -33,11 +35,9 @@ public class TracebackMonitor implements DolphinMonitor {
 
     private final TaskSettingCache taskSettingCache;
 
-    private final ThreadPoolExecutor threadPoolExecutor;
-
     private final ClusterClient clusterClient;
 
-    private final Map<String, TaskRetry> retryMap;
+    private final Map<String, StateHandler> stateHandlers;
 
 
     /**
@@ -59,13 +59,17 @@ public class TracebackMonitor implements DolphinMonitor {
             return;
         }
 
+        //Map<String, List<YarnApp>> appMap = yarnApps.getAppList().stream().collect(Collectors.groupingBy(YarnApp::getId));
+        // 转换为Map<String, YarnApp>，key为任务实例id，value为任务实例详情
+        Map<String, YarnApp> yarnAppMap = yarnApps.getAppList().stream()
+                .collect(Collectors.toMap(YarnApp::getId, yarnApp -> yarnApp));
         String projectCode = monitorSetting.getProjectCode();
         // 查dolphin数据库，根据项目code 和 状态查询任务实例，查询所有运行中的任务实例
         QueryWrapper queryWrapper = QueryWrapper.create().from(DolphinTaskEntity.class)
                 .and(DolphinTaskEntity::getProjectCode).eq(projectCode)
                 .and(DolphinTaskEntity::getState).eq(1);
         List<DolphinTaskEntity> list = dolphinTaskDao.list(queryWrapper);
-        List<YarnApp> appList = yarnApps.getAppList();
+
         log.info("监控查询到DolphinScheduler中 {} 条任务实例", list.size());
         for (DolphinTaskEntity dolphinTaskEntity : list) {
             Long taskCode = dolphinTaskEntity.getTaskCode();
@@ -78,18 +82,48 @@ public class TracebackMonitor implements DolphinMonitor {
             if(StrUtil.isBlank(appLink)){
                 continue;
             }
-            YarnApp node = clusterClient.node(appLink);
-            if(node == null){
+            YarnApp yarnApp = clusterClient.node(appLink);
+            if (yarnApp == null) {
                 continue;
             }
-            log.info("监控任务实例 {} : {} 运行中", taskCode,node.getId());
-            String trackingUrl = node.getTrackingUrl();
-            String amContainerLogs = node.getAmContainerLogs();
+            log.info("监控到：{} 类型任务实例 {} : {} 运行中", yarnApp.getApplicationType(), taskCode, yarnApp.getId());
+            String trackingUrl = yarnApp.getTrackingUrl();
+            String amContainerLogs = yarnApp.getAmContainerLogs();
 
             // 告警级别
             String alarmLevel = taskRuleSetting.getAlarmLevel();
 
+            YarnApp yarnAppInstance = yarnAppMap.get(dolphinTaskEntity.getAppLink());
+            if (yarnAppInstance == null) {
+                continue;
+            }
 
+            //SUBMITTED
+            //ACCEPTED
+            //RUNNING
+            //FINISHED
+            //FAILED
+            //KILLED
+            String state = yarnAppInstance.getState();
+            if (!StrUtil.isBlank(state)) {
+                StateHandler stateHandler = stateHandlers.get(state.toLowerCase() + "StateHandler");
+                if (stateHandler != null) {
+                    stateHandler.handle(dolphinTaskEntity, taskRuleSetting, yarnAppInstance);
+                }
+            }
+            /*if (state.equals("FAILED")) {
+                log.info("监控任务实例 {} 运行失败", taskCode);
+            } else if (state.equals("KILLED")) {
+                log.info("监控任务实例 {} 被杀死", taskCode);
+            } else if (state.equals("FINISHED")) {
+                log.info("监控任务实例 {} 运行完成", taskCode);
+            } else if (state.equals("RUNNING")) {
+                log.info("监控任务实例 {} 运行中", taskCode);
+            } else if (state.equals("SUBMITTED")) {
+                log.info("监控任务实例 {} 提交中", taskCode);
+            } else if (state.equals("ACCEPTED")) {
+                log.info("监控任务实例 {} 接受中", taskCode);
+            }*/
             /*for (YarnApp yarnApp : appList) {
                 if (yarnApp.getName().equals(dolphinTaskEntity.getName())) {
                     log.info("监控任务实例 {} 运行中", taskCode);

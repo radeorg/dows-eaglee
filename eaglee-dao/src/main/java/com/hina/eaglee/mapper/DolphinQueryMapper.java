@@ -30,7 +30,7 @@ public interface DolphinQueryMapper {
     // 根据流程实例ID查询任务实例
     List<TaskInstanceResponse> listDolphinTaskInstanceByProcessInstanceId(Long processInstanceId);
 
-    // 根据
+    // 根据项目code标识查询任务定义
     List<DolphinTaskDefinition> listTaskDefinitionByProjectCodeFromTaskDefinition(Long projectCode);
 
     List<TaskProjectResponse> findProjectByProjectName(String projectName);
