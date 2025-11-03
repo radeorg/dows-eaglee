@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,7 +53,7 @@ public class TracebackMonitor implements DolphinMonitor {
     public void monitor(MonitorSetting monitorSetting) {
         log.info("开始执行任务监控: {}", this.getClass().getSimpleName());
 
-        // 查yarn 集群中运行中的任务实例
+        // 根据monitorSetting 查yarn 集群中运行中的任务实例
         YarnApps yarnApps = clusterClient.apps(monitorSetting);
         if (yarnApps == null) {
             log.info("监控yarn集群中没有运行中的任务实例");
@@ -61,14 +64,8 @@ public class TracebackMonitor implements DolphinMonitor {
         Map<String, YarnApp> yarnAppMap = yarnApps.getAppList().stream()
                 .collect(Collectors.toMap(YarnApp::getId, yarnApp -> yarnApp));
 
-        String projectCode = monitorSetting.getProjectCode();
-        // 查dolphin数据库，根据项目code 和 状态查询任务实例，查询所有运行中的任务实例
-        QueryWrapper queryWrapper = QueryWrapper.create().from(DolphinTaskEntity.class)
-                .and(DolphinTaskEntity::getProjectCode).eq(projectCode)
-                .and(DolphinTaskEntity::getState).eq(1);
-        List<DolphinTaskEntity> list = dolphinTaskDao.list(queryWrapper);
-
-        log.info("监控查询到DolphinScheduler中 {} 条任务实例", list.size());
+        // 根据monitorSetting，获取所有任务实例
+        List<DolphinTaskEntity> list = getDolphinTaskInstance(monitorSetting);
         for (DolphinTaskEntity dolphinTaskEntity : list) {
             Long taskCode = dolphinTaskEntity.getTaskCode();
             TaskRuleSetting taskRuleSetting = taskSettingCache.getTaskSetting(taskCode);
@@ -114,5 +111,41 @@ public class TracebackMonitor implements DolphinMonitor {
                 }
             }
         }
+    }
+
+    private List<DolphinTaskEntity> getDolphinTaskInstance(MonitorSetting monitorSetting) {
+        // 获取项目code列表
+        List<Long> projectCodes = Arrays.stream(monitorSetting.getProjectCode().split(","))
+                .map(Long::parseLong).toList();
+        // 获取查询任务状态列表
+        List<Integer> status = Arrays.stream(monitorSetting.getStatus().split(","))
+                .map(Integer::parseInt).toList();
+        // 获取间隔时间（单位分钟），前推时间，计算出查询时间范围（开始时间）
+        LocalDateTime previousDateTime = getPreviousDateTime(monitorSetting.getIntervalTime());
+
+        // 查dolphin数据库，根据项目code 和 状态查询任务实例，查询所有运行中的任务实例
+        QueryWrapper queryWrapper = QueryWrapper.create().from(DolphinTaskEntity.class)
+                .and(DolphinTaskEntity::getSubmitTime).between(previousDateTime, LocalDateTime.now())
+                .and(DolphinTaskEntity::getProjectCode).in(projectCodes)
+                .and(DolphinTaskEntity::getState).in(status);
+        List<DolphinTaskEntity> list = dolphinTaskDao.list(queryWrapper);
+
+        // todo 直接saveOrUpdate 会导致数据库中没有的数据，会被删除，需要判断是否存在，如果存在，则更新，如果不存在，则新增
+        //dolphinTaskDao.saveOrUpdateBatch(list);
+
+        log.info("监控查询到DolphinScheduler中 {} 条任务实例", list.size());
+        return list;
+    }
+
+
+    /**
+     * 获取当前时间向前推指定分钟间隔的 DateTime
+     * @param minutes 分钟间隔
+     * @return 计算后的 LocalDateTime
+     */
+    public static LocalDateTime getPreviousDateTime(int minutes) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.ofMinutes(minutes);
+        return now.minus(duration);
     }
 }
