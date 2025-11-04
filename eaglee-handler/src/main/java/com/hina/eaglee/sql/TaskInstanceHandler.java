@@ -184,7 +184,7 @@ public class TaskInstanceHandler {
     public List<TaskInstanceResponse> listTaskByProjectId(String taskProjectId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .from(TaskInstanceEntity.class)
-                .where(TaskInstanceEntity::getTaskProjectId)
+                .where(TaskInstanceEntity::getProjectCode)
                 .eq(taskProjectId);
         return taskInstanceDao.listAs(queryWrapper, TaskInstanceResponse.class);
     }

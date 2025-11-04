@@ -21,22 +21,26 @@ public class TaskInstanceEntity {
     @Id(keyType = KeyType.Auto)
     @Schema(description = "任务实例ID")
     private Long taskInstanceId;
+
+    @Schema(description = "流程实例ID")
+    private Long processInstanceId;
+
+    @Schema(description = "流程实例名称")
+    private String processInstanceName;
     
     @Schema(description = "任务项目ID")
-    private Long taskProjectId;
+    private Long projectCode;
     
     @Schema(description = "任务名称")
     private String taskName;
     
     @Schema(description = "任务标识")
-    private String taskIdentifier;
+    private Long taskCode;
     
-    @Schema(description = "应用ID")
+    @Schema(description = "yarn 应用ID")
     private String applicationId;
-    
-    @Schema(description = "流程实例名称")
-    private String processName;
-    
+
+    // ------------------- 以下为任务实例字段 -------------------
     @Schema(description = "原因")
     private String reason;
     
@@ -50,9 +54,9 @@ public class TaskInstanceEntity {
     private Long duration;
     
     @Schema(description = "重试次数")
-    private Integer retried;
+    private Integer retryTimes;
     
-    @Schema(description = "状态")
+    @Schema(description = "状态: 0-提交成功, 1-运行中, 2-准备暂停, 3-暂停, 4-准备停止, 5-停止, 6-失败, 7-成功, 8-需要容错, 9-杀死, 10-等待线程, 11-等待依赖完成")
     private Integer state;
     
     @Schema(description = "开始时间")
@@ -60,6 +64,43 @@ public class TaskInstanceEntity {
     
     @Schema(description = "结束时间")
     private LocalDateTime endTime;
+
+    @Schema(description = "任务提交时间")
+    private LocalDateTime submitTime;
+
+    @Schema(description = "任务类型")
+    private String taskType;
+
+    @Schema(description = "任务执行类型: 0-批处理, 1-流处理")
+    private Integer taskExecuteType;
+
+    @Schema(description = "任务定义版本")
+    private Integer taskDefinitionVersion;
+
+    @Schema(description = "是否告警")
+    private Integer alertFlag;
+
+    @Schema(description = "任务重试次数")
+    private Integer retryTimes;
+
+    @Schema(description = "任务进程ID")
+    private Integer pid;
+
+    @Schema(description = "YARN应用ID")
+    private String appLink;
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     @Schema(description = "创建时间")
     private LocalDateTime ct;

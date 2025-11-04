@@ -3,9 +3,7 @@ package com.hina.eaglee.monitor;
 import com.hina.eaglee.cache.TaskSettingCache;
 import com.hina.eaglee.cluster.ClusterClient;
 import com.hina.eaglee.cluster.YarnApp;
-import com.hina.eaglee.cluster.YarnApps;
 import com.hina.eaglee.dao.DolphinTaskDao;
-import com.hina.eaglee.dolphin.DolphinMonitor;
 import com.hina.eaglee.dolphin.MonitorSetting;
 import com.hina.eaglee.dolphin.TaskStatus;
 import com.hina.eaglee.entity.DolphinTaskEntity;
@@ -21,7 +19,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * 统一回溯项目监控
@@ -29,7 +26,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class TracebackMonitor implements DolphinMonitor {
+public class DolphinMonitor implements com.hina.eaglee.dolphin.DolphinMonitor {
 
     // 记录之前调度周期中的任务ID集合，用于检测已完成的任务
     private final Set<String> previousTaskIds = ConcurrentHashMap.newKeySet();
@@ -55,7 +52,7 @@ public class TracebackMonitor implements DolphinMonitor {
     public void monitor(MonitorSetting monitorSetting) {
         log.info("开始执行任务监控: {}", this.getClass().getSimpleName());
 
-        // 根据monitorSetting 查yarn 集群中运行中的任务实例
+        /*// 根据monitorSetting 查yarn 集群中运行中的任务实例
         YarnApps yarnApps = clusterClient.apps(monitorSetting);
         if (yarnApps == null) {
             log.info("监控yarn集群中没有运行中的任务实例");
@@ -75,46 +72,37 @@ public class TracebackMonitor implements DolphinMonitor {
 
         // 更新之前任务ID集合为当前集合
         previousTaskIds.clear();
-        previousTaskIds.addAll(currentTaskIds);
+        previousTaskIds.addAll(currentTaskIds);*/
 
 
         // 根据monitorSetting，获取所有任务实例
-        List<DolphinTaskEntity> list = getDolphinTaskInstance(monitorSetting);
+        /*List<DolphinTaskEntity> list = getDolphinTaskInstance(monitorSetting);
         for (DolphinTaskEntity dolphinTaskEntity : list) {
             Long taskCode = dolphinTaskEntity.getTaskCode();
             TaskRuleSetting taskRuleSetting = taskSettingCache.getTaskSetting(taskCode);
-            // 测试模式不校验任务实例,直接用yarn 查询的数据
-            if (monitorSetting.isTestMode()) {
-                TaskRuleSetting taskRuleSettingMock = new TaskRuleSetting();
-                taskRuleSettingMock.setTimeoutThreshold(150);
-                taskRuleSettingMock.setTaskCardinalCount(2);
-                yarnAppMap.forEach((appId, yarnApp) -> {
-                    doExec(dolphinTaskEntity, yarnApp, yarnApp, taskRuleSettingMock);
-                });
-            } else {
-                if (taskRuleSetting == null) {
 
-                    continue;
-                }
-                // 获取任务实例的appLink
-                String appLink = dolphinTaskEntity.getAppLink();
-                if (StrUtil.isBlank(appLink)) {
-                    continue;
-                }
-                // 这里查到的appLink 是运行中的任务实例的appLink
-                YarnApp runtimeYarnApp = clusterClient.node(appLink);
-                if (runtimeYarnApp == null) {
-                    continue;
-                }
+            if (taskRuleSetting == null) {
 
-                // 根据appLink 获取任务实例的详细信息
-                YarnApp earlyYarnApp = yarnAppMap.get(dolphinTaskEntity.getAppLink());
-                if (earlyYarnApp == null) {
-                    continue;
-                }
-                doExec(dolphinTaskEntity, earlyYarnApp, runtimeYarnApp, taskRuleSetting);
+                continue;
             }
-        }
+            // 获取任务实例的appLink
+            String appLink = dolphinTaskEntity.getAppLink();
+            if (StrUtil.isBlank(appLink)) {
+                continue;
+            }
+            // 这里查到的appLink 是运行中的任务实例的appLink
+            YarnApp runtimeYarnApp = clusterClient.node(appLink);
+            if (runtimeYarnApp == null) {
+                continue;
+            }
+
+            // 根据appLink 获取任务实例的详细信息
+            YarnApp earlyYarnApp = yarnAppMap.get(dolphinTaskEntity.getAppLink());
+            if (earlyYarnApp == null) {
+                continue;
+            }
+            doExec(dolphinTaskEntity, earlyYarnApp, runtimeYarnApp, taskRuleSetting);
+        }*/
     }
 
 
@@ -235,7 +223,7 @@ public class TracebackMonitor implements DolphinMonitor {
                 .map(Long::parseLong).toList();
         // 获取查询任务状态列表
         List<Integer> status = Arrays.stream(monitorSetting.getStatus().split(","))
-                .map(state->TaskStatus.valueOf(state).getValue()).toList();
+                .map(state -> TaskStatus.valueOf(state).getValue()).toList();
         // 获取间隔时间（单位分钟），前推时间，计算出查询时间范围（开始时间）
         LocalDateTime previousDateTime = getPreviousDateTime(monitorSetting.getIntervalTime());
 
@@ -256,6 +244,7 @@ public class TracebackMonitor implements DolphinMonitor {
 
     /**
      * 获取当前时间向前推指定分钟间隔的 DateTime
+     *
      * @param minutes 分钟间隔
      * @return 计算后的 LocalDateTime
      */

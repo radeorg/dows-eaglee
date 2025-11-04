@@ -1,11 +1,14 @@
 package com.hina.eaglee.collect;
 
+import com.hina.eaglee.dolphin.DolphinAlertHandler;
+import com.hina.eaglee.request.DolphinAlertRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -13,18 +16,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 public class CollectRuntimeRest {
-    @Operation(summary = "保存运行时数据")
-    @PostMapping("/collect/runtime/save")
+
+    private final DolphinAlertHandler dolphinAlertHandler;
+
+    @Operation(summary = "收集集群运行时数据")
+    @PostMapping("/collect/cluster/runtime")
     public void save(){
 
 
     }
 
-    @Operation(summary = "分页查询运行时数据")
-    @GetMapping("/collect/runtime/page")
+    @Operation(summary = "分页查询集群运行时数据")
+    @GetMapping("/collect/cluster/page")
     public void page(){
 
+    }
 
+
+    @Operation(summary = "收集Dolphin告警信息")
+    @PostMapping("/collect/dolphin/alert")
+    public void alert(String content) {
+        dolphinAlertHandler.collect(content);
     }
 
 }

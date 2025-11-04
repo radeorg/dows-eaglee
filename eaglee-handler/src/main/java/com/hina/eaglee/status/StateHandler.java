@@ -30,18 +30,39 @@ public interface StateHandler {
         if (yarnAppStartTime == null) {
             yarnAppStartTime = 0L;
         }
-
-        // 计算当前任务的运行时间（毫秒）
+        /*// 计算当前任务的运行时间（毫秒）
         long currentDuration = System.currentTimeMillis() - yarnAppStartTime;
 
         // 计算统计队列中的平均耗时,计算已完成任务的平均运行时间（毫秒）,
-        double averageDuration = completedTasks.stream()
+        *//*double averageDuration = completedTasks.stream()
                 .mapToLong(YarnApp::getElapsedTime)
                 .average()
-                .orElse(0);
+                .orElse(0);*//*
+        long averageDuration = Math.round(completedTasks.stream()
+                .mapToLong(YarnApp::getElapsedTime)
+                .average()
+                .orElse(0));
         double value = timeoutThreshold / 100.0;
         // 检查比例是否超过xxx%,默认150%
-        boolean timeout = averageDuration > 0 && (currentDuration / averageDuration) > value;
+        boolean timeout = averageDuration > 0 && (currentDuration / averageDuration) > value;*/
+        // 计算当前任务的运行时间（毫秒）
+        long currentDuration = System.currentTimeMillis() - yarnAppStartTime;
+
+        // 计算统计队列中的平均耗时，优化逻辑处理空队列和除零问题
+        long averageDuration = 0;
+        boolean hasValidAverage = false;
+
+        if (completedTasks != null && !completedTasks.isEmpty()) {
+            averageDuration = Math.round(completedTasks.stream()
+                    .mapToLong(YarnApp::getElapsedTime)
+                    .average()
+                    .orElse(0));
+            hasValidAverage = averageDuration > 0;
+        }
+
+        double thresholdRatio = timeoutThreshold / 100.0;
+        // 检查比例是否超过阈值，只有当有有效平均值时才进行超时判断
+        boolean timeout = hasValidAverage && (currentDuration / (double)averageDuration) > thresholdRatio;
         // 设置任务超时状态
         taskInfo.setTimeout(timeout);
         // 设置任务运行时间

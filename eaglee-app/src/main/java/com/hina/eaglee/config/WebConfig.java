@@ -31,7 +31,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://10.0.71.55:8080/")
+                // 允许局域网IP网段访问
+                .allowedOrigins("http://10.0.71.*:8080/")
                 .allowedOriginPatterns("*")
                 //.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedMethods("*")

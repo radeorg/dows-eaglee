@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class TimeoutProcessor implements StateProcessor {
     @Override
     public void handle(TaskInfo taskInfo) {
-        log.info("TimeoutProcessor handle taskInfo: {}", taskInfo);
+        //log.info("TimeoutProcessor handle taskInfo: {}", taskInfo);
+        log.info("任务超时，任务ID: {}, 任务名称: {}", taskInfo.getYarnApp().getId(), taskInfo.getYarnApp().getName());
     }
 }

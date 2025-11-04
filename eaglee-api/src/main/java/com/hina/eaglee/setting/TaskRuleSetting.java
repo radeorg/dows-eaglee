@@ -39,4 +39,7 @@ public class TaskRuleSetting {
 
     @Schema(description = "任务的统计基数(默认3次),计算超时阈值时，需要根据任务的统计基数来计算(前三次运行时间的平均值为基数)", example = "3")
     public Integer taskCardinalCount = 3;
+
+    @Schema(description = "是否自动处理")
+    private boolean autoProcess;
 }

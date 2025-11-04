@@ -27,6 +27,8 @@ public class RunningStateHandler implements StateHandler {
     private final Map<String, StateAlert> stateAlerts;
 
     private final Map<String, StateProcessor> stateProcessors;
+
+    private static final Map<String,String> appIds = new ConcurrentHashMap<>();
     /**
      * 运行时的项目需要监控，监控项目运行状态，如发现超时任务（根据任务规则设置的超时时间），需要及时告警
      *
@@ -37,39 +39,47 @@ public class RunningStateHandler implements StateHandler {
     @Override
     public void handle(DolphinTaskEntity dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance) {
         log.info("dolphin任务实例 : yarn任务实例 = {}:{} 正在运行中", dolphinTaskEntity.getName(), dolphinTaskEntity.getAppLink());
-        /*
-        超时告警阈值(%) 监控任务运行时间，如超过超时时间，需要告警
-        计算逻辑：
-        1. 任务运行时间 = 当前时间 - 任务启动时间
-        2. 如果任务运行时间 > 超时告警阈值(%) * 任务启动时间，需要告警
-        3. 如果任务运行时间 < 超时告警阈值(%) * 任务启动时间，不需要告警
-        4. 如果超时告警阈值(%)为空，则不进行告警
-         */
-        Integer taskCardinalCount = taskRuleSetting.getTaskCardinalCount();
-        if (taskCardinalCount != taskCount.get()) {
-            taskCount.set(taskCardinalCount);
-            resizeQueue(yarnAppInstance.getName(), taskCardinalCount);
-        }
-        LinkedBlockingDeque<YarnApp> queue = taskHistoryMap.computeIfAbsent(
-                yarnAppInstance.getName(), k -> new LinkedBlockingDeque<>(taskCardinalCount)
-        );
-        if (queue.size() >= taskCardinalCount) {
-            // 移除队列头部元素，
-            queue.pollFirst();
-        }
-        queue.addLast(yarnAppInstance);
 
-        // 超时告警阈值(%)
-        Integer timeoutThreshold = taskRuleSetting.getTimeoutThreshold();
-        if (timeoutThreshold != null) {
-            TaskInfo taskInfo = checkYarnTaskInfo(yarnAppInstance, queue, timeoutThreshold);
-            taskInfo.setProjectCode(dolphinTaskEntity.getProjectCode());
-            taskInfo.setDolphinTaskEntity(dolphinTaskEntity);
-            if (taskInfo.isTimeout()) {
-                taskInfo.setStateType(StateType.timeout);
-                stateAlert(taskInfo);
-                // todo ,这里可以根据配置要求，如果自动处理，则需要调用状态处理器，否则不处理由人工处理
-                stateProcess(taskInfo);
+
+        String appId = appIds.get(yarnAppInstance.getId());
+        // 如果不空说明在运行中
+        if(appId == null){
+            appIds.put(yarnAppInstance.getId(),yarnAppInstance.getName());
+        } else {
+            /*
+            超时告警阈值(%) 监控任务运行时间，如超过超时时间，需要告警
+            计算逻辑：
+            1. 任务运行时间 = 当前时间 - 任务启动时间
+            2. 如果任务运行时间 > 超时告警阈值(%) * 任务启动时间，需要告警
+            3. 如果任务运行时间 < 超时告警阈值(%) * 任务启动时间，不需要告警
+            4. 如果超时告警阈值(%)为空，则不进行告警
+            */
+            Integer taskCardinalCount = taskRuleSetting.getTaskCardinalCount();
+            if (taskCardinalCount != taskCount.get()) {
+                taskCount.set(taskCardinalCount);
+                resizeQueue(yarnAppInstance.getName(), taskCardinalCount);
+            }
+            LinkedBlockingDeque<YarnApp> queue = taskHistoryMap.computeIfAbsent(
+                    yarnAppInstance.getName(), k -> new LinkedBlockingDeque<>(taskCardinalCount)
+            );
+            if (queue.size() >= taskCardinalCount) {
+                // 移除队列头部元素，
+                queue.pollFirst();
+            }
+            queue.addLast(yarnAppInstance);
+
+            // 超时告警阈值(%)
+            Integer timeoutThreshold = taskRuleSetting.getTimeoutThreshold();
+            if (timeoutThreshold != null) {
+                TaskInfo taskInfo = checkYarnTaskInfo(yarnAppInstance, queue, timeoutThreshold);
+                taskInfo.setProjectCode(dolphinTaskEntity.getProjectCode());
+                taskInfo.setDolphinTaskEntity(dolphinTaskEntity);
+                if (taskInfo.isTimeout()) {
+                    taskInfo.setStateType(StateType.timeout);
+                    stateAlert(taskInfo);
+                    // todo ,这里可以根据配置要求，如果自动处理，则需要调用状态处理器，否则不处理由人工处理
+                    stateProcess(taskInfo);
+                }
             }
         }
     }
