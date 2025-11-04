@@ -59,6 +59,7 @@ springdoc:
     - group: 'dolphin'
       paths-to-match: '/**'
       packages-to-scan: com.hina.eaglee.dolphin
+  paths-to-match: '/**'
 
 
 logging:
