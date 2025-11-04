@@ -3,6 +3,7 @@ package com.hina.eaglee.status;
 import com.hina.eaglee.alert.StateAlert;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.entity.DolphinTaskEntity;
+import com.hina.eaglee.processor.StateProcessor;
 import com.hina.eaglee.setting.TaskRuleSetting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class RunningStateHandler implements StateHandler {
     // 状态处理器
     private final Map<String, StateAlert> stateAlerts;
 
+    private final Map<String, StateProcessor> stateProcessors;
     /**
      * 运行时的项目需要监控，监控项目运行状态，如发现超时任务（根据任务规则设置的超时时间），需要及时告警
      *
@@ -34,7 +36,7 @@ public class RunningStateHandler implements StateHandler {
      */
     @Override
     public void handle(DolphinTaskEntity dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance) {
-        log.info("任务实例{}:{}正在运行中", dolphinTaskEntity.getName(), dolphinTaskEntity.getAppLink());
+        log.info("dolphin任务实例 : yarn任务实例 = {}:{} 正在运行中", dolphinTaskEntity.getName(), dolphinTaskEntity.getAppLink());
         /*
         超时告警阈值(%) 监控任务运行时间，如超过超时时间，需要告警
         计算逻辑：
@@ -46,10 +48,10 @@ public class RunningStateHandler implements StateHandler {
         Integer taskCardinalCount = taskRuleSetting.getTaskCardinalCount();
         if (taskCardinalCount != taskCount.get()) {
             taskCount.set(taskCardinalCount);
-            resizeQueue(dolphinTaskEntity.getName(), taskCardinalCount);
+            resizeQueue(yarnAppInstance.getName(), taskCardinalCount);
         }
         LinkedBlockingDeque<YarnApp> queue = taskHistoryMap.computeIfAbsent(
-                dolphinTaskEntity.getName(), k -> new LinkedBlockingDeque<>(taskCardinalCount)
+                yarnAppInstance.getName(), k -> new LinkedBlockingDeque<>(taskCardinalCount)
         );
         if (queue.size() >= taskCardinalCount) {
             // 移除队列头部元素，
@@ -64,17 +66,32 @@ public class RunningStateHandler implements StateHandler {
             taskInfo.setProjectCode(dolphinTaskEntity.getProjectCode());
             taskInfo.setDolphinTaskEntity(dolphinTaskEntity);
             if (taskInfo.isTimeout()) {
-                triggerAlert(taskInfo);
+                taskInfo.setStateType(StateType.timeout);
+                stateAlert(taskInfo);
+                // todo ,这里可以根据配置要求，如果自动处理，则需要调用状态处理器，否则不处理由人工处理
+                stateProcess(taskInfo);
             }
         }
     }
 
+
     /**
-     * 触发告警逻辑
+     * 状态处理
+     * @param taskInfo
      */
-    private void triggerAlert(TaskInfo taskInfo) {
+    private void stateProcess(TaskInfo taskInfo) {
+        StateProcessor stateProcessor = stateProcessors.get(taskInfo.getStateType().name() + "Processor");
+        if (stateProcessor != null) {
+            stateProcessor.handle(taskInfo);
+        }
+    }
+    /**
+     * 状态告警
+     * @param taskInfo
+     */
+    private void stateAlert(TaskInfo taskInfo) {
         // 告警逻辑：可以发送邮件、日志记录或调用其他服务
-        StateAlert stateAlert = stateAlerts.get(taskInfo.getDolphinTaskEntity().getState());
+        StateAlert stateAlert = stateAlerts.get(taskInfo.getStateType().name() + "Alert");
         if (stateAlert != null) {
             stateAlert.handle(taskInfo);
         }
@@ -94,7 +111,6 @@ public class RunningStateHandler implements StateHandler {
         if (oldQueue == null) {
             return;
         }
-
         // 创建新队列并迁移数据
         LinkedBlockingDeque<YarnApp> newQueue = new LinkedBlockingDeque<>(newSize);
         for (YarnApp yarnApp : oldQueue) {

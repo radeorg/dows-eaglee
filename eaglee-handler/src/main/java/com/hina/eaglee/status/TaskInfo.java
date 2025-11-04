@@ -19,6 +19,9 @@ public class TaskInfo {
     private long runningTime;
     private double averageDuration;
     private boolean timeout;
+
+    private StateType stateType;
     private YarnApp yarnApp;
     private DolphinTaskEntity dolphinTaskEntity;
+
 }

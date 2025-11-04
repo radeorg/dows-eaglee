@@ -16,3 +16,5 @@ hina:
           status: FAILED,RUNNING
           #interval-time: 10000000
           test-mode: true
+          #mock-setting:
+

@@ -26,9 +26,13 @@ public interface StateHandler {
         if (completedTasks == null || completedTasks.isEmpty()) {
             taskInfo.setTimeout(false);
         }
+        Long yarnAppStartTime = currentTask.getStartedTime();
+        if (yarnAppStartTime == null) {
+            yarnAppStartTime = 0L;
+        }
 
         // 计算当前任务的运行时间（毫秒）
-        long currentDuration = System.currentTimeMillis() - currentTask.getStartedTime();
+        long currentDuration = System.currentTimeMillis() - yarnAppStartTime;
 
         // 计算统计队列中的平均耗时,计算已完成任务的平均运行时间（毫秒）,
         double averageDuration = completedTasks.stream()

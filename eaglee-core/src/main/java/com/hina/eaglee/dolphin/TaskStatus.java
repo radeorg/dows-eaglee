@@ -45,4 +45,13 @@ public enum TaskStatus {
         this.value = value;
     }
 
+    public static TaskStatus getByValue(Integer value) {
+        for (TaskStatus status : values()) {
+            if (status.value.equals(value)) {
+                return status;
+            }
+        }
+        return null;
+    }
+
 }

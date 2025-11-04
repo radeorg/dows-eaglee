@@ -71,10 +71,12 @@ public class TracebackMonitor implements DolphinMonitor {
             Long taskCode = dolphinTaskEntity.getTaskCode();
             TaskRuleSetting taskRuleSetting = taskSettingCache.getTaskSetting(taskCode);
             // 测试模式不校验任务实例,直接用yarn 查询的数据
-            if (!monitorSetting.isTestMode()) {
+            if (monitorSetting.isTestMode()) {
+                TaskRuleSetting taskRuleSettingMock = new TaskRuleSetting();
+                taskRuleSettingMock.setTimeoutThreshold(10);
+                taskRuleSettingMock.setTaskCardinalCount(2);
                 yarnAppMap.forEach((appId, yarnApp) -> {
-                    YarnApp yarnAppInstance = mock(appId, yarnApp);
-                    doExec(dolphinTaskEntity, yarnAppInstance, yarnApp, taskRuleSetting);
+                    doExec(dolphinTaskEntity, yarnApp, yarnApp, taskRuleSettingMock);
                 });
             } else {
                 if (taskRuleSetting == null) {
@@ -128,14 +130,14 @@ public class TracebackMonitor implements DolphinMonitor {
      * 6. finishedStateHandler：处理任务实例状态为"完成"的情况
      *
      */
-    private void doExec(DolphinTaskEntity dolphinTaskEntity, YarnApp yarnAppInstance, YarnApp yarnApp, TaskRuleSetting taskRuleSetting) {
+    private void doExec(DolphinTaskEntity dolphinTaskEntity, YarnApp earlyYarnApp, YarnApp runtimeYarnApp, TaskRuleSetting taskRuleSetting) {
 
-        String state = yarnAppInstance.getState();
+        String state = earlyYarnApp.getState();
         if (!StrUtil.isBlank(state)) {
             StateHandler stateHandler = stateHandlers.get(state.toLowerCase() + "StateHandler");
             if (stateHandler != null) {
-                log.info("监控到：{} 类型任务实例 {} : {} 运行中", yarnApp.getApplicationType(), dolphinTaskEntity.getTaskCode(), yarnApp.getId());
-                stateHandler.handle(dolphinTaskEntity, taskRuleSetting, yarnAppInstance);
+                log.info("监控到：{} 类型任务实例 {} : {} 运行中", runtimeYarnApp.getApplicationType(), dolphinTaskEntity.getTaskCode(), runtimeYarnApp.getId());
+                stateHandler.handle(dolphinTaskEntity, taskRuleSetting, earlyYarnApp);
             }
         }
     }
