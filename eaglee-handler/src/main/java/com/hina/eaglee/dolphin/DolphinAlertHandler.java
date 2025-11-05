@@ -2,7 +2,7 @@ package com.hina.eaglee.dolphin;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.hina.eaglee.cluster.YarnApp;
+import com.hina.eaglee.analysis.LogAnalysis;
 import com.hina.eaglee.dao.DolphinProcessDao;
 import com.hina.eaglee.dao.DolphinTaskDao;
 import com.hina.eaglee.dao.TaskInstanceDao;
@@ -18,9 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
 @Component
@@ -34,9 +32,9 @@ public class DolphinAlertHandler {
 
     private final DolphinProcessDao dolphinProcessDao;
 
-    // 记录每个任务实例的前三次运行记录，用于计算任务运行时间
-    private final Map<String, LinkedBlockingDeque<YarnApp>> taskHistoryMap = new ConcurrentHashMap<>();
+    private final LogAnalysis logAnalysis;
 
+    private final ThreadPoolExecutor threadPoolExecutor;
 
     public void collect(String content) {
         log.info("Dolphin告警信息: {}", content);
@@ -72,7 +70,7 @@ public class DolphinAlertHandler {
             taskProcessEntity.setProcessDuration(processAlert.getProcessDuration());
             taskProcessEntity.setProcessHost(processAlert.getProcessHost());
             // todo ,补齐任务实例列表
-            List<TaskInstanceEntity> taskInstanceEntities = getTaskInstanceEntities(processAlert);
+            List<TaskInstanceEntity> taskInstanceEntities = buildTaskInstanceEntities(processAlert);
             // 设置流程下的任务数量
             taskProcessEntity.setTaskCount(taskInstanceEntities.size());
             // 获取流程实例是否存在，不存在则保存，存在则更新
@@ -98,7 +96,7 @@ public class DolphinAlertHandler {
             taskProcessEntity.setStartTime(dolphinProcessEntity.getStartTime());
             taskProcessEntity.setProcessHost(dolphinProcessEntity.getHost());
             // @Notice 补齐任务实例列表
-            List<TaskInstanceEntity> taskInstanceEntities = getTaskInstanceEntities(processAlert);
+            List<TaskInstanceEntity> taskInstanceEntities = buildTaskInstanceEntities(processAlert);
             // 设置流程下的任务数量
             taskProcessEntity.setTaskCount(taskInstanceEntities.size());
             // 查询流程实例是否存在，不存在则保存，存在则更新
@@ -112,8 +110,22 @@ public class DolphinAlertHandler {
                 taskProcessDao.updateById(taskProcessEntity);
                 taskInstanceDao.updateBatch(taskInstanceEntities);
             }
+            // @AI 分析日志
+            threadPoolExecutor.execute(() -> {
+                String reason = logAnalysis.analyse(processAlert.getLogPath());
+                TaskInstanceEntity taskInstanceEntity = new TaskInstanceEntity();
+                // 设值更新字段（s3日志路径、错误原因）
+                taskInstanceEntity.setS3Log(processAlert.getLogPath());
+                taskInstanceEntity.setReason(reason);
+                QueryWrapper queryWrapper = QueryWrapper.create().from(TaskInstanceEntity.class)
+                        .and(TaskInstanceEntity::getProcessInstanceId).eq(processAlert.getProcessId())
+                        .and(TaskInstanceEntity::getTaskCode).eq(processAlert.getTaskCode())
+                        .and(TaskInstanceEntity::getTaskType).eq(processAlert.getTaskType())
+                        .and(TaskInstanceEntity::getState).eq(TaskStatus.FAILURE.getValue());
+                // 根据条件更新任务实例数据
+                taskInstanceDao.update(taskInstanceEntity,queryWrapper);
+            });
         }
-
     }
 
     /**
@@ -122,14 +134,7 @@ public class DolphinAlertHandler {
      * @param processAlert
      * @return
      */
-    private List<TaskInstanceEntity> getTaskInstanceEntities(ProcessAlert processAlert) {
-        String reason = null;
-        String taskName = null;
-        if (processAlert instanceof ProcessFailureAlert failureAlert) {
-            // @AI 分析日志
-            taskName = failureAlert.getTaskName();
-            reason = analysisReason(failureAlert.getLogPath());
-        }
+    private List<TaskInstanceEntity> buildTaskInstanceEntities(ProcessAlert processAlert) {
         // 根据当前流程ID查询任务实例列表
         QueryWrapper queryWrapper = QueryWrapper.create().from(DolphinTaskEntity.class)
                 .and(DolphinTaskEntity::getProcessInstanceId).eq(processAlert.getProcessId());
@@ -139,9 +144,9 @@ public class DolphinAlertHandler {
         for (DolphinTaskEntity dolphinTask : dolphinTaskEntities) {
             TaskInstanceEntity taskInstanceEntity = new TaskInstanceEntity();
             // 如果任务名相同，说明任务报错，则记录错误原因
-            if(dolphinTask.getName().equals(taskName)){
+            /*if(dolphinTask.getName().equals(taskName)){
                 taskInstanceEntity.setReason(reason);
-            }
+            }*/
             // 设置ID
             taskInstanceEntity.setTaskInstanceId(Long.valueOf(dolphinTask.getId()));
             taskInstanceEntity.setProcessInstanceId(processAlert.getProcessId());
@@ -168,6 +173,12 @@ public class DolphinAlertHandler {
     }
 
 
+    /**
+     * 构建流程实例数据实体
+     *
+     * @param processAlert
+     * @return
+     */
     private TaskProcessEntity buildTaskProcess(ProcessAlert processAlert) {
         TaskProcessEntity taskProcessEntity = new TaskProcessEntity();
         // 已经流程ID为主键
@@ -181,16 +192,5 @@ public class DolphinAlertHandler {
         taskProcessEntity.setProjectName(processAlert.getProjectName());
         taskProcessEntity.setOwner(processAlert.getOwner());
         return taskProcessEntity;
-    }
-
-
-    /**
-     * 分析原因,ai分析
-     *
-     * @param logPath
-     * @return
-     */
-    public String analysisReason(String logPath) {
-        return "原因分析中...";
     }
 }

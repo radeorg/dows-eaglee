@@ -35,8 +35,8 @@ public enum TaskStatus {
     SUBMITTED(-3),
     ACCEPTED(-4),
     RUNNING(1),
+    FAILURE(6),
     FINISHED(7),
-    FAILED(6),
     KILLED(9);
 
     private final Integer value;

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: ai,cache,datasource,langchain,oss,mybatis,dolphin,cluster
+    include: analysis,cache,datasource,langchain,oss,mybatis,dolphin,cluster,ai
     active: dev
   main:
     allow-bean-definition-overriding: true

@@ -15,4 +15,6 @@ public class DolphinProperties {
     private Map<String, String> endpoints;
 
     private Map<String,MonitorSetting> monitors;
+
+    private Map<String,AnalysisSetting> analyses;
 }

@@ -1,0 +1,10 @@
+spring:
+  ai:
+    openai:
+      api-key: ${DEEPSEEK_API_KEY}
+      base-url: https://api.deepseek.com
+      chat:
+        options:
+          #模型名称，可选值：deepseek-analysis/DeepSeek-R1-Distill-Llama-8B
+          model: deepseek-chat
+          temperature: 1.3

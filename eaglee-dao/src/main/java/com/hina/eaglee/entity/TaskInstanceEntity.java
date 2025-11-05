@@ -41,6 +41,9 @@ public class TaskInstanceEntity {
     private String applicationId;
 
     // ------------------- 以下为任务实例字段 -------------------
+    @Schema(description = "日志路径")
+    private String s3Log;
+
     @Schema(description = "原因")
     private String reason;
     
