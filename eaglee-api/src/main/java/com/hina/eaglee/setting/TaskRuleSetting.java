@@ -14,7 +14,7 @@ public class TaskRuleSetting {
     public String ruleDesc;
 
     @Schema(description = "超时告警阈值(%)", example = "150")
-    public Integer timeoutThreshold;
+    public Integer timeoutThreshold = 150;
 
     @Schema(description = "最小运行次数", example = "3")
     public Integer minRunTimes;
@@ -31,8 +31,8 @@ public class TaskRuleSetting {
     @Schema(description = "重试间隔(s)", example = "6000")
     public Integer retryInterval;
 
-    @Schema(description = "所属项目标识", example = "proj_xxx")
-    public String projectIdentifier;
+    @Schema(description = "所属项目标识", example = "11986638487424")
+    public Long projectCode = 11986638487424L;
 
     @Schema(description = "重试次数", example = "3")
     public Integer retryTimes;

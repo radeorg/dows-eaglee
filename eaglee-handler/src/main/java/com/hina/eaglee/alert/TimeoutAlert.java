@@ -13,7 +13,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class TimeoutAlert implements StateAlert {
+public class TimeoutAlert implements TaskAlert {
 
     private final Map<String, StateProcessor> taskProcessors;
     @Override

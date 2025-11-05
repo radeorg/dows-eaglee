@@ -1,6 +1,6 @@
 package com.hina.eaglee.status;
 
-import com.hina.eaglee.alert.StateAlert;
+import com.hina.eaglee.alert.TaskAlert;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.processor.StateProcessor;
@@ -24,7 +24,7 @@ public class RunningStateHandler implements StateHandler {
     // 任务计数器，用于动态调整队列大小
     private final AtomicInteger taskCount = new AtomicInteger(0);
     // 状态处理器
-    private final Map<String, StateAlert> stateAlerts;
+    private final Map<String, TaskAlert> stateAlerts;
 
     private final Map<String, StateProcessor> stateProcessors;
 
@@ -101,7 +101,7 @@ public class RunningStateHandler implements StateHandler {
      */
     private void stateAlert(TaskInfo taskInfo) {
         // 告警逻辑：可以发送邮件、日志记录或调用其他服务
-        StateAlert stateAlert = stateAlerts.get(taskInfo.getStateType().name() + "Alert");
+        TaskAlert stateAlert = stateAlerts.get(taskInfo.getStateType().name() + "Alert");
         if (stateAlert != null) {
             stateAlert.handle(taskInfo);
         }

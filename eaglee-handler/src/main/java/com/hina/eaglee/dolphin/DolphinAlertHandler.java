@@ -54,9 +54,14 @@ public class DolphinAlertHandler {
          * failure：
          * {"projectCode":"11986638487424","projectName":"雷达-统一回溯","owner":"admin","processId":"820941","processDefinitionCode":"19405397147648","processName":"wf_BCFSYDZ2_202510211624250_19405397145856_sdk_liuxinran-20251021162425208-1-20251021162426037","modifyBy":"admin","taskCode":"19405397144578","taskName":"wf_BCFSYDZ2_202510211624250_19405397144578","taskType":"SPARK","taskState":"FAILURE","taskStartTime":"2025-11-02 21:22:27","taskEndTime":"2025-11-03 02:27:56","taskHost":"172.20.52.89:1234","taskPriority":"medium","logPath":"https://s3-model.hinadt.com/BfXunXinDs/logs/20251021/19405397147648/1/820941/2268906.log","taskDuration":"5小时5分钟29秒","dsPatformUrl":"https://ds.xunxin-ai.com/dolphinscheduler","sparkJarPath":"dolphinscheduler/default/resources/spark/product-regress.jar"}
          */
-        String processState = jsonObject.get("processState").toString();
+        String state = null;
+        try {
+            state = jsonObject.get("processState").toString();
+        } catch (Exception e) {
+            state = jsonObject.get("taskState").toString();
+        }
 
-        if ("SUCCESS".equals(processState)) {
+        if ("SUCCESS".equals(state)) {
             // 告警
             ProcessSuccessAlert processAlert = JSONUtil.toBean(jsonObject, ProcessSuccessAlert.class);
             // 构建实体对象
@@ -64,19 +69,26 @@ public class DolphinAlertHandler {
             // 设置实体属性
             taskProcessEntity.setProcessStartTime(processAlert.getProcessStartTime());
             taskProcessEntity.setProcessEndTime(processAlert.getProcessEndTime());
-            taskProcessEntity.setProcessHost(processAlert.getProcessHost());
             taskProcessEntity.setProcessDuration(processAlert.getProcessDuration());
+            taskProcessEntity.setProcessHost(processAlert.getProcessHost());
             // todo ,补齐任务实例列表
             List<TaskInstanceEntity> taskInstanceEntities = getTaskInstanceEntities(processAlert);
             // 设置流程下的任务数量
             taskProcessEntity.setTaskCount(taskInstanceEntities.size());
-            // 保存流程实例数据
-            taskProcessDao.saveOrUpdate(taskProcessEntity);
-            // 保存任务实例数据批量
-            taskInstanceDao.saveOrUpdateBatch(taskInstanceEntities);
+            // 获取流程实例是否存在，不存在则保存，存在则更新
+            TaskProcessEntity entity = taskProcessDao.getById(processAlert.getProcessId());
+            if (entity == null) {
+                // 保存流程实例数据
+                taskProcessDao.save(taskProcessEntity);
+                // 保存任务实例数据批量
+                taskInstanceDao.saveBatch(taskInstanceEntities);
+            } else {
+                taskProcessDao.updateById(taskProcessEntity);
+                taskInstanceDao.updateBatch(taskInstanceEntities);
+            }
         }
 
-        if ("FAILURE".equals(processState)) {
+        if ("FAILURE".equals(state)) {
             // 记录成功信息
             ProcessFailureAlert processAlert = JSONUtil.toBean(jsonObject, ProcessFailureAlert.class);
             // 根据流程ID查询流程实例
@@ -89,10 +101,17 @@ public class DolphinAlertHandler {
             List<TaskInstanceEntity> taskInstanceEntities = getTaskInstanceEntities(processAlert);
             // 设置流程下的任务数量
             taskProcessEntity.setTaskCount(taskInstanceEntities.size());
-            // 保存流程实例数据
-            taskProcessDao.saveOrUpdate(taskProcessEntity);
-            // 保存任务实例数据批量
-            taskInstanceDao.saveOrUpdateBatch(taskInstanceEntities);
+            // 查询流程实例是否存在，不存在则保存，存在则更新
+            TaskProcessEntity entity = taskProcessDao.getById(processAlert.getProcessId());
+            if (entity == null) {
+                // 保存流程实例数据
+                taskProcessDao.save(taskProcessEntity);
+                // 保存任务实例数据批量
+                taskInstanceDao.saveBatch(taskInstanceEntities);
+            } else {
+                taskProcessDao.updateById(taskProcessEntity);
+                taskInstanceDao.updateBatch(taskInstanceEntities);
+            }
         }
 
     }
@@ -123,6 +142,8 @@ public class DolphinAlertHandler {
             if(dolphinTask.getName().equals(taskName)){
                 taskInstanceEntity.setReason(reason);
             }
+            // 设置ID
+            taskInstanceEntity.setTaskInstanceId(Long.valueOf(dolphinTask.getId()));
             taskInstanceEntity.setProcessInstanceId(processAlert.getProcessId());
             taskInstanceEntity.setProcessInstanceName(processAlert.getProcessName());
             taskInstanceEntity.setProjectCode(processAlert.getProjectCode());
@@ -146,12 +167,6 @@ public class DolphinAlertHandler {
         return taskInstanceEntities;
     }
 
-    private List<DolphinTaskEntity> getDolphinTasks(ProcessAlert processAlert) {
-        // 根据当前流程ID查询任务实例列表
-        QueryWrapper queryWrapper = QueryWrapper.create().from(DolphinTaskEntity.class)
-                .and(DolphinTaskEntity::getProcessInstanceId).eq(processAlert.getProcessId());
-        return dolphinTaskDao.listAs(queryWrapper, DolphinTaskEntity.class);
-    }
 
     private TaskProcessEntity buildTaskProcess(ProcessAlert processAlert) {
         TaskProcessEntity taskProcessEntity = new TaskProcessEntity();

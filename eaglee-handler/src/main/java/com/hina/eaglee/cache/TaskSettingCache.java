@@ -1,5 +1,6 @@
 package com.hina.eaglee.cache;
 
+import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.config.JsonConfig;
 import com.hina.eaglee.dao.TaskRuleDao;
 import com.hina.eaglee.dao.TaskSettingDao;
@@ -22,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TaskSettingCache {
 
     private static final Map<Long, TaskRuleSetting> metricSettingMap = new ConcurrentHashMap<>();
+    private static final Map<String, TaskRuleSetting> taskSettingMap = new ConcurrentHashMap<>();
 
     private final TaskSettingDao taskSettingDao;
     private final TaskRuleDao taskRuleDao;
@@ -65,6 +67,30 @@ public class TaskSettingCache {
             }
             taskRuleSetting = JsonConfig.fromJsonConfig(taskRuleEntity.getConfigJson(), TaskRuleSetting.class);
             metricSettingMap.put(taskCode, taskRuleSetting);
+            return taskRuleSetting;
+        }
+        return null;
+    }
+
+
+    public TaskRuleSetting getTaskSetting(YarnApp yarnApp) {
+        String taskName = yarnApp.getName();
+        TaskRuleSetting taskRuleSetting = taskSettingMap.get(taskName);
+        if (taskRuleSetting != null) {
+            return taskRuleSetting;
+        }
+        QueryWrapper queryWrapper = QueryWrapper.create().from(TaskSettingEntity.class)
+                .and(TaskSettingEntity::getTaskType).eq(yarnApp.getApplicationType())
+                .and(TaskSettingEntity::getTaskName).eq(taskName);
+
+        TaskSettingEntity one = taskSettingDao.getOne(queryWrapper);
+        if (one != null) {
+            TaskRuleEntity taskRuleEntity = taskRuleDao.getById(one.getTaskRuleId());
+            if (taskRuleEntity == null) {
+                return null;
+            }
+            taskRuleSetting = JsonConfig.fromJsonConfig(taskRuleEntity.getConfigJson(), TaskRuleSetting.class);
+            taskSettingMap.put(taskName, taskRuleSetting);
             return taskRuleSetting;
         }
         return null;

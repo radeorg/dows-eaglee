@@ -92,7 +92,7 @@ public class TaskProcessEntity {
     @Schema(description = "是否删除")
     private Boolean deleted;
 
-    @Schema(description = "乐观锁版本")
-    private Integer version;
+//    @Schema(description = "乐观锁版本")
+//    private Integer version;
 
 }

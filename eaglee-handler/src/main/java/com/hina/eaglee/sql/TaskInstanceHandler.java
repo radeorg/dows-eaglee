@@ -171,7 +171,7 @@ public class TaskInstanceHandler {
 
         // todo 调用接口重试任务
 
-        taskInstanceEntity.setRetried(taskInstanceEntity.getRetried() + 1);
+        taskInstanceEntity.setRetryTimes(taskInstanceEntity.getRetryTimes() + 1);
         // 保存到数据库
         return taskInstanceDao.updateById(taskInstanceEntity);
     }

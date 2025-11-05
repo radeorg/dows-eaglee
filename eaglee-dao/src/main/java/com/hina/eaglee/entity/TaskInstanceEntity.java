@@ -80,9 +80,6 @@ public class TaskInstanceEntity {
     @Schema(description = "是否告警")
     private Integer alertFlag;
 
-    @Schema(description = "任务重试次数")
-    private Integer retryTimes;
-
     @Schema(description = "任务进程ID")
     private Integer pid;
 

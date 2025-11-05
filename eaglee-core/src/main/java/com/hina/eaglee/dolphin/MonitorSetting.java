@@ -16,6 +16,9 @@ public class MonitorSetting {
     private String yarnQueue = "root.xy_yarn_pool.production";
 
 
+    // 检测基数，默认3次
+    private Integer taskCardinalCount = 3;
+
     // TaskStatus
     // dolphin 需要监听的状态，默认RUNNING，逗号分割，如RUNNING,FINISHED
     private String status = "RUNNING";
