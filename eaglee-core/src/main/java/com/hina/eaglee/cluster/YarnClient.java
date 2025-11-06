@@ -1,7 +1,7 @@
 package com.hina.eaglee.cluster;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hina.eaglee.dolphin.MonitorSetting;
+import com.hina.eaglee.monitor.MonitorSetting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,7 +25,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ClusterClient {
+public class YarnClient {
 
     private final ClusterProperties clusterProperties;
     //todo private final WebClient webClient;

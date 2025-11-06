@@ -1,5 +1,7 @@
 package com.hina.eaglee.dolphin;
 
+import com.hina.eaglee.analysis.AnalysisSetting;
+import com.hina.eaglee.monitor.MonitorSetting;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -14,7 +16,7 @@ public class DolphinProperties {
     private String token;
     private Map<String, String> endpoints;
 
-    private Map<String,MonitorSetting> monitors;
+    private Map<String, MonitorSetting> monitors;
 
-    private Map<String,AnalysisSetting> analyses;
+    private Map<String, AnalysisSetting> analyses;
 }

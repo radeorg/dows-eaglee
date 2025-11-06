@@ -1,4 +1,4 @@
-package com.hina.eaglee.dolphin;
+package com.hina.eaglee.alert;
 
 import lombok.Data;
 

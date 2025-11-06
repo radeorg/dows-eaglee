@@ -3,6 +3,10 @@ package com.hina.eaglee.dolphin;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+/**
+ * 重新运行流程实例请求
+ */
+@Uri("/dolphinscheduler/projects/{projectCode}/executors/execute")
 @Data
 public class RerunProcessInstanceRequest implements DolphinRequest {
 

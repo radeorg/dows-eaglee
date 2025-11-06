@@ -1,7 +1,6 @@
 package com.hina.eaglee.retry;
 
-import com.hina.eaglee.dolphin.ProcessAlert;
-import com.hina.eaglee.dolphin.TaskAlert;
+import com.hina.eaglee.alert.TaskAlert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

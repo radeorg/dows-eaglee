@@ -5,12 +5,10 @@ import cn.hutool.core.util.StrUtil;
 import com.hina.eaglee.alert.TaskAlert;
 import com.hina.eaglee.alert.TimeoutAlert;
 import com.hina.eaglee.cache.TaskSettingHandler;
-import com.hina.eaglee.cluster.ClusterClient;
+import com.hina.eaglee.cluster.YarnClient;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.cluster.YarnApps;
 import com.hina.eaglee.dao.DolphinTaskDao;
-import com.hina.eaglee.dolphin.DolphinMonitor;
-import com.hina.eaglee.dolphin.MonitorSetting;
 import com.hina.eaglee.dolphin.TaskStatus;
 import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.setting.TaskRuleSetting;
@@ -33,14 +31,14 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class YarnMonitor implements DolphinMonitor {
+public class YarnMonitor implements ResourceMonitor {
 
 
     private final DolphinTaskDao dolphinTaskDao;
 
     private final TaskSettingHandler taskSettingCache;
 
-    private final ClusterClient clusterClient;
+    private final YarnClient clusterClient;
 
     // 处理器
     private final Map<String, TaskAlert> taskAlerts;

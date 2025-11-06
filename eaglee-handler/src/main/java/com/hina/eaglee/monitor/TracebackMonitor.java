@@ -1,12 +1,10 @@
 package com.hina.eaglee.monitor;
 
 import com.hina.eaglee.cache.TaskSettingHandler;
-import com.hina.eaglee.cluster.ClusterClient;
+import com.hina.eaglee.cluster.YarnClient;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.cluster.YarnApps;
 import com.hina.eaglee.dao.DolphinTaskDao;
-import com.hina.eaglee.dolphin.DolphinMonitor;
-import com.hina.eaglee.dolphin.MonitorSetting;
 import com.hina.eaglee.dolphin.TaskStatus;
 import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.setting.TaskRuleSetting;
@@ -29,7 +27,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class TracebackMonitor implements DolphinMonitor {
+public class TracebackMonitor implements ResourceMonitor {
 
     // 记录之前调度周期中的任务ID集合，用于检测已完成的任务
     private final Set<String> previousTaskIds = ConcurrentHashMap.newKeySet();
@@ -38,7 +36,7 @@ public class TracebackMonitor implements DolphinMonitor {
 
     private final TaskSettingHandler taskSettingCache;
 
-    private final ClusterClient clusterClient;
+    private final YarnClient clusterClient;
 
     private final Map<String, StateHandler> stateHandlers;
 

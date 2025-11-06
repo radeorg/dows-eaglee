@@ -3,7 +3,7 @@ package com.hina.eaglee.retry;
 import com.hina.eaglee.cache.TaskSettingHandler;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.dolphin.DolphinClient;
-import com.hina.eaglee.dolphin.TaskAlert;
+import com.hina.eaglee.alert.TaskAlert;
 import com.hina.eaglee.dolphin.RerunProcessInstanceRequest;
 import com.hina.eaglee.setting.TaskRuleSetting;
 import lombok.RequiredArgsConstructor;
