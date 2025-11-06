@@ -61,6 +61,9 @@ public class TaskInstanceEntity {
     
     @Schema(description = "重试次数")
     private Integer retryTimes;
+
+    @Schema(description = "最大重试次数")
+    private Integer maxRetryTimes;
     
     @Schema(description = "状态: 0-提交成功, 1-运行中, 2-准备暂停, 3-暂停, 4-准备停止, 5-停止, 6-失败, 7-成功, 8-需要容错, 9-杀死, 10-等待线程, 11-等待依赖完成")
     private Integer state;

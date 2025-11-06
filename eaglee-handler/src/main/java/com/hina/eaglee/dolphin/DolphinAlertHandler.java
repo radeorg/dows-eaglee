@@ -80,20 +80,7 @@ public class DolphinAlertHandler {
             taskProcessEntity.setProcessDuration(processAlert.getProcessDuration());
             taskProcessEntity.setProcessHost(processAlert.getProcessHost());
             // todo ,补齐任务实例列表
-            List<TaskInstanceEntity> taskInstanceEntities = buildTaskInstanceEntities(processAlert);
-            // 设置流程下的任务数量
-            taskProcessEntity.setTaskCount(taskInstanceEntities.size());
-            // 获取流程实例是否存在，不存在则保存，存在则更新
-            TaskProcessEntity entity = taskProcessDao.getById(processAlert.getProcessId());
-            if (entity == null) {
-                // 保存流程实例数据
-                taskProcessDao.save(taskProcessEntity);
-                // 保存任务实例数据批量
-                taskInstanceDao.saveBatch(taskInstanceEntities);
-            } else {
-                taskProcessDao.updateById(taskProcessEntity);
-                taskInstanceDao.updateBatch(taskInstanceEntities);
-            }
+            recordWorkflow(buildTaskInstanceEntities(processAlert), taskProcessEntity, processAlert.getProcessId());
         }
 
         if ("FAILURE".equals(state)) {
@@ -105,21 +92,9 @@ public class DolphinAlertHandler {
             TaskProcessEntity taskProcessEntity = buildTaskProcess(processAlert);
             taskProcessEntity.setStartTime(dolphinProcessEntity.getStartTime());
             taskProcessEntity.setProcessHost(dolphinProcessEntity.getHost());
-            // @Notice 补齐任务实例列表
-            List<TaskInstanceEntity> taskInstanceEntities = buildTaskInstanceEntities(processAlert);
-            // 设置流程下的任务数量
-            taskProcessEntity.setTaskCount(taskInstanceEntities.size());
-            // 查询流程实例是否存在，不存在则保存，存在则更新
-            TaskProcessEntity entity = taskProcessDao.getById(processAlert.getProcessId());
-            if (entity == null) {
-                // 保存流程实例数据
-                taskProcessDao.save(taskProcessEntity);
-                // 保存任务实例数据批量
-                taskInstanceDao.saveBatch(taskInstanceEntities);
-            } else {
-                taskProcessDao.updateById(taskProcessEntity);
-                taskInstanceDao.updateBatch(taskInstanceEntities);
-            }
+            TaskInstanceRecord taskInstanceRecord = buildTaskInstanceEntities(processAlert);
+            /*TaskInstanceRecord taskInstanceRecord = */
+            recordWorkflow(taskInstanceRecord, taskProcessEntity, processAlert.getProcessId());
             // @AI 分析日志
             threadPoolExecutor.execute(() -> {
                 AnalyseResult analyseResult = logAnalysis.analyse(processAlert.getLogPath());
@@ -136,12 +111,17 @@ public class DolphinAlertHandler {
                         .and(TaskInstanceEntity::getState).eq(TaskStatus.FAILURE.getValue());
                 // 根据条件更新任务实例数据
                 taskInstanceDao.update(taskInstanceEntity,queryWrapper);
-                // 根据异常类型，获取对应的任务重试器，如果存在则执行重试
-                RetryType retryType = RetryType.getByValue(analyseResult.getExceptionType());
-                if (retryType != null) {
-                    TaskRetry taskRetry = taskRetriers.get(retryType.name());
-                    if (taskRetry != null) {
-                        taskRetry.retry(processAlert);
+                Integer maxRetryTimes = taskInstanceRecord.failureTaskInstanceEntity.getMaxRetryTimes();
+                if (maxRetryTimes != null && maxRetryTimes > 0) {
+                    log.info("任务：{} 已经设置静态重试，最大重试次数为：{},不在触发重试机制", processAlert.getTaskName(), maxRetryTimes);
+                } else {
+                    // 根据异常类型，获取对应的任务重试器，如果存在则执行重试
+                    RetryType retryType = RetryType.getByValue(analyseResult.getExceptionType());
+                    if (retryType != null) {
+                        TaskRetry taskRetry = taskRetriers.get(retryType.name());
+                        if (taskRetry != null) {
+                            taskRetry.retry(processAlert);
+                        }
                     }
                 }
             });
@@ -149,12 +129,39 @@ public class DolphinAlertHandler {
     }
 
     /**
+     * 记录工作流信息,包括任务流程和任务实例
+     *
+     * @param taskInstanceRecord 任务实例记录
+     * @param taskProcessEntity  任务流程实体
+     * @param processId          流程ID
+     */
+    private void recordWorkflow(TaskInstanceRecord taskInstanceRecord, TaskProcessEntity taskProcessEntity, Long processId) {
+        // 设置流程下的任务数量
+        taskProcessEntity.setTaskCount(taskInstanceRecord.allTaskInstanceEntities.size());
+        // 查询流程实例是否存在，不存在则保存，存在则更新
+        TaskProcessEntity entity = taskProcessDao.getById(processId);
+        if (entity == null) {
+            // 保存流程实例数据
+            taskProcessDao.save(taskProcessEntity);
+            // 保存任务实例数据批量
+            taskInstanceDao.saveBatch(taskInstanceRecord.allTaskInstanceEntities);
+        } else {
+            taskProcessDao.updateById(taskProcessEntity);
+            taskInstanceDao.updateBatch(taskInstanceRecord.allTaskInstanceEntities);
+        }
+    }
+
+
+    record TaskInstanceRecord(TaskInstanceEntity failureTaskInstanceEntity,
+                              List<TaskInstanceEntity> allTaskInstanceEntities) {
+    }
+    /**
      * 基于dolphin查询 构建任务实体列表
      *
-     * @param processAlert
-     * @return
+     * @param processAlert 流程告警实体
+     * @return 任务实例记录
      */
-    private List<TaskInstanceEntity> buildTaskInstanceEntities(ProcessAlert processAlert) {
+    private TaskInstanceRecord buildTaskInstanceEntities(ProcessAlert processAlert) {
         // 根据当前流程ID查询任务实例列表
         QueryWrapper queryWrapper = QueryWrapper.create().from(DolphinTaskEntity.class)
                 .and(DolphinTaskEntity::getProcessInstanceId).eq(processAlert.getProcessId());
@@ -164,11 +171,13 @@ public class DolphinAlertHandler {
         if (processAlert instanceof ProcessFailureAlert failureAlert) {
             processFailureAlert = failureAlert;
         }
+        TaskInstanceEntity failureTaskInstanceEntity = null;
         for (DolphinTaskEntity dolphinTask : dolphinTaskEntities) {
             TaskInstanceEntity taskInstanceEntity = new TaskInstanceEntity();
             // 设置状态，按照道理来说，这里的状态应该是和dolphin中一样的，如果不一样是否需要做一下判断修正？
             if(processFailureAlert != null && processFailureAlert.getTaskName().equals(dolphinTask.getName())) {
                 taskInstanceEntity.setState(TaskStatus.FAILURE.getValue());
+                failureTaskInstanceEntity = taskInstanceEntity;
             } else {
                 taskInstanceEntity.setState(dolphinTask.getState());
             }
@@ -193,15 +202,15 @@ public class DolphinAlertHandler {
             //taskInstanceEntity.setElapsedTime(dolphinTask.getTaskDuration());
             taskInstanceEntities.add(taskInstanceEntity);
         }
-        return taskInstanceEntities;
+        return new TaskInstanceRecord(failureTaskInstanceEntity, taskInstanceEntities);
     }
 
 
     /**
      * 构建流程实例数据实体
      *
-     * @param processAlert
-     * @return
+     * @param processAlert 流程告警实体
+     * @return 任务流程实体
      */
     private TaskProcessEntity buildTaskProcess(ProcessAlert processAlert) {
         TaskProcessEntity taskProcessEntity = new TaskProcessEntity();

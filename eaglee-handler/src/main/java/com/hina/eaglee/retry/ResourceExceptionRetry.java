@@ -1,9 +1,9 @@
 package com.hina.eaglee.retry;
 
+import com.hina.eaglee.alert.AlertInfo;
 import com.hina.eaglee.cache.TaskSettingHandler;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.dolphin.DolphinClient;
-import com.hina.eaglee.alert.AlertInfo;
 import com.hina.eaglee.dolphin.RerunProcessInstanceRequest;
 import com.hina.eaglee.setting.TaskRuleSetting;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +28,7 @@ public class ResourceExceptionRetry implements TaskRetry {
         yarnApp.setName(taskAlert.getTaskName());
         yarnApp.setApplicationType(taskAlert.getTaskType());
         yarnApp.setId(taskAlert.getApplicationId());
+        // 获取任务规则中的重试次数，基于规则重试
         TaskRuleSetting taskSetting = taskSettingHandler.getTaskSetting(yarnApp);
         /*if (taskSetting == null) {
             log.warn("资源异常重试，任务：{}，未配置任务规则", taskAlert.getTaskName());
@@ -36,13 +37,15 @@ public class ResourceExceptionRetry implements TaskRetry {
 //        Integer retryTimes = taskSetting.getRetryTimes();
 //        if (taskSetting.getRetryTimes() > 0) {
             // todo 重试
-            RerunProcessInstanceRequest rerunProcessInstanceRequest = new RerunProcessInstanceRequest();
-            rerunProcessInstanceRequest.setProjectCode(taskAlert.getProjectCode());
-            rerunProcessInstanceRequest.setProcessInstanceId(taskAlert.getProcessId());
-            rerunProcessInstanceRequest.setExecuteType("REPEAT_RUNNING");
-            rerunProcessInstanceRequest.setButtonType("run");
-            dolphinClient.exchange(rerunProcessInstanceRequest);
+        RerunProcessInstanceRequest rerunProcessInstanceRequest = new RerunProcessInstanceRequest();
+        rerunProcessInstanceRequest.setProjectCode(taskAlert.getProjectCode());
+        rerunProcessInstanceRequest.setProcessInstanceId(taskAlert.getProcessId());
+        rerunProcessInstanceRequest.setExecuteType("REPEAT_RUNNING");
+        rerunProcessInstanceRequest.setButtonType("run");
+        String result = dolphinClient.exchange(rerunProcessInstanceRequest);
+        log.info("资源异常重试，任务：{}，结果：{}", taskAlert.getTaskName(), result);
 //        }
+        // todo 如果ds重试调用成功（返回成功）
 
 
     }
