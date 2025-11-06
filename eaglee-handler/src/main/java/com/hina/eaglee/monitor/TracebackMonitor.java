@@ -1,6 +1,6 @@
 package com.hina.eaglee.monitor;
 
-import com.hina.eaglee.cache.TaskSettingCache;
+import com.hina.eaglee.cache.TaskSettingHandler;
 import com.hina.eaglee.cluster.ClusterClient;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.cluster.YarnApps;
@@ -36,7 +36,7 @@ public class TracebackMonitor implements DolphinMonitor {
 
     private final DolphinTaskDao dolphinTaskDao;
 
-    private final TaskSettingCache taskSettingCache;
+    private final TaskSettingHandler taskSettingCache;
 
     private final ClusterClient clusterClient;
 

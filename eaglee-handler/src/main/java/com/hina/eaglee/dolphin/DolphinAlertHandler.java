@@ -2,6 +2,7 @@ package com.hina.eaglee.dolphin;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.hina.eaglee.analysis.AnalyseResult;
 import com.hina.eaglee.analysis.LogAnalysis;
 import com.hina.eaglee.dao.DolphinProcessDao;
 import com.hina.eaglee.dao.DolphinTaskDao;
@@ -11,6 +12,8 @@ import com.hina.eaglee.entity.DolphinProcessEntity;
 import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.entity.TaskInstanceEntity;
 import com.hina.eaglee.entity.TaskProcessEntity;
+import com.hina.eaglee.retry.RetryType;
+import com.hina.eaglee.retry.TaskRetry;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
@@ -35,6 +39,8 @@ public class DolphinAlertHandler {
     private final LogAnalysis logAnalysis;
 
     private final ThreadPoolExecutor threadPoolExecutor;
+
+    private final Map<String, TaskRetry> taskRetriers;
 
     public void collect(String content) {
         log.info("Dolphin告警信息: {}", content);
@@ -112,18 +118,28 @@ public class DolphinAlertHandler {
             }
             // @AI 分析日志
             threadPoolExecutor.execute(() -> {
-                String reason = logAnalysis.analyse(processAlert.getLogPath());
+                AnalyseResult analyseResult = logAnalysis.analyse(processAlert.getLogPath());
                 TaskInstanceEntity taskInstanceEntity = new TaskInstanceEntity();
                 // 设值更新字段（s3日志路径、错误原因）
                 taskInstanceEntity.setS3Log(processAlert.getLogPath());
-                taskInstanceEntity.setReason(reason);
+                taskInstanceEntity.setReason(analyseResult.getReason());
+                taskInstanceEntity.setExceptionType(analyseResult.getExceptionType());
                 QueryWrapper queryWrapper = QueryWrapper.create().from(TaskInstanceEntity.class)
                         .and(TaskInstanceEntity::getProcessInstanceId).eq(processAlert.getProcessId())
+                        .and(TaskInstanceEntity::getTaskName).eq(processAlert.getTaskName())
                         .and(TaskInstanceEntity::getTaskCode).eq(processAlert.getTaskCode())
                         .and(TaskInstanceEntity::getTaskType).eq(processAlert.getTaskType())
                         .and(TaskInstanceEntity::getState).eq(TaskStatus.FAILURE.getValue());
                 // 根据条件更新任务实例数据
                 taskInstanceDao.update(taskInstanceEntity,queryWrapper);
+                // 根据异常类型，获取对应的任务重试器，如果存在则执行重试
+                RetryType retryType = RetryType.getByValue(analyseResult.getExceptionType());
+                if (retryType != null) {
+                    TaskRetry taskRetry = taskRetriers.get(retryType.name());
+                    if (taskRetry != null) {
+                        taskRetry.retry(processAlert);
+                    }
+                }
             });
         }
     }
@@ -139,15 +155,19 @@ public class DolphinAlertHandler {
         QueryWrapper queryWrapper = QueryWrapper.create().from(DolphinTaskEntity.class)
                 .and(DolphinTaskEntity::getProcessInstanceId).eq(processAlert.getProcessId());
         List<DolphinTaskEntity> dolphinTaskEntities = dolphinTaskDao.listAs(queryWrapper, DolphinTaskEntity.class);
-        //List<DolphinTaskEntity> dolphinTaskInstances = getDolphinTasks(processAlert);
         List<TaskInstanceEntity> taskInstanceEntities = new ArrayList<>();
+        ProcessFailureAlert processFailureAlert = null;
+        if (processAlert instanceof ProcessFailureAlert failureAlert) {
+            processFailureAlert = failureAlert;
+        }
         for (DolphinTaskEntity dolphinTask : dolphinTaskEntities) {
             TaskInstanceEntity taskInstanceEntity = new TaskInstanceEntity();
-            // 如果任务名相同，说明任务报错，则记录错误原因
-            /*if(dolphinTask.getName().equals(taskName)){
-                taskInstanceEntity.setReason(reason);
-            }*/
-            // 设置ID
+            // 设置状态，按照道理来说，这里的状态应该是和dolphin中一样的，如果不一样是否需要做一下判断修正？
+            if(processFailureAlert != null && processFailureAlert.getTaskName().equals(dolphinTask.getName())) {
+                taskInstanceEntity.setState(TaskStatus.FAILURE.getValue());
+            } else {
+                taskInstanceEntity.setState(dolphinTask.getState());
+            }
             taskInstanceEntity.setTaskInstanceId(Long.valueOf(dolphinTask.getId()));
             taskInstanceEntity.setProcessInstanceId(processAlert.getProcessId());
             taskInstanceEntity.setProcessInstanceName(processAlert.getProcessName());
@@ -158,7 +178,7 @@ public class DolphinAlertHandler {
             taskInstanceEntity.setTaskType(dolphinTask.getTaskType());
             taskInstanceEntity.setTaskExecuteType(dolphinTask.getTaskExecuteType());
             taskInstanceEntity.setTaskDefinitionVersion(dolphinTask.getTaskDefinitionVersion());
-            taskInstanceEntity.setState(dolphinTask.getState());
+
             taskInstanceEntity.setSubmitTime(dolphinTask.getSubmitTime());
             taskInstanceEntity.setStartTime(dolphinTask.getStartTime());
             taskInstanceEntity.setEndTime(dolphinTask.getEndTime());

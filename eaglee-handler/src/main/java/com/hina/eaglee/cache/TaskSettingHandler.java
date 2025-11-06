@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class TaskSettingCache {
+public class TaskSettingHandler {
 
     private static final Map<Long, TaskRuleSetting> metricSettingMap = new ConcurrentHashMap<>();
     private static final Map<String, TaskRuleSetting> taskSettingMap = new ConcurrentHashMap<>();

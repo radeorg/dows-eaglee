@@ -1,5 +1,6 @@
 package com.hina.eaglee.dolphin;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,6 +26,8 @@ public class DolphinClient {
     private final RestTemplate restTemplate;
 
     private final ThreadPoolTaskScheduler taskScheduler;
+
+    private final Map<String, DolphinEndpoint> dolphinEndpoints;
 
     @PostConstruct
     protected void init() {
@@ -48,7 +52,98 @@ public class DolphinClient {
     }
 
 
+    public String exchange(DolphinRequest dolphinRequest) {
+        log.info("dolphin exchange message: {}", dolphinRequest);
+        String endpoint = StrUtil.lowerFirst(dolphinRequest.getClass().getSimpleName()
+                .replace("Request", ""));
+        endpoint = String.format(dolphinProperties.getEndpoints().get(endpoint), dolphinRequest.getProjectCode());
+        if (StrUtil.isBlank(endpoint)) {
+            throw new IllegalArgumentException("endpoint not found: " + endpoint);
+        }
 
+        HttpMethod httpMethod = null;
+        if (endpoint.startsWith("get ")) {
+            httpMethod = HttpMethod.GET;
+            endpoint = endpoint.substring(4);
+        } else if (endpoint.startsWith("post ")) {
+            httpMethod = HttpMethod.POST;
+            endpoint = endpoint.substring(5);
+        } else if (endpoint.startsWith("put ")) {
+            httpMethod = HttpMethod.PUT;
+            endpoint = endpoint.substring(4);
+        } else if (endpoint.startsWith("delete ")) {
+            httpMethod = HttpMethod.DELETE;
+            endpoint = endpoint.substring(7);
+        }
+        if (httpMethod == null) {
+            throw new IllegalArgumentException("httpMethod not found: " + endpoint);
+        }
+        // 方法名直接映射
+        String token = dolphinProperties.getToken();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("token", token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        //HttpEntity requestEntity = new HttpEntity<>(dolphinRequest, headers);
+
+        try {
+
+            // 针对不同 HTTP 方法采用不同的传参方式
+            if (httpMethod == HttpMethod.GET) {
+                // GET 请求：将参数转换为 URL 查询参数
+                UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endpoint);
+                // 这里需要将 dolphinRequest 对象的属性转换为查询参数
+                HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+                ResponseEntity<String> response = restTemplate.exchange(
+                        builder.toUriString(),
+                        httpMethod,
+                        requestEntity,
+                        String.class
+                );
+                return response.getBody();
+            } else {
+                // todo 测试用，后续删除
+                endpoint = "http://10.0.20.25:12345/dolphinscheduler/projects/18111254772736/executors/execute";
+                // POST/PUT/DELETE 请求：使用请求体传参
+                RerunProcessInstanceRequest dolphinRequest1 = new RerunProcessInstanceRequest();
+                dolphinRequest1.setExecuteType("REPEAT_RUNNING");
+                dolphinRequest1.setButtonType("run");
+                dolphinRequest1.setProcessInstanceId(128L);
+                dolphinRequest1.setIndex(1);
+                HttpEntity<DolphinRequest> requestEntity = new HttpEntity<>(dolphinRequest1, headers);
+                ResponseEntity<String> response = restTemplate.exchange(
+                        endpoint,
+                        httpMethod,
+                        requestEntity,
+                        String.class
+                );
+                return response.getBody();
+            }
+            /*ResponseEntity<String> response = restTemplate.exchange(
+                    endpoint,
+                    httpMethod,
+                    requestEntity,
+                    String.class
+            );*/
+        } catch (RestClientException e) {
+            log.error("Failed to rerun process instance", e);
+            throw new RuntimeException("Failed to rerun process instance", e);
+        }
+    }
+
+    /*public String exchange(Class<? extends DolphinEndpoint> endpointClass, DolphinRequest requestBody) {
+        DolphinEndpoint endpoint = dolphinEndpoints.get(StrUtil.lowerFirst(endpointClass.getSimpleName()));
+        if (endpoint != null) {
+            return endpoint.exchange(requestBody);
+        }
+        return null;
+    }*/
+    /**
+     * 通过http接口获取指定工作流下的所有任务定义
+     *
+     * @param projectCode 工作流ID
+     * @return 任务定义列表
+     */
     public List<DolphinTaskDefinition> getTaskDefinitionByWorkflowId(Long projectCode) {
         // 方法名直接映射
         String endpoint = dolphinProperties.getEndpoints().get("getTaskDefinitionByWorkflowId");

@@ -7,6 +7,7 @@ hina:
         listWorkflowDefinition: projects/%s/process-definition?pageSize=50&pageNo=1
         getTaskDefinitionByProjectId: projects/%s/task-definition?pageSize=10&pageNo=1
         getTaskLogByTaskInstanceId: https://ds.xunxin-ai.com/dolphinscheduler/log/detail?taskInstanceId=%s&limit=10000&skipLineNum=0
+        rerunProcessInstance: post http://10.0.20.25:12345/dolphinscheduler/projects/%s/executors/execute
       monitors:
         #回溯监控
 #        tracebackMonitor:

@@ -4,7 +4,7 @@ package com.hina.eaglee.monitor;
 import cn.hutool.core.util.StrUtil;
 import com.hina.eaglee.alert.TaskAlert;
 import com.hina.eaglee.alert.TimeoutAlert;
-import com.hina.eaglee.cache.TaskSettingCache;
+import com.hina.eaglee.cache.TaskSettingHandler;
 import com.hina.eaglee.cluster.ClusterClient;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.cluster.YarnApps;
@@ -38,7 +38,7 @@ public class YarnMonitor implements DolphinMonitor {
 
     private final DolphinTaskDao dolphinTaskDao;
 
-    private final TaskSettingCache taskSettingCache;
+    private final TaskSettingHandler taskSettingCache;
 
     private final ClusterClient clusterClient;
 

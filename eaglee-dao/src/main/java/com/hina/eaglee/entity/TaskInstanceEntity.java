@@ -46,6 +46,9 @@ public class TaskInstanceEntity {
 
     @Schema(description = "原因")
     private String reason;
+
+    @Schema(description = "异常类型")
+    private Integer exceptionType;
     
     @Schema(description = "平均耗时")
     private Long avgTime;
