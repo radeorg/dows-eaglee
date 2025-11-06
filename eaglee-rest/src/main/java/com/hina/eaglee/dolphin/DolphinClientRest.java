@@ -1,5 +1,7 @@
 package com.hina.eaglee.dolphin;
 
+import com.hina.eaglee.notice.NoticeClient;
+import com.hina.eaglee.notice.WechatMessage;
 import com.hina.eaglee.request.DolphinAlertRequest;
 import com.hina.eaglee.request.TaskInstancePageRequest;
 import com.hina.eaglee.request.TaskProcessPageRequest;
@@ -23,6 +25,15 @@ public class DolphinClientRest {
 
 
     private final DolphinQueryHandler dolphinQueryHandler;
+
+    private final NoticeClient noticeClient;
+
+    @Operation(summary = "项目分页")
+    @PostMapping("/dolphin/task/notice")
+    public void notice(@RequestBody WechatMessage chatMessage){
+        noticeClient.notice(chatMessage);
+    }
+
 
     @Operation(summary = "项目分页")
     @GetMapping("/dolphin/process/page")

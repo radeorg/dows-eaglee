@@ -2,7 +2,7 @@ package com.hina.eaglee.sql;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.hina.eaglee.cache.TaskSettingHandler;
+import com.hina.eaglee.setting.TaskSettingHandler;
 import com.hina.eaglee.dao.TaskMetricDao;
 import com.hina.eaglee.dao.TaskRuntimeDao;
 import com.hina.eaglee.entity.TaskMetricEntity;

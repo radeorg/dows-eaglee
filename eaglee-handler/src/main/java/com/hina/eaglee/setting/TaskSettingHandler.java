@@ -1,4 +1,4 @@
-package com.hina.eaglee.cache;
+package com.hina.eaglee.setting;
 
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.config.JsonConfig;
@@ -6,7 +6,6 @@ import com.hina.eaglee.dao.TaskRuleDao;
 import com.hina.eaglee.dao.TaskSettingDao;
 import com.hina.eaglee.entity.TaskRuleEntity;
 import com.hina.eaglee.entity.TaskSettingEntity;
-import com.hina.eaglee.setting.TaskRuleSetting;
 import com.mybatisflex.core.query.QueryWrapper;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

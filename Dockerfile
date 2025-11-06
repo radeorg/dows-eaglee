@@ -35,17 +35,17 @@ ENV JAVA_DEBUG="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:
 
 #ENV SPRING_RUN="org.springframework.boot.loader.JarLauncher" 3.2之后改包了
 ENV SPRING_RUN="org.springframework.boot.loader.launch.JarLauncher"
-#RUN apk add --update ttf-dejavu fontconfig && rm -rf /var/cache/apk/*
+#RUN apk add --update ttf-dejavu fontconfig && rm -rf /var/setting/apk/*
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 #RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 #RUN set -xe \
-#&& apk --no-cache add ttf-dejavu fontconfig
+#&& apk --no-setting add ttf-dejavu fontconfig
 #RUN echo -e 'https://mirrors.aliyun.com/alpine/v3.6/main/\nhttps://mirrors.aliyun.com/alpine/v3.6/community/' > /etc/apk/repositories \
 # && apk update \
 # && apk upgrade \
-# && apk --no-cache add ttf-dejavu fontconfig
+# && apk --no-setting add ttf-dejavu fontconfig
 
 WORKDIR application
 

@@ -2,18 +2,18 @@ package com.hina.eaglee.monitor;
 
 
 import cn.hutool.core.util.StrUtil;
-import com.hina.eaglee.alert.AlertInfo;
 import com.hina.eaglee.alert.TaskAlert;
-import com.hina.eaglee.alert.TimeoutAlert;
-import com.hina.eaglee.cache.TaskSettingHandler;
-import com.hina.eaglee.cluster.YarnClient;
+import com.hina.eaglee.alert.YarnTimeoutAlert;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.cluster.YarnApps;
+import com.hina.eaglee.cluster.YarnClient;
 import com.hina.eaglee.dao.DolphinTaskDao;
-import com.hina.eaglee.status.TaskStatus;
 import com.hina.eaglee.entity.DolphinTaskEntity;
+import com.hina.eaglee.notice.NoticeClient;
 import com.hina.eaglee.setting.TaskRuleSetting;
+import com.hina.eaglee.setting.TaskSettingHandler;
 import com.hina.eaglee.status.TaskInfo;
+import com.hina.eaglee.status.TaskStatus;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,13 +37,12 @@ public class YarnMonitor implements ResourceMonitor {
 
     private final DolphinTaskDao dolphinTaskDao;
 
-    private final TaskSettingHandler taskSettingCache;
+    private final TaskSettingHandler taskSettingHandler;
 
     private final YarnClient clusterClient;
 
-    // 处理器
+    // 任务告警处理器
     private final Map<String, TaskAlert> taskAlerts;
-
 
     /**
      * 任务实例监控
@@ -74,8 +73,9 @@ public class YarnMonitor implements ResourceMonitor {
             String appLink = yarnApp.getId();
             String taskName = yarnApp.getName();
             // 查寻任务实例的任务实体，判断是否有任务规则配置，如果有，则计算平均耗时
-            TaskRuleSetting taskSetting = taskSettingCache.getTaskSetting(yarnApp);
+            TaskRuleSetting taskSetting = taskSettingHandler.getTaskSetting(yarnApp);
             if (taskSetting != null) {
+                // 根据查询出的配置，查询dolphin数据库，获取前taskSetting.getTaskCardinalCount()个成功的任务实例，用于计算平均耗时
                 QueryWrapper queryWrapper = QueryWrapper.create().from(DolphinTaskEntity.class)
                         .likeLeft(DolphinTaskEntity::getName, taskName)
                         .and(DolphinTaskEntity::getProjectCode).eq(taskSetting.getProjectCode())
@@ -84,19 +84,22 @@ public class YarnMonitor implements ResourceMonitor {
                         .orderBy(DolphinTaskEntity::getSubmitTime, false)
                         .limit(taskSetting.getTaskCardinalCount());
                 try {
-                    // 查询dolphin数据库,找到任务实例的任务实体
+                    // 查询dolphin数据库
                     List<DolphinTaskEntity> dolphinTaskEntities = dolphinTaskDao.list(queryWrapper);
-                    log.info("任务 {} 的前 {} 次成功数量为 {}", taskName, taskSetting.getTaskCardinalCount(), dolphinTaskEntities.size());
-                    // 计算他们的平均耗时,如果平均耗时超过预设的超时阈值，则触发告警机制
-                    double averageDuration = calculateAverageTaskDuration(dolphinTaskEntities);
-                    // 计算当前yarn任务的运行时长(当前时间-任务开始时间)
-                    long currentDuration = System.currentTimeMillis() - yarnApp.getStartedTime();
-                    double ratio = currentDuration / averageDuration;
-                    double timeoutThreshold = taskSetting.getTimeoutThreshold() / 100.0;
-                    if (ratio > timeoutThreshold) {
-                        log.info("任务 {} 的平均耗时 {} 秒，当前运行时长 {} 秒，超过了预设的超时阈值 {} 秒，触发告警机制", taskName, averageDuration, currentDuration, timeoutThreshold);
-                        // todo 触发告警,这里改线程池执行
-                        doAlert(appId, averageDuration);
+                    log.info("任务 {} 设定的统计成功基数为 {} 当前查询到的成功数量为 {}", taskName, taskSetting.getTaskCardinalCount(), dolphinTaskEntities.size());
+                    // 如果统计基数等于成功数量，则计算平均耗时，否则不处理
+                    if (taskSetting.getTaskCardinalCount() == dolphinTaskEntities.size()) {
+                        // 计算他们的平均耗时,如果平均耗时超过预设的超时阈值，则触发告警机制
+                        double averageDuration = calculateAverageTaskDuration(dolphinTaskEntities);
+                        // 计算当前yarn任务的运行时长(当前时间-任务开始时间)
+                        long currentDuration = System.currentTimeMillis() - yarnApp.getStartedTime();
+                        double ratio = currentDuration / averageDuration;
+                        double timeoutThreshold = taskSetting.getTimeoutThreshold() / 100.0;
+                        if (ratio > timeoutThreshold) {
+                            log.info("任务 {} 的平均耗时 {} 秒，当前运行时长 {} 秒，超过了预设的超时阈值 {} 秒，触发告警机制", taskName, averageDuration, currentDuration, timeoutThreshold);
+                            // todo 触发告警,这里改线程池执行
+                            doAlert(appId, averageDuration);
+                        }
                     }
                 } catch (Exception e) {
                     log.error("查询任务实例的任务实体失败", e);
@@ -110,7 +113,7 @@ public class YarnMonitor implements ResourceMonitor {
         taskInfo.setApplicationId(appId);
         taskInfo.setAverageDuration(averageDuration);
         // 告警
-        taskAlerts.get(StrUtil.lowerFirst(TimeoutAlert.class.getSimpleName())).handle(taskInfo);
+        taskAlerts.get(StrUtil.lowerFirst(YarnTimeoutAlert.class.getSimpleName())).handle(taskInfo);
     }
 
 
@@ -125,7 +128,6 @@ public class YarnMonitor implements ResourceMonitor {
             log.info("任务集合为空，无法计算平均时长");
             return 0;
         }
-
         // 计算每个任务的时长（秒），并过滤掉无效数据
         OptionalDouble averageDuration = dolphinTaskEntities.stream()
                 .map(this::calculateTaskDuration)
@@ -135,7 +137,6 @@ public class YarnMonitor implements ResourceMonitor {
 
         double result = averageDuration.orElse(0);
         log.info("计算了 {} 个任务的平均时长: {} 秒", dolphinTaskEntities.size(), result);
-
         return result;
     }
 

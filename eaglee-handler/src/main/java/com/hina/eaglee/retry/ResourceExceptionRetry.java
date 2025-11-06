@@ -1,7 +1,7 @@
 package com.hina.eaglee.retry;
 
 import com.hina.eaglee.alert.AlertInfo;
-import com.hina.eaglee.cache.TaskSettingHandler;
+import com.hina.eaglee.setting.TaskSettingHandler;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.dolphin.DolphinClient;
 import com.hina.eaglee.dolphin.RerunProcessInstanceRequest;

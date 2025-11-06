@@ -25,6 +25,10 @@ hina:
           status: RUNNING
           #interval-time: 10000000
           test-mode: true
+          yarnState: "RUNNING"
+          yarnQueue: root.xy_yarn_pool.production
+          taskCardinalCount: 3
+
 
       analyses:
         log-analysis:

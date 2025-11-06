@@ -1,0 +1,10 @@
+package com.hina.eaglee.notice;
+
+import java.lang.annotation.*;
+
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface PathParam {
+    String value() default "";
+}

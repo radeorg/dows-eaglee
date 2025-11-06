@@ -1,6 +1,6 @@
 package com.hina.eaglee.monitor;
 
-import com.hina.eaglee.cache.TaskSettingHandler;
+import com.hina.eaglee.setting.TaskSettingHandler;
 import com.hina.eaglee.cluster.YarnClient;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.dao.DolphinTaskDao;
