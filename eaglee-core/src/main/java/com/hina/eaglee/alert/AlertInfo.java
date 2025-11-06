@@ -2,7 +2,7 @@ package com.hina.eaglee.alert;
 
 import java.time.LocalDateTime;
 
-public interface TaskAlert {
+public interface AlertInfo {
 
     default Long getProjectCode() {
         return null;

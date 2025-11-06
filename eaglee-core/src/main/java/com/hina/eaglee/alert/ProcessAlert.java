@@ -3,7 +3,7 @@ package com.hina.eaglee.alert;
 import lombok.Data;
 
 @Data
-public class ProcessAlert implements TaskAlert {
+public class ProcessAlert implements AlertInfo {
 
 
     /**

@@ -1,9 +1,9 @@
 package com.hina.eaglee.retry;
 
-import com.hina.eaglee.alert.TaskAlert;
+import com.hina.eaglee.alert.AlertInfo;
 
 public interface TaskRetry /*extends Runnable*/ {
-    void retry(TaskAlert taskAlert);
+    void retry(AlertInfo taskAlert);
 
 //    default void run() {
 //        retry();

@@ -1,6 +1,6 @@
 package com.hina.eaglee.retry;
 
-import com.hina.eaglee.alert.TaskAlert;
+import com.hina.eaglee.alert.AlertInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ public class BizExceptionRetry implements TaskRetry {
 
 
     @Override
-    public void retry(TaskAlert taskAlert) {
+    public void retry(AlertInfo taskAlert) {
         log.info("业务异常重试，任务：{}", taskAlert.getTaskName());
     }
 }

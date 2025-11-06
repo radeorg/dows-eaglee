@@ -1,9 +1,9 @@
 package com.hina.eaglee.status;
 
+import com.hina.eaglee.alert.AlertInfo;
 import com.hina.eaglee.alert.TaskAlert;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.dolphin.DolphinTask;
-import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.processor.StateProcessor;
 import com.hina.eaglee.setting.TaskRuleSetting;
 import lombok.RequiredArgsConstructor;
