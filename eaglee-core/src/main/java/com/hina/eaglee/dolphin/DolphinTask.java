@@ -1,27 +1,15 @@
-package com.hina.eaglee.entity;
+package com.hina.eaglee.dolphin;
 
-
-import com.hina.eaglee.dolphin.DolphinTask;
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
-import com.mybatisflex.annotation.Table;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-
-@EqualsAndHashCode(callSuper = true)
 @Data
-@Table(value = "t_ds_task_instance", dataSource = "dolphinscheduler")
-@Schema(description = "Dolphin任务实例")
-public class DolphinTaskEntity extends DolphinTask {
+public class DolphinTask {
 
     /**
      * 主键ID
      */
-    @Id(keyType = KeyType.Auto)
     private Integer id;
 
     /**

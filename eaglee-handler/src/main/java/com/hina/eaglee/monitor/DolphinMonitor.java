@@ -4,7 +4,7 @@ import com.hina.eaglee.cache.TaskSettingHandler;
 import com.hina.eaglee.cluster.YarnClient;
 import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.dao.DolphinTaskDao;
-import com.hina.eaglee.dolphin.TaskStatus;
+import com.hina.eaglee.status.TaskStatus;
 import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.setting.TaskRuleSetting;
 import com.hina.eaglee.status.StateHandler;

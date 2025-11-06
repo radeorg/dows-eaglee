@@ -17,6 +17,7 @@ import com.hina.eaglee.entity.TaskInstanceEntity;
 import com.hina.eaglee.entity.TaskProcessEntity;
 import com.hina.eaglee.retry.RetryType;
 import com.hina.eaglee.retry.TaskRetry;
+import com.hina.eaglee.status.TaskStatus;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

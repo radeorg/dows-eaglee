@@ -2,6 +2,7 @@ package com.hina.eaglee.status;
 
 import com.hina.eaglee.alert.TaskAlert;
 import com.hina.eaglee.cluster.YarnApp;
+import com.hina.eaglee.dolphin.DolphinTask;
 import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.processor.StateProcessor;
 import com.hina.eaglee.setting.TaskRuleSetting;
@@ -37,7 +38,7 @@ public class RunningStateHandler implements StateHandler {
      * @param yarnAppInstance
      */
     @Override
-    public void handle(DolphinTaskEntity dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance) {
+    public void handle(DolphinTask dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance) {
         log.info("dolphin任务实例 : yarn任务实例 = {}:{} 正在运行中", dolphinTaskEntity.getName(), dolphinTaskEntity.getAppLink());
 
 
@@ -73,7 +74,7 @@ public class RunningStateHandler implements StateHandler {
             if (timeoutThreshold != null) {
                 TaskInfo taskInfo = checkYarnTaskInfo(yarnAppInstance, queue, timeoutThreshold);
                 taskInfo.setProjectCode(dolphinTaskEntity.getProjectCode());
-                taskInfo.setDolphinTaskEntity(dolphinTaskEntity);
+                taskInfo.setDolphinTask(dolphinTaskEntity);
                 if (taskInfo.isTimeout()) {
                     taskInfo.setStateType(StateType.timeout);
                     stateAlert(taskInfo);

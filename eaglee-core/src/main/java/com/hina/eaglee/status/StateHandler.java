@@ -1,7 +1,7 @@
 package com.hina.eaglee.status;
 
 import com.hina.eaglee.cluster.YarnApp;
-import com.hina.eaglee.entity.DolphinTaskEntity;
+import com.hina.eaglee.dolphin.DolphinTask;
 import com.hina.eaglee.setting.TaskRuleSetting;
 
 import java.util.concurrent.LinkedBlockingDeque;
@@ -10,7 +10,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * 状态处理器
  */
 public interface StateHandler {
-    void handle(DolphinTaskEntity dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance);
+    void handle(DolphinTask dolphinTask, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance);
 
     /**
      * 检查当前任务是否运行时间超过平均时间的150%，如果是则告警

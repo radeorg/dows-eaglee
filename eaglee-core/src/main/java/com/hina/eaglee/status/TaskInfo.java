@@ -1,7 +1,7 @@
 package com.hina.eaglee.status;
 
 import com.hina.eaglee.cluster.YarnApp;
-import com.hina.eaglee.entity.DolphinTaskEntity;
+import com.hina.eaglee.dolphin.DolphinTask;
 import lombok.Data;
 
 @Data
@@ -22,6 +22,6 @@ public class TaskInfo {
 
     private StateType stateType;
     private YarnApp yarnApp;
-    private DolphinTaskEntity dolphinTaskEntity;
+    private DolphinTask dolphinTask;
 
 }

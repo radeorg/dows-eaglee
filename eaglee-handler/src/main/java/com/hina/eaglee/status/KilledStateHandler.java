@@ -1,6 +1,7 @@
 package com.hina.eaglee.status;
 
 import com.hina.eaglee.cluster.YarnApp;
+import com.hina.eaglee.dolphin.DolphinTask;
 import com.hina.eaglee.entity.DolphinTaskEntity;
 import com.hina.eaglee.setting.TaskRuleSetting;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KilledStateHandler implements StateHandler {
     @Override
-    public void handle(DolphinTaskEntity dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance) {
+    public void handle(DolphinTask dolphinTaskEntity, TaskRuleSetting taskRuleSetting, YarnApp yarnAppInstance) {
         log.info("任务实例{}:{}已被杀死", dolphinTaskEntity.getName(),dolphinTaskEntity.getAppLink());
     }
 }
