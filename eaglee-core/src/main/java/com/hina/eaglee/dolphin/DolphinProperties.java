@@ -2,6 +2,7 @@ package com.hina.eaglee.dolphin;
 
 import com.hina.eaglee.analysis.AnalysisSetting;
 import com.hina.eaglee.monitor.MonitorSetting;
+import com.hina.eaglee.notice.NoticeClient;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -19,4 +20,7 @@ public class DolphinProperties {
     private Map<String, MonitorSetting> monitors;
 
     private Map<String, AnalysisSetting> analyses;
+
+
+    private Map<String, NoticeSetting> notices;
 }

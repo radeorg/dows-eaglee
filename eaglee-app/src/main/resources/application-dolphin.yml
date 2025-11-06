@@ -28,7 +28,11 @@ hina:
           yarnState: "RUNNING"
           yarnQueue: root.xy_yarn_pool.production
           taskCardinalCount: 3
-
+      notices:
+        YarnTimeoutAlert:
+          enable: true
+          wechat-keys:
+            - 6aaa8e18-508e-4e13-b6ae-a442a3e84d48
 
       analyses:
         log-analysis:

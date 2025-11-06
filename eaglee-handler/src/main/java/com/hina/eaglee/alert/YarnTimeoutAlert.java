@@ -1,7 +1,9 @@
 package com.hina.eaglee.alert;
 
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.hina.eaglee.dolphin.DolphinProperties;
 import com.hina.eaglee.notice.NoticeClient;
 import com.hina.eaglee.notice.Text;
 import com.hina.eaglee.notice.WechatMessage;
@@ -18,12 +20,16 @@ import java.util.Map;
 @Component
 public class YarnTimeoutAlert implements TaskAlert {
 
+    private final DolphinProperties dolphinProperties;
+
     private final NoticeClient noticeClient;
     // 任务处理器，用于根据任务类型获取对应的处理器，目前不考虑
     private final Map<String, StateProcessor> taskProcessors;
     @Override
     public void handle(TaskInfo taskInfo) {
         log.info("任务超时告警：{}", JSONUtil.toJsonStr(taskInfo));
+        dolphinProperties.getNotices().get(YarnTimeoutAlert.class.getSimpleName());
+
         WechatMessage wechatMessage = new WechatMessage();
         wechatMessage.setMsgtype("text");
         wechatMessage.setKey("");
