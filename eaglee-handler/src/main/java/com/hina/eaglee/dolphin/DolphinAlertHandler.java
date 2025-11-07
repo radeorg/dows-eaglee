@@ -99,7 +99,7 @@ public class DolphinAlertHandler {
             threadPoolExecutor.execute(() -> {
                 AnalyseResult analyseResult = logAnalysis.analyse(processAlert.getLogPath());
                 TaskInstanceEntity taskInstanceEntity = new TaskInstanceEntity();
-                // 设值更新字段（s3日志路径、错误原因）
+                // 设值更新字段（s3日志路径、错误原因，异常类型[资源异常，业务异常]）
                 taskInstanceEntity.setS3LogUrl(processAlert.getLogPath());
                 taskInstanceEntity.setReason(analyseResult.getReason());
                 taskInstanceEntity.setExceptionType(analyseResult.getExceptionType());
@@ -111,6 +111,7 @@ public class DolphinAlertHandler {
                         .and(TaskInstanceEntity::getState).eq(TaskStatus.FAILURE.getValue());
                 // 根据条件更新任务实例数据
                 taskInstanceDao.update(taskInstanceEntity,queryWrapper);
+                // 如果任务设置静态重试次数，则不触发重试机制
                 Integer maxRetryTimes = taskInstanceRecord.failureTaskInstanceEntity.getMaxRetryTimes();
                 if (maxRetryTimes != null && maxRetryTimes > 0) {
                     log.info("任务：{} 已经设置静态重试，最大重试次数为：{},不在触发重试机制", processAlert.getTaskName(), maxRetryTimes);
