@@ -1,11 +1,11 @@
 package com.hina.eaglee.alert;
 
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.hina.eaglee.dolphin.DolphinProperties;
+import com.hina.eaglee.dolphin.NoticeSetting;
+import com.hina.eaglee.notice.Markdown;
 import com.hina.eaglee.notice.NoticeClient;
-import com.hina.eaglee.notice.Text;
 import com.hina.eaglee.notice.WechatMessage;
 import com.hina.eaglee.processor.StateProcessor;
 import com.hina.eaglee.status.TaskInfo;
@@ -28,14 +28,15 @@ public class YarnTimeoutAlert implements TaskAlert {
     @Override
     public void handle(TaskInfo taskInfo) {
         log.info("任务超时告警：{}", JSONUtil.toJsonStr(taskInfo));
-        dolphinProperties.getNotices().get(YarnTimeoutAlert.class.getSimpleName());
-
-        WechatMessage wechatMessage = new WechatMessage();
-        wechatMessage.setMsgtype("text");
-        wechatMessage.setKey("");
-        Text text = new Text();
-        text.setContent("任务超时告警：" + JSONUtil.toJsonStr(taskInfo));
-        wechatMessage.setText(text);
-        noticeClient.notice(wechatMessage);
+        NoticeSetting noticeSetting = dolphinProperties.getNotices().get(YarnTimeoutAlert.class.getSimpleName());
+        if(!noticeSetting.isEnable()){
+            return;
+        }
+        for (String wechatKey : noticeSetting.getWechatKeys()) {
+            WechatMessage wechatMessage = new WechatMessage();
+            wechatMessage.setMarkdown(new Markdown(taskInfo));
+            noticeClient.notice(wechatMessage);
+            wechatMessage.setToken(wechatKey);
+        }
     }
 }

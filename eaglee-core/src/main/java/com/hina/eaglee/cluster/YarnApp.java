@@ -1,5 +1,6 @@
 package com.hina.eaglee.cluster;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.xml.bind.annotation.*;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +12,14 @@ import java.util.List;
 @XmlRootElement(name = "app")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class YarnApp {
+    @JsonProperty("applicationId")
     @XmlElement(name = "id")
     private String id; // 应用唯一ID
 
     @XmlElement(name = "user")
     private String user; // 提交用户
 
+    @JsonProperty("taskName")
     @XmlElement(name = "name")
     private String name; // 应用名称
 
@@ -59,6 +62,7 @@ public class YarnApp {
     @XmlElement(name = "finishedTime")
     private Long finishedTime; // 结束时间戳（0表示未结束）
 
+    @JsonProperty("duration")
     @XmlElement(name = "elapsedTime")
     private Long elapsedTime; // 运行时长（毫秒）
 

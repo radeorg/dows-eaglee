@@ -1,5 +1,7 @@
 package com.hina.eaglee.dolphin;
 
+import com.hina.eaglee.cluster.YarnApp;
+import com.hina.eaglee.notice.Markdown;
 import com.hina.eaglee.notice.NoticeClient;
 import com.hina.eaglee.notice.WechatMessage;
 import com.hina.eaglee.request.DolphinAlertRequest;
@@ -8,6 +10,7 @@ import com.hina.eaglee.request.TaskProcessPageRequest;
 import com.hina.eaglee.response.TaskInstanceResponse;
 import com.hina.eaglee.response.TaskProcessResponse;
 import com.hina.eaglee.response.TaskProjectResponse;
+import com.hina.eaglee.status.TaskInfo;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +34,21 @@ public class DolphinClientRest {
     @Operation(summary = "项目分页")
     @PostMapping("/dolphin/task/notice")
     public void notice(@RequestBody WechatMessage chatMessage){
-        noticeClient.notice(chatMessage);
+        WechatMessage wechatMessage = new WechatMessage();
+
+        TaskInfo taskInfo = new TaskInfo();
+        YarnApp yarnApp = new YarnApp();
+        yarnApp.setId("application_1234567890123456789");
+        yarnApp.setName("测试应用");
+        yarnApp.setState("RUNNING");
+
+        taskInfo.setProjectCode(123456L);
+        taskInfo.setProjectName("测试项目");
+        taskInfo.setYarnApp(yarnApp);
+
+        wechatMessage.setKey(chatMessage.getKey());
+        wechatMessage.setMarkdown(new Markdown(taskInfo));
+        noticeClient.notice(wechatMessage);
     }
 
 

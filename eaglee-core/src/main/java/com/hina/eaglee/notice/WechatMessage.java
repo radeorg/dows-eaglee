@@ -1,5 +1,6 @@
 package com.hina.eaglee.notice;
 
+import com.hina.eaglee.annotation.Skip;
 import com.hina.eaglee.dolphin.Uri;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -7,7 +8,8 @@ import lombok.Data;
 @Uri("post https://qyapi.weixin.qq.com/cgi-bin/webhook/send")
 @Data
 public class WechatMessage implements NoticeMessage {
-
+    // 遇到skip 跳过或忽略该参数
+    @Skip
     // 该注解会将参数名和对应的值追加到请求的 URL 中
     @UriParam("key")
     private String key;
@@ -21,6 +23,8 @@ public class WechatMessage implements NoticeMessage {
 
     @Schema(description = "文本消息")
     private Text text;
+
+    private Markdown markdown;
     //"UserID1|UserID2|UserID3",
     private String touser;
     //"PartyID1|PartyID2",
@@ -38,5 +42,16 @@ public class WechatMessage implements NoticeMessage {
     //1800
     private String duplicate_check_interval;
 
+
+    public void setMarkdown(Markdown markdown) {
+        this.msgtype = Markdown.class.getSimpleName().toLowerCase();
+        this.markdown = markdown;
+    }
+
+
+    public void setText(Text text) {
+        this.msgtype = Text.class.getSimpleName().toLowerCase();
+        this.text = text;
+    }
 
 }

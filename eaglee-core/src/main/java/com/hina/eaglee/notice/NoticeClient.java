@@ -1,6 +1,7 @@
 package com.hina.eaglee.notice;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.hina.eaglee.dolphin.NoticeSetting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
