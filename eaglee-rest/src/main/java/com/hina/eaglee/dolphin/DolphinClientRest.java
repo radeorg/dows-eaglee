@@ -42,9 +42,16 @@ public class DolphinClientRest {
         yarnApp.setName("测试应用");
         yarnApp.setState("RUNNING");
 
+        DolphinTask dolphinTask = new DolphinTask();
+        dolphinTask.setExecutorName("test");
+
+        taskInfo.setDsLogUrl("https://ds-model.hinadt.com/logs/20251106/19581179526272/1/868701/2403356.log");
+        taskInfo.setS3LogUrl("https://s3-model.hinadt.com/BfXunXinDs/logs/20251106/19581179526272/1/868701/2403356.log");
+        taskInfo.addAssignees("hina");
         taskInfo.setProjectCode(123456L);
         taskInfo.setProjectName("测试项目");
         taskInfo.setYarnApp(yarnApp);
+        taskInfo.setDolphinTask(dolphinTask);
 
         wechatMessage.setKey(chatMessage.getKey());
         wechatMessage.setMarkdown(new Markdown(taskInfo));

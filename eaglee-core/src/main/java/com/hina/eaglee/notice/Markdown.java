@@ -32,7 +32,8 @@ public class Markdown {
                 >结束时间：<font color=\\"comment\\">${endTime}</font>  \n
                 >持续时间：<font color=\\"comment\\">${duration}</font>  \n
                 >失败原因：<font color=\\"error\\">${reason}</font>  \n
-                >任务日志：<font color=\\"comment\\">[点击查看日志](${s3LogUrl})</font>  \n
+                >任务日志：<font color=\\"comment\\">[点击查看S3线上日志](${s3LogUrl})</font>  \n
+                >关联人员：${assignees}  \n
                 """;
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> values = objectMapper.convertValue(taskInfo, Map.class);

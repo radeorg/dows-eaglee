@@ -41,11 +41,16 @@ public class TaskInstanceEntity {
     private String applicationId;
 
     // ------------------- 以下为任务实例字段 -------------------
-    @Schema(description = "日志路径")
-    private String s3Log;
+    @Schema(description = "Dolphin日志路径")
+    private String dsLogUrl;
+
+    @Schema(description = "Yarn日志路径")
+    private String s3LogUrl;
 
     @Schema(description = "原因")
     private String reason;
+
+
 
     @Schema(description = "异常类型")
     private Integer exceptionType;

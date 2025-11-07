@@ -100,7 +100,7 @@ public class DolphinAlertHandler {
                 AnalyseResult analyseResult = logAnalysis.analyse(processAlert.getLogPath());
                 TaskInstanceEntity taskInstanceEntity = new TaskInstanceEntity();
                 // 设值更新字段（s3日志路径、错误原因）
-                taskInstanceEntity.setS3Log(processAlert.getLogPath());
+                taskInstanceEntity.setS3LogUrl(processAlert.getLogPath());
                 taskInstanceEntity.setReason(analyseResult.getReason());
                 taskInstanceEntity.setExceptionType(analyseResult.getExceptionType());
                 QueryWrapper queryWrapper = QueryWrapper.create().from(TaskInstanceEntity.class)
