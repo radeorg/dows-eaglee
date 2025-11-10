@@ -7,4 +7,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface UriHeader {
     String value() default "";
+
+    String prefix() default "";
 }

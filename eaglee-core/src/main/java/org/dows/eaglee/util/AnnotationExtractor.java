@@ -1,8 +1,13 @@
 package org.dows.eaglee.util;
 
+import org.dows.eaglee.notice.UriHeader;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 注解提取工具类
@@ -34,7 +39,12 @@ public class AnnotationExtractor {
                 // 提取注解的值
                 Object annotationValue = extractAnnotationValue(annotation);
                 try {
-                    result.get(annotationType).put(annotationValue.toString(),field.get(object) );
+                    if (annotationType == UriHeader.class) {
+                        UriHeader uriHeader = (UriHeader) annotation;
+                        result.get(annotationType).put(annotationValue.toString(), uriHeader.prefix() + field.get(object));
+                    } else {
+                        result.get(annotationType).put(annotationValue.toString(), field.get(object));
+                    }
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
