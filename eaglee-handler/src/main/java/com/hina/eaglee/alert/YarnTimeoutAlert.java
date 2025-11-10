@@ -4,7 +4,6 @@ package com.hina.eaglee.alert;
 import cn.hutool.json.JSONUtil;
 import com.hina.eaglee.dolphin.DolphinProperties;
 import com.hina.eaglee.dolphin.NoticeSetting;
-import com.hina.eaglee.notice.Markdown;
 import com.hina.eaglee.notice.NoticeClient;
 import com.hina.eaglee.notice.WechatMessage;
 import com.hina.eaglee.processor.StateProcessor;
@@ -34,7 +33,7 @@ public class YarnTimeoutAlert implements TaskAlert {
         }
         for (String wechatKey : noticeSetting.getWechatKeys()) {
             WechatMessage wechatMessage = new WechatMessage();
-            wechatMessage.setMarkdown(new Markdown(taskInfo));
+            wechatMessage.setMarkdown(new TaskAlertMarkdown(taskInfo));
             noticeClient.notice(wechatMessage);
             wechatMessage.setToken(wechatKey);
         }

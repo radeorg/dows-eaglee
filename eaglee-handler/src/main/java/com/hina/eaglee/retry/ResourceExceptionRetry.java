@@ -65,6 +65,8 @@ public class ResourceExceptionRetry implements TaskRetry {
         // todo 如果ds重试调用成功（返回成功），则更新任务状态为RETRYING
         if (result.contains("success")) {
             log.info("资源异常重试，任务：{}，重试成功", taskAlert.getTaskName());
+            // 重试成功后，移除重试计数器
+            retryCountMap.remove(taskAlert.getTaskName());
             //todo 记录或通知，暂时没有需求
         } else {
             // 递归调用，直到重试成功或重试次数用完

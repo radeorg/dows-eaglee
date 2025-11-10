@@ -1,8 +1,5 @@
 package com.hina.eaglee.notice;
 
-import lombok.Data;
-
-@Data
-public class Text {
-    private String content;
+public interface Text {
+    String getContent();
 }

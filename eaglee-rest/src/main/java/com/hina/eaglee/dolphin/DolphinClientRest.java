@@ -1,10 +1,9 @@
 package com.hina.eaglee.dolphin;
 
 import com.hina.eaglee.cluster.YarnApp;
-import com.hina.eaglee.notice.Markdown;
+import com.hina.eaglee.alert.TaskAlertMarkdown;
 import com.hina.eaglee.notice.NoticeClient;
 import com.hina.eaglee.notice.WechatMessage;
-import com.hina.eaglee.request.DolphinAlertRequest;
 import com.hina.eaglee.request.TaskInstancePageRequest;
 import com.hina.eaglee.request.TaskProcessPageRequest;
 import com.hina.eaglee.response.TaskInstanceResponse;
@@ -54,7 +53,7 @@ public class DolphinClientRest {
         taskInfo.setDolphinTask(dolphinTask);
 
         wechatMessage.setKey(chatMessage.getKey());
-        wechatMessage.setMarkdown(new Markdown(taskInfo));
+        wechatMessage.setMarkdown(new TaskAlertMarkdown(taskInfo));
         noticeClient.notice(wechatMessage);
     }
 

@@ -1,7 +1,7 @@
 package com.hina.eaglee.exception;
 
 import com.hina.eaglee.cluster.YarnApp;
-import com.hina.eaglee.notice.Markdown;
+import com.hina.eaglee.notice.TaskAlertMarkdown;
 import com.hina.eaglee.notice.NoticeClient;
 import com.hina.eaglee.notice.WechatMessage;
 import com.hina.eaglee.status.TaskInfo;
@@ -43,7 +43,7 @@ public class NoticeTest {
         taskInfo.setDuration("1m");
         taskInfo.setReason("测试失败");
         taskInfo.setS3LogUrl("https://s3.cn-north-1.amazonaws.com.cn/hina-eaglee-dev/123456/123456.log");*/
-        Markdown markdown = new Markdown(taskInfo);
+        TaskAlertMarkdown markdown = new TaskAlertMarkdown(taskInfo);
         System.out.println(markdown.getContent());
     }
 
