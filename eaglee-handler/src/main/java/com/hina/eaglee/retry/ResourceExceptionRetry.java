@@ -27,12 +27,12 @@ public class ResourceExceptionRetry implements TaskRetry {
     private final Map<String, Integer> retryCountMap = new ConcurrentHashMap<>();
     @Override
     public void retry(AlertInfo taskAlert) {
-        YarnApp yarnApp = new YarnApp();
+        /*YarnApp yarnApp = new YarnApp();
         yarnApp.setName(taskAlert.getTaskName());
         yarnApp.setApplicationType(taskAlert.getTaskType());
-        yarnApp.setId(taskAlert.getApplicationId());
+        yarnApp.setId(taskAlert.getApplicationId());*/
         // 获取任务规则中的重试次数，基于规则重试
-        TaskRuleSetting taskSetting = taskSettingHandler.getTaskSetting(yarnApp);
+        TaskRuleSetting taskSetting = taskSettingHandler.getTaskSetting(taskAlert.getTaskCode());
         if (taskSetting == null) {
             log.warn("资源异常重试，任务：{}，未配置任务规则", taskAlert.getTaskName());
             return;

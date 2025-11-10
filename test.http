@@ -1,0 +1,60 @@
+###
+POST http://localhost:8080/v1/open/router/submit
+Content-Type: application/json
+
+{
+  "rawData": "",
+  "appId": "",
+  "operatorId": 0,
+  "routerChannelId": 0,
+  "sessionType": 0,
+  "priority": 0
+}
+
+<> 2025-10-09T152427.400.json
+
+###
+GET http://localhost:8080/dolphin/process/page
+
+###
+POST http://localhost:18080/collect/dolphin/alert
+Content-Type: application/x-www-form-urlencoded
+
+{"projectCode":"11986638487424","projectName":"雷达-统一回溯","owner":"admin","processId":"861765","processDefinitionCode":"19558705647872","processName":"wf_DTGZZS_SSB_202511041306270_19558705646080_sdk_liuxinran-20251104130627871-1-20251104130628720","processType":"START_PROCESS","processState":"SUCCESS","modifyBy":"admin","recovery":"NO","runTimes":"1","processStartTime":"2025-11-04 13:06:28","processEndTime":"2025-11-04 15:30:28","processHost":"172.20.52.87:5678","processDuration":"2小时24分钟"}
+
+###
+POST http://localhost:18080/collect/dolphin/alert?
+    content=[{"projectCode":"11986638487424","projectName":"雷达-统一回溯","owner":"admin","processId":"861765","processDefinitionCode":"19558705647872","processName":"wf_DTGZZS_SSB_202511041306270_19558705646080_sdk_liuxinran-20251104130627871-1-20251104130628720","processType":"START_PROCESS","processState":"SUCCESS","modifyBy":"admin","recovery":"NO","runTimes":"1","processStartTime":"2025-11-04 13:06:28","processEndTime":"2025-11-04 15:30:28","processHost":"172.20.52.87:5678","processDuration":"2小时24分钟"}]
+
+###
+POST http://localhost:18080/collect/dolphin/alert?
+    content=[{"projectCode":"11986638487424","projectName":"雷达-统一回溯","owner":"admin","processId":"820941","processDefinitionCode":"19405397147648","processName":"wf_BCFSYDZ2_202510211624250_19405397145856_sdk_liuxinran-20251021162425208-1-20251021162426037","modifyBy":"admin","taskCode":"19405397144578","taskName":"wf_BCFSYDZ2_202510211624250_19405397144578","taskType":"SPARK","taskState":"FAILURE","taskStartTime":"2025-11-02 21:22:27","taskEndTime":"2025-11-03 02:27:56","taskHost":"172.20.52.89:1234","taskPriority":"medium","logPath":"https://s3-model.hinadt.com/BfXunXinDs/logs/20251021/19405397147648/1/820941/2268906.log","taskDuration":"5小时5分钟29秒","dsPatformUrl":"https://ds.xunxin-ai.com/dolphinscheduler","sparkJarPath":"dolphinscheduler/default/resources/spark/product-regress.jar"}]
+
+###
+POST http://localhost:18080/dolphin/task/notice
+Content-Type: application/json
+
+{
+  "key": "6aaa8e18-508e-4e13-b6ae-a442a3e84d48",
+  "msgtype": "text",
+  "content": "test"
+}
+
+<> 2025-11-06T195751.500.json
+
+###
+POST http://localhost:18080/dolphin/task/notice
+Content-Type: application/json
+
+{
+  "key": "6aaa8e18-508e-4e13-b6ae-a442a3e84d48",
+  "test": true,
+  "msgtype": "markdown",
+  "markdown": {
+    "content": "text"
+  }
+}
+
+<> 2025-11-07T113141.400.json
+<> 2025-11-07T112918.400.json
+<> 2025-11-07T112908.400.json

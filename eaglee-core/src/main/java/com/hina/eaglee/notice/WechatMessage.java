@@ -41,6 +41,8 @@ public class WechatMessage implements NoticeMessage {
     private String enable_duplicate_check;
     //1800
     private String duplicate_check_interval;
+    // 是否测试消息，测试消息不会发送到企业微信
+    private boolean test;
 
 
     public void setMarkdown(Markdown markdown) {

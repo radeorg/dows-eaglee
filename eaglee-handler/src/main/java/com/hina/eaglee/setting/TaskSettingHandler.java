@@ -34,7 +34,7 @@ public class TaskSettingHandler {
 
 
     /**
-     * 更新是调用，从数据库中刷新任务规则配置
+     * 更新时调用，从数据库中刷新任务规则配置
      *
      * @param taskCode
      */
@@ -46,10 +46,10 @@ public class TaskSettingHandler {
     }
 
     /**
-     * 获取任务规则配置
+     * 根据任务码获取任务规则配置
      *
-     * @param taskCode
-     * @return
+     * @param taskCode 任务码
+     * @return 任务规则配置
      */
     public TaskRuleSetting getTaskSetting(Long taskCode) {
         TaskRuleSetting taskRuleSetting = metricSettingMap.get(taskCode);
@@ -66,6 +66,36 @@ public class TaskSettingHandler {
             }
             taskRuleSetting = JsonConfig.fromJsonConfig(taskRuleEntity.getConfigJson(), TaskRuleSetting.class);
             metricSettingMap.put(taskCode, taskRuleSetting);
+            return taskRuleSetting;
+        }
+        return null;
+    }
+
+
+    /**
+     * 获取任务规则配置
+     *
+     * @param taskName 任务名称
+     * @param taskType 任务类型
+     * @return 任务规则配置
+     */
+    public TaskRuleSetting getTaskSetting(String taskName, String taskType) {
+        TaskRuleSetting taskRuleSetting = taskSettingMap.get(taskName);
+        if (taskRuleSetting != null) {
+            return taskRuleSetting;
+        }
+        QueryWrapper queryWrapper = QueryWrapper.create().from(TaskSettingEntity.class)
+                .and(TaskSettingEntity::getTaskType).eq(taskType)
+                .and(TaskSettingEntity::getTaskName).eq(taskName);
+
+        TaskSettingEntity one = taskSettingDao.getOne(queryWrapper);
+        if (one != null) {
+            TaskRuleEntity taskRuleEntity = taskRuleDao.getById(one.getTaskRuleId());
+            if (taskRuleEntity == null) {
+                return null;
+            }
+            taskRuleSetting = JsonConfig.fromJsonConfig(taskRuleEntity.getConfigJson(), TaskRuleSetting.class);
+            taskSettingMap.put(taskName, taskRuleSetting);
             return taskRuleSetting;
         }
         return null;

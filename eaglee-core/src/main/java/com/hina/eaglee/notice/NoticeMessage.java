@@ -11,11 +11,8 @@ import java.util.Map;
 public interface NoticeMessage {
 
 //    String getKey();
-
 //    String getMsgType();
-
-    //    Object getBody();
-//
+//    Object getBody();
 //    Object getHeader();
     default EndpointRequest getEndpoint() {
         Uri annotation = this.getClass().getAnnotation(Uri.class);

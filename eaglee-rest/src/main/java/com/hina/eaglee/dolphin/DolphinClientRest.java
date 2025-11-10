@@ -1,7 +1,7 @@
 package com.hina.eaglee.dolphin;
 
-import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.alert.TaskAlertMarkdown;
+import com.hina.eaglee.cluster.YarnApp;
 import com.hina.eaglee.notice.NoticeClient;
 import com.hina.eaglee.notice.WechatMessage;
 import com.hina.eaglee.request.TaskInstancePageRequest;
@@ -32,28 +32,32 @@ public class DolphinClientRest {
 
     @Operation(summary = "项目分页")
     @PostMapping("/dolphin/task/notice")
-    public void notice(@RequestBody WechatMessage chatMessage){
-        WechatMessage wechatMessage = new WechatMessage();
+    public void notice(@RequestBody WechatMessage wechatMessage) {
+        if (wechatMessage.isTest()) {
+            log.info("测试消息，不发送到企业微信");
 
-        TaskInfo taskInfo = new TaskInfo();
-        YarnApp yarnApp = new YarnApp();
-        yarnApp.setId("application_1234567890123456789");
-        yarnApp.setName("测试应用");
-        yarnApp.setState("RUNNING");
+            wechatMessage = new WechatMessage();
 
-        DolphinTask dolphinTask = new DolphinTask();
-        dolphinTask.setExecutorName("test");
+            TaskInfo taskInfo = new TaskInfo();
+            YarnApp yarnApp = new YarnApp();
+            yarnApp.setId("application_1234567890123456789");
+            yarnApp.setName("测试应用");
+            yarnApp.setState("RUNNING");
 
-        taskInfo.setDsLogUrl("https://ds-model.hinadt.com/logs/20251106/19581179526272/1/868701/2403356.log");
-        taskInfo.setS3LogUrl("https://s3-model.hinadt.com/BfXunXinDs/logs/20251106/19581179526272/1/868701/2403356.log");
-        taskInfo.addAssignees("hina");
-        taskInfo.setProjectCode(123456L);
-        taskInfo.setProjectName("测试项目");
-        taskInfo.setYarnApp(yarnApp);
-        taskInfo.setDolphinTask(dolphinTask);
+            DolphinTask dolphinTask = new DolphinTask();
+            dolphinTask.setExecutorName("test");
 
-        wechatMessage.setKey(chatMessage.getKey());
-        wechatMessage.setMarkdown(new TaskAlertMarkdown(taskInfo));
+            taskInfo.setDsLogUrl("https://ds-model.hinadt.com/logs/20251106/19581179526272/1/868701/2403356.log");
+            taskInfo.setS3LogUrl("https://s3-model.hinadt.com/BfXunXinDs/logs/20251106/19581179526272/1/868701/2403356.log");
+            taskInfo.addAssignees("hina");
+            taskInfo.setProjectCode(123456L);
+            taskInfo.setProjectName("测试项目");
+            taskInfo.setYarnApp(yarnApp);
+            taskInfo.setDolphinTask(dolphinTask);
+
+            wechatMessage.setKey(wechatMessage.getKey());
+            wechatMessage.setMarkdown(new TaskAlertMarkdown(taskInfo));
+        }
         noticeClient.notice(wechatMessage);
     }
 

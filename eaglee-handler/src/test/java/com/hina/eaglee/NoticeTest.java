@@ -1,7 +1,7 @@
-package com.hina.eaglee.exception;
+package com.hina.eaglee;
 
+import com.hina.eaglee.alert.TaskAlertMarkdown;
 import com.hina.eaglee.cluster.YarnApp;
-import com.hina.eaglee.notice.TaskAlertMarkdown;
 import com.hina.eaglee.notice.NoticeClient;
 import com.hina.eaglee.notice.WechatMessage;
 import com.hina.eaglee.status.TaskInfo;
