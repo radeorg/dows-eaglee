@@ -2,7 +2,7 @@ package org.dows.eaglee.dify;
 
 import lombok.Data;
 import org.dows.eaglee.dolphin.Uri;
-import org.dows.eaglee.exchange.ExchangeMessage;
+import org.dows.eaglee.exchange.ExchangeEntity;
 import org.dows.eaglee.notice.UriHeader;
 
 import java.util.Map;
@@ -29,7 +29,7 @@ import java.util.Map;
  */
 @Uri("post https://dify.hinadt.com/v1/chat-messages")
 @Data
-public class ChatMessage implements ExchangeMessage {
+public class ChatEntity implements ExchangeEntity {
 
     @UriHeader(value = "Authorization", prefix = "Bearer ")
     private String apiKey;

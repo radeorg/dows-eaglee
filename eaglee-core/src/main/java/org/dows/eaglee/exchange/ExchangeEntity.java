@@ -11,7 +11,7 @@ import org.springframework.http.HttpMethod;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
-public interface ExchangeMessage {
+public interface ExchangeEntity {
 
     //    String getKey();
 //    String getMsgType();
@@ -82,7 +82,7 @@ public interface ExchangeMessage {
         return exchangeRequest;
     }
 
-    default <T extends ExchangeMessage> T toRequestEntity(Class<T> noticeRequestClass) {
+    default <T extends ExchangeEntity> T toRequestEntity(Class<T> noticeRequestClass) {
         return noticeRequestClass.cast(this);
     }
 }

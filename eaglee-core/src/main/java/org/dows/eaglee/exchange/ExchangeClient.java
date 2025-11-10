@@ -18,7 +18,7 @@ public class ExchangeClient {
 
     private final RestTemplate restTemplate;
 
-    public <T> T exchange(ExchangeMessage message, Class<T> responseType) {
+    public <T> T exchange(ExchangeEntity message, Class<T> responseType) {
         log.info("exchange message: {}", message);
         ExchangeRequest endpoint = message.getRequest();
 
@@ -70,7 +70,7 @@ public class ExchangeClient {
      * @return
      * @param <T>
      */
-    public <T> T streamExchange(ExchangeMessage message, Class<T> responseType) {
+    public <T> T streamExchange(ExchangeEntity message, Class<T> responseType) {
         log.info("exchange message: {}", message);
         ExchangeRequest endpoint = message.getRequest();
 

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.dows.eaglee.exchange.ExchangeMessage;
+import org.dows.eaglee.exchange.ExchangeEntity;
 import org.dows.eaglee.exchange.ExchangeRequest;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class DifyClient {
 
     private final ObjectMapper objectMapper ;
 
-    public <T> T exchange(ExchangeMessage message, Class<T> responseType) {
+    public <T> T exchange(ExchangeEntity message, Class<T> responseType) {
 
         log.info("notice message: {}", message);
         ExchangeRequest exchangeRequest = message.getRequest();
