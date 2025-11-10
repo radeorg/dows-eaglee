@@ -40,9 +40,9 @@ INSERT INTO `task_config` (`config_name`, `config_key`, `config_value`, `config_
 
 -- 缓存相关配置
 INSERT INTO `task_config` (`config_name`, `config_key`, `config_value`, `config_desc`, `config_type`, `enabled`, `cid`) VALUES
-('缓存类型', 'cache.type', 'caffeine', '缓存实现类型：redis, caffeine, none', 'string', 1, 1),
-('默认缓存过期时间', 'cache.default.ttl', '30', '默认缓存过期时间，单位：分钟', 'number', 1, 1),
-('最大缓存条目数', 'cache.max.size', '10000', '内存缓存的最大条目数', 'number', 1, 1);
+('缓存类型', 'setting.type', 'caffeine', '缓存实现类型：redis, caffeine, none', 'string', 1, 1),
+('默认缓存过期时间', 'setting.default.ttl', '30', '默认缓存过期时间，单位：分钟', 'number', 1, 1),
+('最大缓存条目数', 'setting.max.size', '10000', '内存缓存的最大条目数', 'number', 1, 1);
 
 -- 告警相关配置
 INSERT INTO `task_config` (`config_name`, `config_key`, `config_value`, `config_desc`, `config_type`, `enabled`, `cid`) VALUES

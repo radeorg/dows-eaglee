@@ -5,7 +5,7 @@
 #    #    username: sa
 #    #    password:
 #    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:13306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+#    url: jdbc:mysql://localhost:13306/dows_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
 #    username: root
 #    password: 123456
 #    hikari:
@@ -19,13 +19,13 @@
 #      leak-detection-threshold: 0  # 关闭泄漏检测以减少开销
 
 mybatis-flex:
-  default-datasource-key: hina_eaglee
+  default-datasource-key: dows_eaglee
   datasource:
-    hina_eaglee:
+    dows_eaglee:
       type: com.zaxxer.hikari.HikariDataSource
-      url: jdbc:mysql://10.254.46.135:3306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-      username: hinadt_write
-      password: hinadt@123
+      url: jdbc:mysql://10.254.46.135:3306/dows_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      username: dowsdt_write
+      password: dowsdt@123
       # 连接池基础配置
       maximum-pool-size: 10          # 减少最大连接数
       minimum-idle: 2               # 减少最小空闲连接
@@ -37,8 +37,8 @@ mybatis-flex:
     dolphinscheduler:
       type: com.zaxxer.hikari.HikariDataSource
       url: jdbc:mysql://10.254.46.135:3306/dolphinscheduler_prd?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-      username: hinadt_write
-      password: hinadt@123
+      username: dowsdt_write
+      password: dowsdt@123
       # 连接池基础配置
       maximum-pool-size: 10          # 减少最大连接数
       minimum-idle: 2               # 减少最小空闲连接
@@ -59,9 +59,9 @@ spring:
 #    #    username: sa
 #    #    password:
 #    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://10.254.46.135:3306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-#    username: hinadt_write
-#    password: hinadt@123
+#    url: jdbc:mysql://10.254.46.135:3306/dows_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+#    username: dowsdt_write
+#    password: dowsdt@123
 #    hikari:
 #      # 连接池基础配置
 #      maximum-pool-size: 10          # 减少最大连接数
@@ -84,7 +84,7 @@ spring:
     #    username: sa
     #    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:13306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:13306/dows_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
     hikari:
@@ -108,7 +108,7 @@ spring:
     #    username: sa
     #    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:13306/hina_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:13306/dows_eaglee?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
     hikari:

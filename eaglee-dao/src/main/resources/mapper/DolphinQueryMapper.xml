@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hina.eaglee.mapper.DolphinQueryMapper">
+<mapper namespace="org.dows.eaglee.mapper.DolphinQueryMapper">
 
     <select id="queryProcessInstanceForCount" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM (
@@ -34,7 +34,7 @@
         ) AS temp
 
     </select>
-    <select id="queryProcessInstanceForPage" resultType="com.hina.eaglee.response.TaskProcessResponse">
+    <select id="queryProcessInstanceForPage" resultType="org.dows.eaglee.response.TaskProcessResponse">
         SELECT
             pi.id as processInstanceId,
             pi.name AS processInstanceName,
@@ -76,7 +76,7 @@
 
 
     <select id="listDolphinTaskInstanceByProcessInstanceId"
-            resultType="com.hina.eaglee.response.TaskInstanceResponse">
+            resultType="org.dows.eaglee.response.TaskInstanceResponse">
         SELECT
             ti.id AS taskInstanceId,
             ti.app_link AS applicationId,
@@ -125,7 +125,7 @@
         </if>
     </select>
 
-    <select id="queryTaskInstanceForPage" resultType="com.hina.eaglee.response.TaskInstanceResponse">
+    <select id="queryTaskInstanceForPage" resultType="org.dows.eaglee.response.TaskInstanceResponse">
         SELECT
             ti.id AS taskInstanceId,
             ti.app_link AS applicationId,
@@ -197,7 +197,7 @@
 
 
     <select id="listTaskDefinitionByProjectCodeFromTaskDefinition"
-            resultType="com.hina.eaglee.dolphin.DolphinTaskDefinition">
+            resultType="org.dows.eaglee.dolphin.DolphinTaskDefinition">
         SELECT
             td.id AS taskId,
             td.name AS taskName,
@@ -208,7 +208,7 @@
         WHERE td.project_code = #{projectCode}
     </select>
 
-    <select id="findProjectByProjectName" resultType="com.hina.eaglee.response.TaskProjectResponse">
+    <select id="findProjectByProjectName" resultType="org.dows.eaglee.response.TaskProjectResponse">
         SELECT
             p.id AS projectId,
             p.name AS projectName,
@@ -220,7 +220,7 @@
         </if>
     </select>
 
-    <select id="listTaskByProcessInstanceId" resultType="com.hina.eaglee.response.TaskInstanceResponse">
+    <select id="listTaskByProcessInstanceId" resultType="org.dows.eaglee.response.TaskInstanceResponse">
 
     </select>
 

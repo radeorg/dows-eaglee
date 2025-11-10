@@ -17,7 +17,7 @@ spring:
 logging:
   level:
     root: INFO
-    com.hina.cloud.eaglee: DEBUG
+    org.dows.cloud.eaglee: DEBUG
     com.mybatisflex: DEBUG
     org.springframework.web: DEBUG
     org.springframework.transaction: DEBUG

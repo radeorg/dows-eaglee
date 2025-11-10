@@ -1,0 +1,59 @@
+package org.dows.eaglee.notice;
+
+import org.dows.eaglee.annotation.Skip;
+import org.dows.eaglee.dolphin.Uri;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+
+@Uri("post https://qyapi.weixin.qq.com/cgi-bin/webhook/send")
+@Data
+public class WechatMessage implements NoticeMessage {
+    // 遇到skip 跳过或忽略该参数
+    @Skip
+    // 该注解会将参数名和对应的值追加到请求的 URL 中
+    @UriParam("key")
+    private String key;
+
+    @Schema(description = "消息类型[text, markdown, news, image, voice, video, file]")
+    private String msgtype;
+
+    //@UriBody("text")
+    @UriHeader
+    private String token;
+
+    @Schema(description = "文本消息")
+    private Text text;
+
+    private Markdown markdown;
+    //"UserID1|UserID2|UserID3",
+    private String touser;
+    //"PartyID1|PartyID2",
+    private String toparty;
+    //"TagID1 | TagID2",
+    private String totag;
+    // 1
+    private String agentid;
+    //0
+    private String safe;
+    // 0
+    private String enable_id_trans;
+    //0
+    private String enable_duplicate_check;
+    //1800
+    private String duplicate_check_interval;
+    // 是否测试消息，测试消息不会发送到企业微信
+    private boolean test;
+
+
+    public void setMarkdown(Markdown markdown) {
+        this.msgtype = Markdown.class.getSimpleName().toLowerCase();
+        this.markdown = markdown;
+    }
+
+
+    public void setText(Text text) {
+        this.msgtype = Text.class.getSimpleName().toLowerCase();
+        this.text = text;
+    }
+
+}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hina.eaglee.mapper.TaskConfigMapper">
+<mapper namespace="org.dows.eaglee.mapper.TaskConfigMapper">
 
     <!-- 根据配置键查询任务配置 -->
-    <select id="selectByConfigKey" resultType="com.hina.eaglee.entity.TaskConfigEntity">
+    <select id="selectByConfigKey" resultType="org.dows.eaglee.entity.TaskConfigEntity">
         SELECT * FROM task_config 
         WHERE config_key = #{configKey} 
         AND deleted = false
@@ -11,7 +11,7 @@
     </select>
 
     <!-- 根据配置类型查询任务配置列表 -->
-    <select id="selectByConfigType" resultType="com.hina.eaglee.entity.TaskConfigEntity">
+    <select id="selectByConfigType" resultType="org.dows.eaglee.entity.TaskConfigEntity">
         SELECT * FROM task_config 
         WHERE config_type = #{configType} 
         AND deleted = false
@@ -19,7 +19,7 @@
     </select>
 
     <!-- 查询启用的任务配置列表 -->
-    <select id="selectEnabledConfigs" resultType="com.hina.eaglee.entity.TaskConfigEntity">
+    <select id="selectEnabledConfigs" resultType="org.dows.eaglee.entity.TaskConfigEntity">
         SELECT * FROM task_config 
         WHERE enabled = true 
         AND deleted = false
@@ -61,7 +61,7 @@
     </insert>
 
     <!-- 根据配置键列表查询任务配置 -->
-    <select id="selectByConfigKeys" resultType="com.hina.eaglee.entity.TaskConfigEntity">
+    <select id="selectByConfigKeys" resultType="org.dows.eaglee.entity.TaskConfigEntity">
         SELECT * FROM task_config 
         WHERE config_key IN
         <foreach collection="configKeys" item="key" open="(" separator="," close=")">

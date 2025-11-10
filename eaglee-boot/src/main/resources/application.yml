@@ -101,7 +101,7 @@ spring:
 # MyBatis-Flex配置
 mybatis-flex:
   mapper-locations: classpath*:/mapper/**/*.xml
-  type-aliases-package: com.hina.eaglee.entity
+  type-aliases-package: org.dows.eaglee.entity
   configuration:
     map-underscore-to-camel-case: true
     cache-enabled: true
@@ -130,7 +130,7 @@ mybatis-flex:
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
-    com.hina.cloud.eaglee: ${LOG_LEVEL_EAGLEE:DEBUG}
+    org.dows.cloud.eaglee: ${LOG_LEVEL_EAGLEE:DEBUG}
     com.mybatisflex: ${LOG_LEVEL_MYBATIS:INFO}
     org.springframework.web: ${LOG_LEVEL_WEB:INFO}
     org.springframework.security: ${LOG_LEVEL_SECURITY:INFO}
@@ -216,7 +216,7 @@ springdoc:
     - group: 'eaglee-api'
       display-name: '鹰眼监控系统API'
       paths-to-match: '/api/**'
-      packages-to-scan: 'com.hina.cloud.eaglee.rest'
+      packages-to-scan: 'org.dows.cloud.eaglee.rest'
 
 # 自定义配置
 eaglee:

@@ -26,7 +26,7 @@ spring:
       enabled: false
 
 server:
-  port: 18080
+  port: 28080
   servlet:
 #    context-path: /api
     # cookie 30 天过期
@@ -46,19 +46,19 @@ springdoc:
   group-configs:
     - group: '系统配置'
       paths-to-match: '/**'
-      packages-to-scan: com.hina.eaglee.config
+      packages-to-scan: org.dows.eaglee.config
     - group: '数据采集'
       paths-to-match: '/**'
-      packages-to-scan: com.hina.eaglee.collect
+      packages-to-scan: org.dows.eaglee.collect
     - group: '数据管理'
       paths-to-match: '/**'
-      packages-to-scan: com.hina.eaglee.manage
+      packages-to-scan: org.dows.eaglee.manage
     - group: '数据度量'
       paths-to-match: '/**'
-      packages-to-scan: com.hina.eaglee.metric
+      packages-to-scan: org.dows.eaglee.metric
     - group: 'dolphin'
       paths-to-match: '/**'
-      packages-to-scan: com.hina.eaglee.dolphin
+      packages-to-scan: org.dows.eaglee.dolphin
   paths-to-match: '/**'
 
 

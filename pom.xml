@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.hina.cloud</groupId>
-    <artifactId>hina-eaglee</artifactId>
+    <groupId>org.dows.cloud</groupId>
+    <artifactId>dows-eaglee</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>hina-eaglee</name>
+    <name>dows-eaglee</name>
     <description>鹰眼监控系统</description>
 
     <properties>
@@ -52,47 +52,47 @@
 
 
             <dependency>
-                <groupId>com.hina.cloud</groupId>
+                <groupId>org.dows.cloud</groupId>
                 <artifactId>eaglee-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hina.cloud</groupId>
+                <groupId>org.dows.cloud</groupId>
                 <artifactId>eaglee-app</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hina.cloud</groupId>
+                <groupId>org.dows.cloud</groupId>
                 <artifactId>eaglee-biz</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hina.cloud</groupId>
+                <groupId>org.dows.cloud</groupId>
                 <artifactId>eaglee-boot</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hina.cloud</groupId>
+                <groupId>org.dows.cloud</groupId>
                 <artifactId>eaglee-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hina.cloud</groupId>
+                <groupId>org.dows.cloud</groupId>
                 <artifactId>eaglee-dao</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hina.cloud</groupId>
+                <groupId>org.dows.cloud</groupId>
                 <artifactId>eaglee-handler</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hina.cloud</groupId>
+                <groupId>org.dows.cloud</groupId>
                 <artifactId>eaglee-rest</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hina.cloud</groupId>
+                <groupId>org.dows.cloud</groupId>
                 <artifactId>eaglee-rpc</artifactId>
                 <version>${project.version}</version>
             </dependency>

@@ -22,5 +22,5 @@ mybatis-flex:
 
 logging:
   level:
-    com.hina.eaglee.mapper: DEBUG
+    org.dows.eaglee.mapper: DEBUG
     org.springframework.jdbc: DEBUG

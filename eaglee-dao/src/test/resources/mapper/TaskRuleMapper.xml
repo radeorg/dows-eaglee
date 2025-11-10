@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hina.eaglee.mapper.TaskRuleMapper">
+<mapper namespace="org.dows.eaglee.mapper.TaskRuleMapper">
 
     <!-- 根据规则类型查询任务规则列表 -->
-    <select id="selectByRuleType" resultType="com.hina.eaglee.entity.TaskRuleEntity">
+    <select id="selectByRuleType" resultType="org.dows.eaglee.entity.TaskRuleEntity">
         SELECT * FROM task_rule 
         WHERE rule_type = #{ruleType} 
         AND deleted = false
@@ -11,7 +11,7 @@
     </select>
 
     <!-- 根据应用类型查询任务规则列表 -->
-    <select id="selectByApplicationType" resultType="com.hina.eaglee.entity.TaskRuleEntity">
+    <select id="selectByApplicationType" resultType="org.dows.eaglee.entity.TaskRuleEntity">
         SELECT * FROM task_rule 
         WHERE application_type = #{applicationType} 
         AND deleted = false
@@ -19,7 +19,7 @@
     </select>
 
     <!-- 查询启用的任务规则列表，按优先级排序 -->
-    <select id="selectEnabledRulesOrderByPriority" resultType="com.hina.eaglee.entity.TaskRuleEntity">
+    <select id="selectEnabledRulesOrderByPriority" resultType="org.dows.eaglee.entity.TaskRuleEntity">
         SELECT * FROM task_rule 
         WHERE enabled = true 
         AND deleted = false
@@ -27,7 +27,7 @@
     </select>
 
     <!-- 根据规则类型和应用类型查询任务规则列表 -->
-    <select id="selectByRuleTypeAndApplicationType" resultType="com.hina.eaglee.entity.TaskRuleEntity">
+    <select id="selectByRuleTypeAndApplicationType" resultType="org.dows.eaglee.entity.TaskRuleEntity">
         SELECT * FROM task_rule 
         WHERE rule_type = #{ruleType} 
         AND application_type = #{applicationType}

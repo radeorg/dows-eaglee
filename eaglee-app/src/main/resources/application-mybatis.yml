@@ -5,7 +5,7 @@ mybatis-flex:
   #  configuration:
   #MyBatis Mapper 所对应的 XML 文件位置，如果在 Mapper 中有自定义的方法（XML 中有自定义的实现），需要进行该配置，指定 Mapper 所对应的 XML 文件位置
 #  mapper-locations: [ "classpath:mapper/*.xml" ]
-  type-aliases-package: com.hina.eaglee.entity
+  type-aliases-package: org.dows.eaglee.entity
   global-config:
     print-banner: false
 
@@ -25,7 +25,7 @@ auto-table:
   # 建表的时候，父类的字段排序是在子类后面还是前面
   superInsertPosition: before
   # 模型包路径
-  model-package: com.hina.eaglee.entity
+  model-package: org.dows.eaglee.entity
 
 # Rade相关配置
 rade:
@@ -48,7 +48,7 @@ auto-table:
   # 建表的时候，父类的字段排序是在子类后面还是前面
   superInsertPosition: before
   # 模型包路径
-  model-package: com.hina.eaglee.entity
+  model-package: org.dows.eaglee.entity
 
 # Rade相关配置
 rade:
@@ -71,4 +71,4 @@ auto-table:
   # 建表的时候，父类的字段排序是在子类后面还是前面
   superInsertPosition: before
   # 模型包路径
-  model-package: com.hina.eaglee.entity
+  model-package: org.dows.eaglee.entity

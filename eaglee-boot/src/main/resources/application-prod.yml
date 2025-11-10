@@ -17,7 +17,7 @@ spring:
 logging:
   level:
     root: WARN
-    com.hina.cloud.eaglee: INFO
+    org.dows.cloud.eaglee: INFO
     com.mybatisflex: WARN
     org.springframework.web: WARN
   file:

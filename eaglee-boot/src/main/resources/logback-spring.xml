@@ -100,18 +100,18 @@
     </appender>
     
     <!-- 特定Logger配置 -->
-    <logger name="com.hina.cloud.eaglee.biz" level="INFO" additivity="false">
+    <logger name="org.dows.cloud.eaglee.biz" level="INFO" additivity="false">
         <appender-ref ref="BUSINESS_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
     
-    <logger name="com.hina.cloud.eaglee.performance" level="INFO" additivity="false">
+    <logger name="org.dows.cloud.eaglee.performance" level="INFO" additivity="false">
         <appender-ref ref="PERFORMANCE_FILE"/>
     </logger>
     
     <!-- SQL日志配置 -->
     <springProfile name="dev,test">
-        <logger name="com.hina.eaglee.mapper" level="DEBUG"/>
+        <logger name="org.dows.eaglee.mapper" level="DEBUG"/>
         <logger name="com.mybatisflex" level="DEBUG"/>
     </springProfile>
     

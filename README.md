@@ -11,7 +11,7 @@ sentinel控台 http://10.0.19.5:8000/
 
 # 项目介绍
 ## 文件结构
-com.hina.cloud.service为项目的根文件目录
+org.dows.cloud.service为项目的根文件目录
 
 根文件目录下有springboot启动类，springboot默认扫描启动类所在文件目录及子文件目录
 

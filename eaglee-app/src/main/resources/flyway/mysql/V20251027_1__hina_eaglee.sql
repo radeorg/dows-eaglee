@@ -1,6 +1,6 @@
--- 数据库：hina_eaglee
-CREATE DATABASE IF NOT EXISTS `hina_eaglee` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `hina_eaglee`;
+-- 数据库：dows_eaglee
+CREATE DATABASE IF NOT EXISTS `dows_eaglee` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `dows_eaglee`;
 
 -- 1. 任务项目表
 CREATE TABLE IF NOT EXISTS `task_project` (

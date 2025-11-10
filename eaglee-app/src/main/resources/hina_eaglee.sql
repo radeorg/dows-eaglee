@@ -5,7 +5,7 @@
  Source Server Type    : MySQL
  Source Server Version : 90300 (9.3.0)
  Source Host           : localhost:13306
- Source Schema         : hina_eaglee
+ Source Schema         : dows_eaglee
 
  Target Server Type    : MySQL
  Target Server Version : 90300 (9.3.0)

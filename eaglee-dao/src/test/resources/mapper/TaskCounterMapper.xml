@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hina.eaglee.mapper.TaskCounterMapper">
+<mapper namespace="org.dows.eaglee.mapper.TaskCounterMapper">
 
     <!-- 根据任务标识查询任务计数器 -->
-    <select id="selectByTaskIdentifier" resultType="com.hina.eaglee.entity.TaskCounterEntity">
+    <select id="selectByTaskIdentifier" resultType="org.dows.eaglee.entity.TaskCounterEntity">
         SELECT * FROM task_counter 
         WHERE task_identifier = #{taskIdentifier}
           AND deleted = 0
@@ -79,7 +79,7 @@
     </update>
 
     <!-- 根据任务标识列表查询任务计数器 -->
-    <select id="selectByTaskIdentifiers" resultType="com.hina.eaglee.entity.TaskCounterEntity">
+    <select id="selectByTaskIdentifiers" resultType="org.dows.eaglee.entity.TaskCounterEntity">
         SELECT * FROM task_counter 
         WHERE task_identifier IN
         <foreach collection="taskIdentifiers" item="item" open="(" separator="," close=")">
@@ -105,7 +105,7 @@
     </update>
 
     <!-- 查询所有活跃的任务计数器 -->
-    <select id="selectActiveCounters" resultType="com.hina.eaglee.entity.TaskCounterEntity">
+    <select id="selectActiveCounters" resultType="org.dows.eaglee.entity.TaskCounterEntity">
         SELECT * FROM task_counter 
         WHERE deleted = 0
           AND total_count > 0

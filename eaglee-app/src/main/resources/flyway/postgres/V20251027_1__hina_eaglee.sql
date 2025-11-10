@@ -1,4 +1,4 @@
--- 数据库：hina_eaglee（PostgreSQL 版本）
+-- 数据库：dows_eaglee（PostgreSQL 版本）
 -- 如使用自定义 schema，可把 public 替换为 target_schema
 
 -- 1. 任务项目表

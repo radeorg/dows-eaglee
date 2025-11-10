@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hina.eaglee.mapper.TaskInstanceMapper">
+<mapper namespace="org.dows.eaglee.mapper.TaskInstanceMapper">
 
     <!-- 更新任务实例状态和结束时间 -->
     <update id="updateStateAndEndTime">
@@ -39,7 +39,7 @@
     </insert>
 
     <!-- 根据任务项目ID查询任务实例列表 -->
-    <select id="selectByTaskProjectId" resultType="com.hina.eaglee.entity.TaskInstanceEntity">
+    <select id="selectByTaskProjectId" resultType="org.dows.eaglee.entity.TaskInstanceEntity">
         SELECT * FROM task_instance 
         WHERE task_project_id = #{taskProjectId}
           AND deleted = 0
@@ -47,7 +47,7 @@
     </select>
 
     <!-- 根据任务标识查询任务实例列表 -->
-    <select id="selectByTaskIdentifier" resultType="com.hina.eaglee.entity.TaskInstanceEntity">
+    <select id="selectByTaskIdentifier" resultType="org.dows.eaglee.entity.TaskInstanceEntity">
         SELECT * FROM task_instance 
         WHERE task_identifier = #{taskIdentifier}
           AND deleted = 0
@@ -55,7 +55,7 @@
     </select>
 
     <!-- 根据状态查询任务实例列表 -->
-    <select id="selectByState" resultType="com.hina.eaglee.entity.TaskInstanceEntity">
+    <select id="selectByState" resultType="org.dows.eaglee.entity.TaskInstanceEntity">
         SELECT * FROM task_instance 
         WHERE state = #{state}
           AND deleted = 0
@@ -63,7 +63,7 @@
     </select>
 
     <!-- 查询正在运行的任务实例 -->
-    <select id="selectRunningInstances" resultType="com.hina.eaglee.entity.TaskInstanceEntity">
+    <select id="selectRunningInstances" resultType="org.dows.eaglee.entity.TaskInstanceEntity">
         SELECT * FROM task_instance 
         WHERE state = 1
           AND deleted = 0
